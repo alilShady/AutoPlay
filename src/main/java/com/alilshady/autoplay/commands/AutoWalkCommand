@@ -1,0 +1,84 @@
+package com.alilshady.autoplay.commands;
+
+import com.alilshady.autoplay.AutoPlay;
+import org.bukkit.ChatColor;
+import org.bukkit.command.Command;
+import org.bukkit.command.CommandExecutor;
+import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
+import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.scheduler.BukkitTask;
+import org.bukkit.util.Vector;
+
+import java.util.HashMap;
+import java.util.UUID;
+
+public class AutoWalkCommand implements CommandExecutor {
+
+    // 1. Chuyển các biến quản lý từ lớp chính sang đây
+    private final AutoPlay plugin;
+    private final HashMap<UUID, BukkitTask> autoWalkTasks = new HashMap<>();
+
+    // Constructor để lấy thể hiện (instance) của lớp plugin chính
+    public AutoWalkCommand(AutoPlay plugin) {
+        this.plugin = plugin;
+    }
+
+    @Override
+    public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+        if (!(sender instanceof Player)) {
+            sender.sendMessage("Lệnh này chỉ có thể được sử dụng bởi người chơi.");
+            return true;
+        }
+
+        Player player = (Player) sender;
+        UUID playerUUID = player.getUniqueId();
+
+        // 2. Toàn bộ logic xử lý lệnh /autowalk được chuyển vào đây
+        if (autoWalkTasks.containsKey(playerUUID)) {
+            autoWalkTasks.get(playerUUID).cancel();
+            autoWalkTasks.remove(playerUUID);
+            player.sendMessage(ChatColor.RED + "Đã tắt chế độ tự động đi.");
+        } else {
+            player.sendMessage(ChatColor.GREEN + "Đã bật chế độ tự động đi. Gõ lại /autowalk để dừng.");
+
+            BukkitTask task = new BukkitRunnable() {
+                @Override
+                public void run() {
+                    if (!player.isOnline() || player.isDead()) {
+                        cancelAndRemoveTask();
+                        return;
+                    }
+                    Vector direction = player.getLocation().getDirection();
+                    direction.setY(0).normalize().multiply(0.25);
+                    player.setVelocity(direction);
+                }
+
+                // Ghi đè phương thức cancel để đảm bảo xóa task khỏi HashMap
+                @Override
+                public synchronized void cancel() throws IllegalStateException {
+                    super.cancel();
+                    autoWalkTasks.remove(playerUUID);
+                }
+
+                private void cancelAndRemoveTask() {
+                    if (autoWalkTasks.containsKey(playerUUID)) {
+                        autoWalkTasks.get(playerUUID).cancel();
+                    }
+                }
+
+            }.runTaskTimer(plugin, 0L, 1L); // Dùng 'plugin' đã được truyền vào
+
+            autoWalkTasks.put(playerUUID, task);
+        }
+        return true;
+    }
+
+    // Thêm một phương thức để lớp chính có thể gọi khi plugin bị tắt
+    public void stopAllTasks() {
+        for (BukkitTask task : autoWalkTasks.values()) {
+            task.cancel();
+        }
+        autoWalkTasks.clear();
+    }
+}
