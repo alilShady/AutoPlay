@@ -1,22 +1,6 @@
-# Tên của plugin, sẽ hiển thị khi bạn dùng lệnh /plugins
-name: AutoPlay
-
-# Phiên bản của plugin
+name: TuTienTranPhap
 version: 1.0
-
-# Tên tác giả
-author: slilShady
-
-# Lớp Java chính điều khiển toàn bộ plugin.
-# Thay 'com.yourdomain.autoplay' bằng gói (package) của bạn.
-main: com.alilshady.autoplay.AutoPlay
-
-# Phiên bản API của máy chủ mà plugin được xây dựng cho.
-# 1.18, 1.19, 1.20 đều là những lựa chọn phổ biến.
-api-version: 1.20
-
-# Khai báo các lệnh mà plugin sẽ sử dụng
-commands:
-  autowalk:
-    description: Bật/tắt chế độ tự động đi về phía trước.
-    usage: "/<command>"
+main: com.alilshady.tutientranphap.TuTienTranPhap
+api-version: 1.16
+author: AlilShady
+description: Một hệ thống Trận Pháp (Tu tiên) có khả năng tùy chỉnh cao.

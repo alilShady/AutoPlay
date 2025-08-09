@@ -1,3 +1,7 @@
-com\alilshady\autoplay\commands\AutoWalkCommand.class
-com\alilshady\autoplay\commands\AutoWalkCommand$1.class
-com\alilshady\autoplay\AutoPlay.class
+com\alilshady\tutientranphap\managers\EffectHandler$1.class
+com\alilshady\tutientranphap\managers\ConfigManager.class
+com\alilshady\tutientranphap\listeners\ActivationListener.class
+com\alilshady\tutientranphap\managers\FormationManager.class
+com\alilshady\tutientranphap\object\Formation.class
+com\alilshady\tutientranphap\managers\EffectHandler.class
+com\alilshady\tutientranphap\TuTienTranPhap.class

@@ -1,0 +1,74 @@
+# ----------------------------------------------------
+#  Tệp cấu hình Trận Pháp cho plugin TuTienTranPhap
+# ----------------------------------------------------
+#
+# CÁCH ĐỊNH NGHĨA MỘT TRẬN PHÁP:
+#
+# ten-tran-phap-id: (Đây là ID nội bộ, không có dấu cách, viết thường)
+#   display_name: "&a&lTên Hiển Thị" (Tên trong game, hỗ trợ mã màu)
+#   activation_item: "DIAMOND" (Vật phẩm kích hoạt, xem tên Material của Spigot)
+#   duration_seconds: 3600 (Thời gian hiệu lực tính bằng giây)
+#   radius: 15 (Bán kính ảnh hưởng)
+#   pattern:
+#     key:
+#       X: "BEACON" (Định nghĩa ký tự 'X' là khối Beacon - Trận Nhãn)
+#       P: "LAPIS_BLOCK" (Định nghĩa ký tự 'P' là khối Lapis - Trận Bàn)
+#     shape: (Mô hình trận pháp, nhìn từ trên xuống, mỗi dòng là một hàng)
+#       - "  P  "
+#       - " PXP "
+#       - "  P  "
+#   effects:
+#     - type: "POTION" (Loại hiệu ứng)
+#       target: "PLAYERS" (Mục tiêu: PLAYERS, HOSTILE_MOBS, ALL)
+#       potion_effect: "REGENERATION" (Tên hiệu ứng thuốc)
+#       amplifier: 0 (Cấp độ: 0 = Cấp I, 1 = Cấp II...)
+#
+# CÁC LOẠI HIỆU ỨNG (type) HIỆN CÓ:
+# - POTION: Áp dụng hiệu ứng thuốc.
+# - PARTICLE_SHIELD: Tạo lá chắn hạt.
+# - CROP_GROWTH: Tăng tốc độ cây trồng.
+# ----------------------------------------------------
+
+tu-linh-tran:
+  display_name: "&a&lTụ Linh Trận"
+  activation_item: "DIAMOND"
+  duration_seconds: 3600
+  radius: 15
+  pattern:
+    key:
+      X: "BEACON"
+      P: "LAPIS_BLOCK"
+    shape:
+      - "  P  "
+      - " PXP "
+      - "  P  "
+  effects:
+    - type: "POTION"
+      target: "PLAYERS"
+      potion_effect: "REGENERATION"
+      amplifier: 0
+    - type: "CROP_GROWTH"
+      multiplier: 2.0
+
+kim-cang-tran:
+  display_name: "&e&lKim Cang Hộ Thể Trận"
+  activation_item: "NETHERITE_INGOT"
+  duration_seconds: 1800
+  radius: 20
+  pattern:
+    key:
+      X: "OBSIDIAN"
+      P: "CHISELED_QUARTZ_BLOCK"
+    shape:
+      - "PPPPP"
+      - "P   P"
+      - "P X P"
+      - "P   P"
+      - "PPPPP"
+  effects:
+    - type: "PARTICLE_SHIELD"
+      particle_type: "FLAME"
+    - type: "POTION"
+      target: "HOSTILE_MOBS"
+      potion_effect: "WEAKNESS"
+      amplifier: 1
