@@ -7,9 +7,13 @@ description: Một hệ thống Trận Pháp (Tu tiên) có khả năng tùy ch�
 commands:
   tutientranphap:
     description: Lệnh chính của plugin TuTienTranPhap.
-    usage: /<command> reload
+    usage: /<command> [reload|give]
     aliases: [tranphap, tttp]
 permissions:
   tutientranphap.reload:
     description: Cho phép người dùng tải lại cấu hình của plugin.
+    default: op
+  # Thêm permission mới cho lệnh give
+  tutientranphap.give:
+    description: Cho phép người dùng lấy Trận Đồ.
     default: op

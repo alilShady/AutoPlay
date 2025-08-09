@@ -1,0 +1,36 @@
+# ----------------------------------------------------
+#  Tệp tin nhắn cho plugin TuTienTranPhap
+# ----------------------------------------------------
+#
+# Hướng dẫn:
+# - Bạn có thể sử dụng mã màu với ký tự '&'. Ví dụ: '&aXin chào'
+# - Các biến thay thế (placeholder) được đặt trong dấu %. Ví dụ: %player%
+# ----------------------------------------------------
+
+# Tin nhắn chung
+prefix: "&7[&eTTTP&7] "
+
+# Lệnh /tranphap
+commands:
+  reload:
+    success: "&aPlugin đã được tải lại thành công!"
+    no-permission: "&cBạn không có quyền sử dụng lệnh này."
+  # --- TIN NHẮN MỚI CHO LỆNH GIVE ---
+  give:
+    success: "&aĐã trao &f%amount% x &e%item_name% &acho người chơi &f%player%&a."
+    player-not-found: "&cKhông tìm thấy người chơi &f%player%&c."
+    formation-not-found: "&cKhông tìm thấy trận pháp với ID: &f%id%&c."
+    usage: "&eSử dụng: &f/%command% give <tên người chơi> <ID trận pháp> [số lượng]"
+  # ---------------------------------
+  usage: "&eSử dụng: &f/%command% [reload|give]"
+
+# Kích hoạt trận pháp
+formation:
+  activate:
+    success: "%formation_name% &ađã được kích hoạt!"
+    already-active: "&cTrận pháp tại đây đã được kích hoạt."
+  # --- TIN NHẮN MỚI CHO VIỆC ĐẶT TRẬN ĐỒ ---
+  blueprint:
+    build-success: "&aĐã xây dựng thành công &e%formation_name%&a!"
+    build-fail-space: "&cKhông đủ không gian để xây dựng trận pháp tại đây."
+  # ---------------------------------------

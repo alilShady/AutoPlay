@@ -2,6 +2,8 @@ package com.alilshady.tutientranphap;
 
 import com.alilshady.tutientranphap.commands.CommandManager;
 import com.alilshady.tutientranphap.listeners.ActivationListener;
+// Thêm import cho listener mới
+import com.alilshady.tutientranphap.listeners.BlueprintListener;
 import com.alilshady.tutientranphap.managers.ConfigManager;
 import com.alilshady.tutientranphap.managers.EffectHandler;
 import com.alilshady.tutientranphap.managers.FormationManager;
@@ -17,16 +19,17 @@ public final class TuTienTranPhap extends JavaPlugin {
 
     @Override
     public void onEnable() {
-        // Khởi tạo các trình quản lý
         this.configManager = new ConfigManager(this);
         this.effectHandler = new EffectHandler(this);
         this.formationManager = new FormationManager(this);
 
-        // Tải config và các trận pháp
         reloadPluginConfigs();
 
         // Đăng ký listener và command
         getServer().getPluginManager().registerEvents(new ActivationListener(this), this);
+        // Đăng ký listener mới cho Trận Đồ
+        getServer().getPluginManager().registerEvents(new BlueprintListener(this), this);
+
         Objects.requireNonNull(getCommand("tutientranphap")).setExecutor(new CommandManager(this));
 
         if (configManager.isDebugLoggingEnabled()) {
@@ -36,7 +39,6 @@ public final class TuTienTranPhap extends JavaPlugin {
 
     @Override
     public void onDisable() {
-        // Dừng tất cả các hiệu ứng đang chạy
         if (effectHandler != null) {
             effectHandler.stopAllEffects();
         }
@@ -45,17 +47,11 @@ public final class TuTienTranPhap extends JavaPlugin {
         }
     }
 
-    /**
-     * Tải lại tất cả các tệp cấu hình và làm mới dữ liệu của plugin.
-     */
     public void reloadPluginConfigs() {
-        // Tải lại các file config từ đĩa
         configManager.reloadConfigs();
-        // Tải lại các trận pháp một cách bất đồng bộ
         formationManager.loadFormations();
     }
 
-    // Getters để các lớp khác có thể truy cập
     public ConfigManager getConfigManager() {
         return configManager;
     }

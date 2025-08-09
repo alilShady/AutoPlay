@@ -10,6 +10,9 @@ import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 
 import java.io.File;
+import java.io.InputStreamReader;
+import java.io.Reader;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -21,6 +24,8 @@ public class ConfigManager {
     private final TuTienTranPhap plugin;
     private FileConfiguration formationConfig;
     private FileConfiguration mainConfig;
+    // Thêm config cho tin nhắn
+    private FileConfiguration messagesConfig;
 
     // Các giá trị config được cache lại
     private boolean debugLogging;
@@ -38,13 +43,62 @@ public class ConfigManager {
         debugLogging = mainConfig.getBoolean("debug-logging", true);
         effectCheckInterval = mainConfig.getInt("effect-check-interval-ticks", 20);
 
-        // Chuẩn bị formations.yml
+        // Chuẩn bị và tải formations.yml
         File formationFile = new File(plugin.getDataFolder(), "formations.yml");
         if (!formationFile.exists()) {
             plugin.saveResource("formations.yml", false);
         }
         formationConfig = YamlConfiguration.loadConfiguration(formationFile);
+
+        // Chuẩn bị và tải messages.yml
+        File messagesFile = new File(plugin.getDataFolder(), "messages.yml");
+        if (!messagesFile.exists()) {
+            plugin.saveResource("messages.yml", false);
+        }
+        messagesConfig = YamlConfiguration.loadConfiguration(messagesFile);
+
+        // Đảm bảo các tin nhắn mặc định được tải nếu file mới được tạo
+        Reader defMessagesStream = new InputStreamReader(plugin.getResource("messages.yml"), StandardCharsets.UTF_8);
+        if (defMessagesStream != null) {
+            YamlConfiguration defMessages = YamlConfiguration.loadConfiguration(defMessagesStream);
+            messagesConfig.setDefaults(defMessages);
+        }
     }
+
+    /**
+     * Lấy một tin nhắn từ file messages.yml và thay thế các placeholder.
+     * @param path Đường dẫn đến tin nhắn (ví dụ: "commands.reload.success")
+     * @param replacements Các cặp key-value để thay thế (ví dụ: "%player%", "Steve")
+     * @return Tin nhắn đã được định dạng màu và thay thế placeholder.
+     */
+    public String getMessage(String path, String... replacements) {
+        // Lấy tin nhắn gốc từ config, nếu không có thì trả về đường dẫn
+        String message = messagesConfig.getString(path, "&cMissing message: " + path);
+
+        // Thêm prefix vào trước tin nhắn (trừ khi tin nhắn để trống)
+        if (!message.isEmpty()) {
+            String prefix = messagesConfig.getString("prefix", "");
+            message = prefix + message;
+        }
+
+        // Thay thế các placeholder
+        if (replacements.length > 0) {
+            for (int i = 0; i < replacements.length; i += 2) {
+                if (i + 1 < replacements.length) {
+                    message = message.replace(replacements[i], replacements[i + 1]);
+                }
+            }
+        }
+
+        // Dịch mã màu
+        return ChatColor.translateAlternateColorCodes('&', message);
+    }
+
+    // Phiên bản không có placeholder để cho tiện lợi
+    public String getMessage(String path) {
+        return getMessage(path, new String[0]);
+    }
+
 
     public CompletableFuture<List<Formation>> loadFormationsAsync() {
         return CompletableFuture.supplyAsync(() -> {
