@@ -1,6 +1,15 @@
 name: TuTienTranPhap
 version: 1.0
 main: com.alilshady.tutientranphap.TuTienTranPhap
-api-version: 1.16
+api-version: 1.20
 author: AlilShady
 description: Một hệ thống Trận Pháp (Tu tiên) có khả năng tùy chỉnh cao.
+commands:
+  tutientranphap:
+    description: Lệnh chính của plugin TuTienTranPhap.
+    usage: /<command> reload
+    aliases: [tranphap, tttp]
+permissions:
+  tutientranphap.reload:
+    description: Cho phép người dùng tải lại cấu hình của plugin.
+    default: op

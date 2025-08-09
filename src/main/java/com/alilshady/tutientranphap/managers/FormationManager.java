@@ -2,6 +2,7 @@ package com.alilshady.tutientranphap.managers;
 
 import com.alilshady.tutientranphap.TuTienTranPhap;
 import com.alilshady.tutientranphap.object.Formation;
+import org.bukkit.Bukkit; // SỬA LỖI TẠI ĐÂY
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -10,23 +11,39 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 public class FormationManager {
     private final TuTienTranPhap plugin;
-    private List<Formation> loadedFormations;
-    private List<Location> activeFormationCenters;
+    // Tối ưu: sử dụng Map để truy cập nhanh hơn
+    private Map<Material, List<Formation>> formationsByCenterBlock;
+    private final List<Location> activeFormationCenters;
 
     public FormationManager(TuTienTranPhap plugin) {
         this.plugin = plugin;
-        this.loadedFormations = new ArrayList<>();
+        this.formationsByCenterBlock = new HashMap<>();
         this.activeFormationCenters = new ArrayList<>();
     }
 
     public void loadFormations() {
-        this.loadedFormations = plugin.getConfigManager().loadFormations();
+        // Tải bất đồng bộ và xử lý kết quả trên thread chính
+        plugin.getConfigManager().loadFormationsAsync().thenAcceptAsync(loadedFormations -> {
+            Map<Material, List<Formation>> newMap = new HashMap<>();
+            for (Formation f : loadedFormations) {
+                if (f.getCenterBlock() != null) {
+                    newMap.computeIfAbsent(f.getCenterBlock(), k -> new ArrayList<>()).add(f);
+                }
+            }
+            this.formationsByCenterBlock = newMap;
+
+            if (plugin.getConfigManager().isDebugLoggingEnabled()) {
+                plugin.getLogger().info("Successfully loaded " + loadedFormations.size() + " formations.");
+            }
+        }, runnable -> Bukkit.getScheduler().runTask(plugin, runnable));
     }
+
 
     public void attemptToActivate(Player player, Block centerBlock, ItemStack activationItem) {
         if (activeFormationCenters.contains(centerBlock.getLocation())) {
@@ -34,9 +51,16 @@ public class FormationManager {
             return;
         }
 
-        for (Formation formation : loadedFormations) {
-            // Kiểm tra khối trung tâm và vật phẩm kích hoạt
-            if (centerBlock.getType() == formation.getCenterBlock() && activationItem.getType() == formation.getActivationItem()) {
+        // Tối ưu: chỉ lấy danh sách các trận pháp có cùng khối trung tâm
+        List<Formation> possibleFormations = formationsByCenterBlock.get(centerBlock.getType());
+        if (possibleFormations == null) {
+            // Không gửi tin nhắn nếu không có trận pháp nào, để tránh spam chat
+            return;
+        }
+
+        for (Formation formation : possibleFormations) {
+            // Kiểm tra vật phẩm kích hoạt
+            if (activationItem.getType() == formation.getActivationItem()) {
                 if (isPatternMatch(centerBlock, formation)) {
                     // Kích hoạt thành công
                     activationItem.setAmount(activationItem.getAmount() - 1); // Trừ vật phẩm
@@ -47,12 +71,16 @@ public class FormationManager {
                 }
             }
         }
-        player.sendMessage(ChatColor.RED + "Mô hình trận pháp không hợp lệ hoặc vật phẩm kích hoạt không đúng.");
     }
 
     private boolean isPatternMatch(Block centerBlock, Formation formation) {
         List<String> shape = formation.getShape();
         Map<Character, Material> key = formation.getPatternKey();
+
+        if (shape.isEmpty() || shape.get(0).isEmpty()) {
+            return false; // Tránh lỗi nếu shape không hợp lệ
+        }
+
         int patternHeight = shape.size();
         int patternWidth = shape.get(0).length();
 
@@ -63,13 +91,16 @@ public class FormationManager {
             String row = shape.get(z);
             for (int x = 0; x < patternWidth; x++) {
                 char blockChar = row.charAt(x);
-                if (blockChar == ' ' || blockChar == 'X') { // Bỏ qua không khí và khối trung tâm (đã kiểm tra)
+                // Bỏ qua không khí và khối trung tâm (đã kiểm tra ở bước trước)
+                if (blockChar == ' ' || (x == centerXOffset && z == centerZOffset)) {
                     continue;
                 }
 
                 Material expectedMaterial = key.get(blockChar);
                 if (expectedMaterial == null) {
-                    plugin.getLogger().warning("Invalid character '" + blockChar + "' in formation '" + formation.getId() + "'");
+                    if (plugin.getConfigManager().isDebugLoggingEnabled()) {
+                        plugin.getLogger().warning("Invalid character '" + blockChar + "' in formation '" + formation.getId() + "'");
+                    }
                     return false;
                 }
 
