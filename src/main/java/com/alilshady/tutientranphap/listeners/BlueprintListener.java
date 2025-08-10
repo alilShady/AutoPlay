@@ -2,6 +2,7 @@ package com.alilshady.tutientranphap.listeners;
 
 import com.alilshady.tutientranphap.TuTienTranPhap;
 import com.alilshady.tutientranphap.object.Formation;
+import org.bukkit.Location; // Thêm import này
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.event.EventHandler;
@@ -19,7 +20,6 @@ import java.util.Objects;
 public class BlueprintListener implements Listener {
 
     private final TuTienTranPhap plugin;
-    // Tạo một key duy nhất để lưu trữ ID trận pháp trên vật phẩm
     private final NamespacedKey formationIdKey;
 
     public BlueprintListener(TuTienTranPhap plugin) {
@@ -29,7 +29,6 @@ public class BlueprintListener implements Listener {
 
     @EventHandler
     public void onPlayerInteract(PlayerInteractEvent event) {
-        // Chỉ xử lý khi nhấp chuột phải vào một khối và bằng tay chính
         if (event.getAction() != Action.RIGHT_CLICK_BLOCK || event.getHand() != EquipmentSlot.HAND) {
             return;
         }
@@ -46,19 +45,20 @@ public class BlueprintListener implements Listener {
 
         PersistentDataContainer data = meta.getPersistentDataContainer();
 
-        // Kiểm tra xem vật phẩm có phải là Trận Đồ không
         if (data.has(formationIdKey, PersistentDataType.STRING)) {
-            // Hủy sự kiện để tránh các hành động mặc định (ví dụ: mở crafting table)
             event.setCancelled(true);
 
             String formationId = data.get(formationIdKey, PersistentDataType.STRING);
             Formation formation = plugin.getFormationManager().getFormationById(formationId);
 
             if (formation != null) {
-                // Gọi hàm xây dựng trận pháp
-                boolean success = plugin.getFormationManager().buildFormation(formation, Objects.requireNonNull(event.getClickedBlock()).getLocation(), event.getPlayer());
+                // --- THAY ĐỔI QUAN TRỌNG Ở ĐÂY ---
+                // Lấy vị trí xây dựng là 1 khối phía trên khối được nhấp
+                Location buildLocation = Objects.requireNonNull(event.getClickedBlock()).getLocation().add(0, 1, 0);
+
+                // Gọi hàm xây dựng với vị trí mới
+                boolean success = plugin.getFormationManager().buildFormation(formation, buildLocation, event.getPlayer());
                 if (success) {
-                    // Trừ vật phẩm sau khi xây thành công
                     item.setAmount(item.getAmount() - 1);
                 }
             }

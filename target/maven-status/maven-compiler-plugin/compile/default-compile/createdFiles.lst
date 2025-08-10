@@ -1,5 +1,6 @@
 com\alilshady\tutientranphap\managers\ConfigManager.class
 com\alilshady\tutientranphap\commands\CommandManager.class
+com\alilshady\tutientranphap\commands\CommandTabCompleter.class
 com\alilshady\tutientranphap\managers\FormationManager.class
 com\alilshady\tutientranphap\object\Formation.class
 com\alilshady\tutientranphap\managers\EffectHandler.class

@@ -1,8 +1,8 @@
 package com.alilshady.tutientranphap;
 
 import com.alilshady.tutientranphap.commands.CommandManager;
+import com.alilshady.tutientranphap.commands.CommandTabCompleter; // THÊM DÒNG NÀY
 import com.alilshady.tutientranphap.listeners.ActivationListener;
-// Thêm import cho listener mới
 import com.alilshady.tutientranphap.listeners.BlueprintListener;
 import com.alilshady.tutientranphap.managers.ConfigManager;
 import com.alilshady.tutientranphap.managers.EffectHandler;
@@ -25,12 +25,13 @@ public final class TuTienTranPhap extends JavaPlugin {
 
         reloadPluginConfigs();
 
-        // Đăng ký listener và command
+        // Đăng ký listener
         getServer().getPluginManager().registerEvents(new ActivationListener(this), this);
-        // Đăng ký listener mới cho Trận Đồ
         getServer().getPluginManager().registerEvents(new BlueprintListener(this), this);
 
+        // Đăng ký command executor và tab completer
         Objects.requireNonNull(getCommand("tutientranphap")).setExecutor(new CommandManager(this));
+        Objects.requireNonNull(getCommand("tutientranphap")).setTabCompleter(new CommandTabCompleter(this)); // THÊM DÒNG NÀY
 
         if (configManager.isDebugLoggingEnabled()) {
             getLogger().info("TuTienTranPhap by AlilShady has been enabled!");

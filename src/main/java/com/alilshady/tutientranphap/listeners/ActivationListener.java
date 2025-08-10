@@ -1,11 +1,13 @@
 package com.alilshady.tutientranphap.listeners;
 
 import com.alilshady.tutientranphap.TuTienTranPhap;
+import org.bukkit.Material;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.EquipmentSlot;
+import org.bukkit.inventory.ItemStack;
 
 public class ActivationListener implements Listener {
 
@@ -21,9 +23,11 @@ public class ActivationListener implements Listener {
         if (event.getAction() != Action.RIGHT_CLICK_BLOCK) return;
         // Chỉ xử lý với tay chính để tránh sự kiện bị gọi hai lần
         if (event.getHand() != EquipmentSlot.HAND) return;
-        // Đảm bảo người chơi có cầm vật phẩm
-        if (event.getItem() == null) return;
 
-        plugin.getFormationManager().attemptToActivate(event.getPlayer(), event.getClickedBlock(), event.getItem());
+        ItemStack itemInHand = event.getPlayer().getInventory().getItemInMainHand();
+        // Đảm bảo người chơi có cầm vật phẩm
+        if (itemInHand == null || itemInHand.getType() == Material.AIR) return;
+
+        plugin.getFormationManager().attemptToActivate(event.getPlayer(), event.getClickedBlock(), itemInHand);
     }
 }

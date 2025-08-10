@@ -1,160 +1,252 @@
 # ----------------------------------------------------
 #  Tệp cấu hình Trận Pháp cho plugin TuTienTranPhap
-#  Phiên bản: 3.1 - Hỗ trợ hiệu ứng sét
+#  Phiên bản: 11.0 - Tên hiệu ứng siêu rút gọn
 # ----------------------------------------------------
 #
-# HƯỚNG DẪN CẤU HÌNH CÁC LOẠI HIỆU ỨNG (type)
+# --- HƯỚNG DẪN CẤU HÌNH ---
 #
-# 1. POTION - Áp dụng hiệu ứng thuốc
-#    target: PLAYERS, HOSTILE_MOBS, ALL
-#    potion_effect: Tên hiệu ứng (ví dụ: REGENERATION, SPEED)
-#    amplifier: Cấp độ (0 = cấp I, 1 = cấp II...)
+# SỬ DỤNG CÁC KHÓA CHÍNH: `value`, `duration`, `target`
 #
-# 2. PARTICLE_SHIELD - Tạo hiệu ứng hạt trang trí
-#    main_particle: Hạt của vòng tròn chính xoay dưới đất.
-#    pillar_particle: Hạt của các cột năng lượng bay lên từ rìa.
-#    orb_particle: Hạt của quả cầu năng lượng ở trung tâm.
-#    dome_particle: Hạt "dệt" nên mái vòm bảo vệ.
-#    rotation_speed: Tốc độ xoay (Mặc định: 1.5)
-#    pillar_count: Số lượng trụ năng lượng (Mặc định: 5)
-#    dome_lines: Số đường cong của mái vòm (Mặc định: 8)
+# === DANH SÁCH CÁC HIỆU ỨNG (type) ===
 #
-# 3. CROP_GROWTH - Tăng tốc độ cây trồng
-#    multiplier: Hệ số tăng trưởng (Mặc định: 1.5)
+# --- Tác động lên Thực thể ---
+# - POTION:     Áp dụng hiệu ứng thuốc. (Cần `potion_effect`, `target`, `value`)
+# - DAMAGE:     Gây sát thương. (Cần `target`, `value`)
+# - HEAL:       Hồi máu. (Cần `target`, `value`)
+# - LIGHTNING:  Đánh sét. (Cần `target`, `visual_only`)
+# - REPEL:      Đẩy lùi quái. (Cần `value`)
+# - ROOT:       Giữ chân. (Cần `target`, `duration`, `value`)
+# - CLEANSE:    Tẩy rửa hiệu ứng xấu. (Cần `target`)
 #
-# 4. AREA_DAMAGE - Gây sát thương liên tục
-#    target: HOSTILE_MOBS, PLAYERS, ALL
-#    damage: Lượng sát thương mỗi lần (2.0 = 1 trái tim)
+# --- Tiện ích & Kinh tế ---
+# - REPAIR:     Sửa chữa vật phẩm. (Cần `target`, `value`)
+# - XP:         Tạo kinh nghiệm. (Cần `value`)
 #
-# 5. MOB_REPULSION - Đẩy lùi quái vật
-#    force: Lực đẩy (Mặc định: 0.8)
-#
-# 6. FURNACE_BOOST - Tăng tốc lò nung
-#    multiplier: Tốc độ nấu nhanh gấp bao nhiêu lần (Mặc định: 2.0)
-#
-# 7. ITEM_REPAIR - Sửa chữa vật phẩm
-#    target: PLAYERS, ALL (áp dụng cho mọi người chơi)
-#    amount: Số độ bền được sửa mỗi lần (Mặc định: 5)
-#
-# 8. LIGHTNING_STRIKE - Đánh sét vào mục tiêu
-#    target: HOSTILE_MOBS, PLAYERS, ALL
-#    visual_only: true/false (Mặc định: false). Nếu true, sét chỉ là hiệu ứng, không gây sát thương.
+# --- Tương tác Môi trường ---
+# - SMELT:      Tăng tốc lò nung. (Cần `value`)
+# - GROWTH:     Tăng tốc cây trồng. (Cần `value`)
+# - HARVEST:    Tự động thu hoạch. (Cần `replant`)
+# - FREEZE:     Đóng băng chất lỏng. (Không cần cấu hình thêm)
 #
 # ----------------------------------------------------
 
-# --- VÍ DỤ CÁC TRẬN PHÁP ---
+# --- DANH SÁCH CÁC TRẬN PHÁP ---
 
 kim-cang-tran:
-  display_name: "&e&lKim Cang Hộ Thể Trận"
-  activation_item: "NETHERITE_INGOT"
-  duration_seconds: 1800
-  radius: 20
-  pattern:
-    key:
-      X: "OBSIDIAN"
-      P: "CHISELED_QUARTZ_BLOCK"
-    shape:
-      - "PPPPP"
-      - "P   P"
-      - "P X P"
-      - "P   P"
-      - "PPPPP"
-  effects:
-    - type: "PARTICLE_SHIELD"
-      main_particle: "FLAME"
-      pillar_particle: "SOUL_FIRE_FLAME"
-      dome_particle: "CRIT"
-    - type: "POTION"
-      target: "HOSTILE_MOBS"
-      potion_effect: "WEAKNESS"
-      amplifier: 1
+    display_name: "&e&lKim Cang Hộ Thể Trận"
+    activation_item: "NETHERITE_INGOT"
+    duration: "30m"
+    radius: 20
+    pattern:
+        key:
+            X: "OBSIDIAN"
+            P: "CHISELED_QUARTZ_BLOCK"
+        shape:
+            - "PPPPP"
+            - "P   P"
+            - "P X P"
+            - "P   P"
+            - "PPPPP"
+    particles:
+        main_particle: "TOTEM_OF_UNDYING"
+        pillar_particle: "FLAME"
+        dome_particle: "CRIT"
+    effects:
+        - type: "POTION"
+          target: "PLAYERS"
+          potion_effect: "DAMAGE_RESISTANCE"
+          value: 1
+        - type: "POTION"
+          target: "HOSTILE_MOBS"
+          potion_effect: "WEAKNESS"
+          value: 1
 
 thoi-ma-tran:
-  display_name: "&b&lThối Ma Trận"
-  activation_item: "HEART_OF_THE_SEA"
-  duration_seconds: 3600
-  radius: 25
-  pattern:
-    key:
-      X: "CONDUIT"
-      P: "PRISMARINE_BRICKS"
-    shape:
-      - " PPP "
-      - "P   P"
-      - "P X P"
-      - "P   P"
-      - " PPP "
-  effects:
-    - type: "MOB_REPULSION"
-      force: 1.2
-    - type: "PARTICLE_SHIELD"
-      main_particle: "NAUTILUS"
-      dome_particle: "BUBBLE_POP"
-      rotation_speed: -1.0 # Quay ngược chiều kim đồng hồ
+    display_name: "&b&lThối Ma Trận"
+    activation_item: "HEART_OF_THE_SEA"
+    duration: "1h"
+    radius: 25
+    pattern:
+        key:
+            X: "CONDUIT"
+            P: "PRISMARINE_BRICKS"
+        shape:
+            - " PPP "
+            - "P   P"
+            - "P X P"
+            - "P   P"
+            - " PPP "
+    particles:
+        main_particle: "SQUID_INK"
+        pillar_particle: "BUBBLE_COLUMN_UP"
+        dome_particle: "NAUTILUS"
+    effects:
+        - type: "REPEL"
+          value: 1.2
 
 hoa-luyen-tran:
-  display_name: "&6&lHỏa Luyện Trận"
-  activation_item: "BLAZE_ROD"
-  duration_seconds: 7200
-  radius: 8
-  pattern:
-    key:
-      X: "BLAST_FURNACE"
-      P: "MAGMA_BLOCK"
-    shape:
-      - " P "
-      - "PXP"
-      - " P "
-  effects:
-    - type: "FURNACE_BOOST"
-      multiplier: 3.0
-    - type: "PARTICLE_SHIELD"
-      orb_particle: "LAVA"
+    display_name: "&6&lHỏa Luyện Trận"
+    activation_item: "BLAZE_ROD"
+    duration: "2h"
+    radius: 8
+    pattern:
+        key:
+            X: "BLAST_FURNACE"
+            P: "MAGMA_BLOCK"
+        shape:
+            - " P "
+            - "PXP"
+            - " P "
+    particles:
+        orb_particle: "LAVA"
+    effects:
+        - type: "SMELT"
+          value: 3.0
 
 on-duong-tran:
-  display_name: "&d&lÔn Dưỡng Trận"
-  activation_item: "EXPERIENCE_BOTTLE"
-  duration_seconds: 1800
-  radius: 12
-  pattern:
-    key:
-      X: "ANVIL"
-      P: "AMETHYST_BLOCK"
-    shape:
-      - "  P  "
-      - " P P "
-      - "P X P"
-      - " P P "
-      - "  P  "
-  effects:
-    - type: "ITEM_REPAIR"
-      target: "PLAYERS"
-      amount: 10
-    - type: "PARTICLE_SHIELD"
-      main_particle: "TOTEM_OF_UNDYING"
-      dome_particle: "END_ROD"
-      rotation_speed: 0.5
+    display_name: "&d&lÔn Dưỡng Trận"
+    activation_item: "EXPERIENCE_BOTTLE"
+    duration: "30m"
+    radius: 12
+    pattern:
+        key:
+            X: "ANVIL"
+            P: "AMETHYST_BLOCK"
+        shape:
+            - "  P  "
+            - " P P "
+            - "P X P"
+            - " P P "
+            - "  P  "
+    particles:
+        main_particle: "VILLAGER_HAPPY"
+        dome_particle: "END_ROD"
+    effects:
+        - type: "REPAIR"
+          target: "PLAYERS"
+          value: 10
 
 loi-dinh-tran:
-  display_name: "&e&lLôi Đình Trận"
-  activation_item: "NETHER_STAR"
-  duration_seconds: 600
-  radius: 15
-  pattern:
-    key:
-      X: "LODESTONE"
-      P: "COPPER_BLOCK"
-      L: "LIGHTNING_ROD"
-    shape:
-      - " L P L "
-      - " P   P "
-      - "L  X  L"
-      - " P   P "
-      - " L P L "
-  effects:
-    - type: "LIGHTNING_STRIKE"
-      target: "HOSTILE_MOBS"
-      visual_only: false
-    - type: "PARTICLE_SHIELD"
-      main_particle: "ELECTRIC_SPARK"
-      dome_particle: "WAX_ON"
+    display_name: "&e&lLôi Đình Trận"
+    activation_item: "NETHER_STAR"
+    duration: "10m"
+    radius: 15
+    pattern:
+        key:
+            X: "LODESTONE"
+            P: "COPPER_BLOCK"
+            L: "LIGHTNING_ROD"
+        shape:
+            - " L P L "
+            - " P   P "
+            - "L  X  L"
+            - " P   P "
+            - " L P L "
+    particles:
+        main_particle: "ELECTRIC_SPARK"
+        dome_particle: "FLASH"
+    effects:
+        - type: "LIGHTNING"
+          target: "HOSTILE_MOBS"
+          visual_only: false
+
+thanh-tinh-tran:
+    display_name: "&a&lThanh Tịnh Trận"
+    activation_item: "MILK_BUCKET"
+    duration: "30m"
+    radius: 25
+    pattern:
+        key:
+            X: "BEACON"
+            P: "WHITE_WOOL"
+            G: "GLASS"
+        shape:
+            - " GGG "
+            - "G P G"
+            - "GPXPG"
+            - "G P G"
+            - " GGG "
+    particles:
+        main_particle: "VILLAGER_HAPPY"
+        dome_particle: "CLOUD"
+    effects:
+        - type: "CLEANSE"
+          target: "PLAYERS"
+        - type: "POTION"
+          target: "PLAYERS"
+          potion_effect: "REGENERATION"
+          value: 0
+
+sinh-truong-tran:
+    display_name: "&2&lSinh Trưởng Trận"
+    activation_item: "BONE_MEAL"
+    duration: "2h"
+    radius: 16
+    pattern:
+        key:
+            X: "COMPOSTER"
+            P: "MOSS_BLOCK"
+            W: "OAK_LOG"
+        shape:
+            - " WWW "
+            - "W P W"
+            - "WPXPW"
+            - "W P W"
+            - " WWW "
+    particles:
+        main_particle: "COMPOSTER"
+        dome_particle: "SPORE_BLOSSOM_AIR"
+    effects:
+        - type: "GROWTH"
+          value: 2.5
+        - type: "HARVEST"
+          replant: true
+        - type: "ROOT"
+          target: "HOSTILE_MOBS"
+          duration: "60t"
+          value: 7
+
+bang-han-tran:
+    display_name: "&b&lBăng Hàn Trận"
+    activation_item: "BLUE_ICE"
+    duration: "1h"
+    radius: 20
+    pattern:
+        key:
+            X: "ICE"
+            P: "PACKED_ICE"
+            S: "SNOW_BLOCK"
+        shape:
+            - " SSS "
+            - "SP PS"
+            - "S P S"
+            - "SPXPS"
+            - " SSS "
+    particles:
+        main_particle: "SNOWFLAKE"
+        dome_particle: "SNOW_SHOVEL"
+    effects:
+        - type: "POTION"
+          target: "ALL"
+          potion_effect: "SLOWNESS"
+          value: 1
+        - type: "FREEZE"
+
+tu-linh-thap:
+    display_name: "&b&lTụ Linh Tháp"
+    activation_item: "LAPIS_BLOCK"
+    duration: "1h"
+    radius: 10
+    pattern:
+        key:
+            X: "ENCHANTING_TABLE"
+            P: "BOOKSHELF"
+        shape:
+            - " PPP "
+            - "P X P"
+            - " PPP "
+    particles:
+        main_particle: "ENCHANT"
+    effects:
+        - type: "XP"
+          value: 5
