@@ -57,7 +57,13 @@ public class EffectHandler {
                 new FurnaceBoostEffect(),
                 new CropGrowthEffect(),
                 new HarvestEffect(),
-                new FreezeLiquidsEffect()
+                new FreezeLiquidsEffect(),
+                new CollectEffect(),
+                new BreedEffect(),
+                new VortexEffect(),
+                new StasisEffect(),
+                new ExplosionEffect(),
+                new IgniteEffect()
         ).forEach(strategy -> effectStrategies.put(strategy.getType(), strategy));
     }
 
@@ -237,10 +243,10 @@ public class EffectHandler {
         double rotationSpeed = EffectUtils.getDoubleFromConfig(config, "rotation_speed", 1.5);
         int pillarCount = EffectUtils.getIntFromConfig(config, "pillar_count", 5);
         int domeLines = EffectUtils.getIntFromConfig(config, "dome_lines", 8);
-        Optional<Particle> mainParticle = Optional.ofNullable(EffectUtils.getStringFromConfig(config, "main_particle", null)).map(s -> Particle.valueOf(s.toUpperCase()));
-        Optional<Particle> pillarParticle = Optional.ofNullable(EffectUtils.getStringFromConfig(config, "pillar_particle", null)).map(s -> Particle.valueOf(s.toUpperCase()));
-        Optional<Particle> orbParticle = Optional.ofNullable(EffectUtils.getStringFromConfig(config, "orb_particle", null)).map(s -> Particle.valueOf(s.toUpperCase()));
-        Optional<Particle> domeParticle = Optional.ofNullable(EffectUtils.getStringFromConfig(config, "dome_particle", null)).map(s -> Particle.valueOf(s.toUpperCase()));
+        Optional<Particle> mainParticle = Optional.ofNullable(EffectUtils.getStringFromConfig(config, "ring", null)).map(s -> Particle.valueOf(s.toUpperCase()));
+        Optional<Particle> pillarParticle = Optional.ofNullable(EffectUtils.getStringFromConfig(config, "pillar", null)).map(s -> Particle.valueOf(s.toUpperCase()));
+        Optional<Particle> orbParticle = Optional.ofNullable(EffectUtils.getStringFromConfig(config, "orb", null)).map(s -> Particle.valueOf(s.toUpperCase()));
+        Optional<Particle> domeParticle = Optional.ofNullable(EffectUtils.getStringFromConfig(config, "dome", null)).map(s -> Particle.valueOf(s.toUpperCase()));
         double rotationAngle = Math.toRadians(tick * rotationSpeed);
         mainParticle.ifPresent(p -> {
             for (double angle = 0; angle < 2 * Math.PI; angle += Math.PI / 32) {

@@ -1,11 +1,6 @@
 # ----------------------------------------------------
 #  Tệp cấu hình Trận Pháp cho plugin TuTienTranPhap
-#  Phiên bản: 11.0 - Tên hiệu ứng siêu rút gọn
 # ----------------------------------------------------
-#
-# --- HƯỚNG DẪN CẤU HÌNH ---
-#
-# SỬ DỤNG CÁC KHÓA CHÍNH: `value`, `duration`, `target`
 #
 # === DANH SÁCH CÁC HIỆU ỨNG (type) ===
 #
@@ -17,16 +12,21 @@
 # - REPEL:      Đẩy lùi quái. (Cần `value`)
 # - ROOT:       Giữ chân. (Cần `target`, `duration`, `value`)
 # - CLEANSE:    Tẩy rửa hiệu ứng xấu. (Cần `target`)
+# - VORTEX:     Hút quái vật. (Cần `target`, `value`)
+# - BREED:      Tự động nhân giống. (Cần `value` làm cooldown)
+# - STASIS:     Làm chậm thực thể và vật thể bay. (Cần `value`)
 #
 # --- Tiện ích & Kinh tế ---
 # - REPAIR:     Sửa chữa vật phẩm. (Cần `target`, `value`)
 # - XP:         Tạo kinh nghiệm. (Cần `value`)
+# - COLLECT:    Hút vật phẩm. (Cần `value` làm tốc độ)
 #
 # --- Tương tác Môi trường ---
 # - SMELT:      Tăng tốc lò nung. (Cần `value`)
 # - GROWTH:     Tăng tốc cây trồng. (Cần `value`)
 # - HARVEST:    Tự động thu hoạch. (Cần `replant`)
-# - FREEZE:     Đóng băng chất lỏng. (Không cần cấu hình thêm)
+# - FREEZE:     Đóng băng chất lỏng.
+# - SANCTUARY:  Ngăn quái sinh ra tự nhiên.
 #
 # ----------------------------------------------------
 
@@ -48,9 +48,9 @@ kim-cang-tran:
             - "P   P"
             - "PPPPP"
     particles:
-        main_particle: "TOTEM_OF_UNDYING"
-        pillar_particle: "FLAME"
-        dome_particle: "CRIT"
+        ring: "TOTEM_OF_UNDYING"
+        pillar: "FLAME"
+        dome: "CRIT"
     effects:
         - type: "POTION"
           target: "PLAYERS"
@@ -77,9 +77,9 @@ thoi-ma-tran:
             - "P   P"
             - " PPP "
     particles:
-        main_particle: "SQUID_INK"
-        pillar_particle: "BUBBLE_COLUMN_UP"
-        dome_particle: "NAUTILUS"
+        ring: "SQUID_INK"
+        pillar: "BUBBLE_COLUMN_UP"
+        dome: "NAUTILUS"
     effects:
         - type: "REPEL"
           value: 1.2
@@ -98,7 +98,7 @@ hoa-luyen-tran:
             - "PXP"
             - " P "
     particles:
-        orb_particle: "LAVA"
+        orb: "LAVA"
     effects:
         - type: "SMELT"
           value: 3.0
@@ -119,8 +119,8 @@ on-duong-tran:
             - " P P "
             - "  P  "
     particles:
-        main_particle: "VILLAGER_HAPPY"
-        dome_particle: "END_ROD"
+        ring: "VILLAGER_HAPPY"
+        dome: "END_ROD"
     effects:
         - type: "REPAIR"
           target: "PLAYERS"
@@ -143,8 +143,8 @@ loi-dinh-tran:
             - " P   P "
             - " L P L "
     particles:
-        main_particle: "ELECTRIC_SPARK"
-        dome_particle: "FLASH"
+        ring: "ELECTRIC_SPARK"
+        dome: "FLASH"
     effects:
         - type: "LIGHTNING"
           target: "HOSTILE_MOBS"
@@ -167,8 +167,8 @@ thanh-tinh-tran:
             - "G P G"
             - " GGG "
     particles:
-        main_particle: "VILLAGER_HAPPY"
-        dome_particle: "CLOUD"
+        ring: "VILLAGER_HAPPY"
+        dome: "CLOUD"
     effects:
         - type: "CLEANSE"
           target: "PLAYERS"
@@ -176,6 +176,7 @@ thanh-tinh-tran:
           target: "PLAYERS"
           potion_effect: "REGENERATION"
           value: 0
+        - type: "SANCTUARY"
 
 sinh-truong-tran:
     display_name: "&2&lSinh Trưởng Trận"
@@ -194,17 +195,15 @@ sinh-truong-tran:
             - "W P W"
             - " WWW "
     particles:
-        main_particle: "COMPOSTER"
-        dome_particle: "SPORE_BLOSSOM_AIR"
+        ring: "COMPOSTER"
+        dome: "SPORE_BLOSSOM_AIR"
     effects:
         - type: "GROWTH"
           value: 2.5
         - type: "HARVEST"
           replant: true
-        - type: "ROOT"
-          target: "HOSTILE_MOBS"
-          duration: "60t"
-          value: 7
+        - type: "BREED"
+          value: 200 # Cooldown 10 giây
 
 bang-han-tran:
     display_name: "&b&lBăng Hàn Trận"
@@ -223,8 +222,8 @@ bang-han-tran:
             - "SPXPS"
             - " SSS "
     particles:
-        main_particle: "SNOWFLAKE"
-        dome_particle: "SNOW_SHOVEL"
+        ring: "SNOWFLAKE"
+        dome: "SNOW_SHOVEL"
     effects:
         - type: "POTION"
           target: "ALL"
@@ -246,7 +245,84 @@ tu-linh-thap:
             - "P X P"
             - " PPP "
     particles:
-        main_particle: "ENCHANT"
+        ring: "ENCHANT"
     effects:
         - type: "XP"
           value: 5
+
+# --- CÁC TRẬN PHÁP MỚI ĐỂ THỬ NGHIỆM ---
+
+hap-dan-tran:
+    display_name: "&5&lHấp Dẫn Trận"
+    activation_item: "HOPPER"
+    duration: "1h"
+    radius: 15
+    pattern:
+        key:
+            X: "LODESTONE"
+            P: "IRON_BLOCK"
+        shape:
+            - " P P "
+            - "P X P"
+            - " P P "
+    particles:
+        ring: "PORTAL"
+    effects:
+        - type: "COLLECT" # Hút vật phẩm
+          value: 0.5
+        - type: "VORTEX"  # Hút quái
+          target: "HOSTILE_MOBS"
+          value: 0.3
+
+thoi-khong-tran:
+    display_name: "&3&lThời Không Trì Hoãn Trận"
+    activation_item: "CLOCK"
+    duration: "15m"
+    radius: 25
+    pattern:
+        key:
+            X: "CRYING_OBSIDIAN"
+            P: "SOUL_SOIL"
+            G: "TINTED_GLASS"
+        shape:
+            - " GGG "
+            - "G P G"
+            - "GPXPG"
+            - "G P G"
+            - " GGG "
+    particles:
+        ring: "REVERSE_PORTAL"
+        dome: "END_ROD"
+    effects:
+        - type: "STASIS"
+          value: 3 # Làm chậm quái vật và vật thể bay đi 3 lần
+
+hoa-nguc-tran:
+    display_name: "&c&lHỏa Ngục Trận"
+    activation_item: "TNT"
+    duration: "5m"
+    radius: 15
+    pattern:
+        key:
+            X: "NETHERRACK"
+            P: "BLACKSTONE"
+            F: "FIRE_CHARGE"
+        shape:
+            - " FPF "
+            - "P   P"
+            - "F X F"
+            - "P   P"
+            - " FPF "
+    particles:
+        ring: "FLAME"
+        orb: "LAVA"
+        pillar: "SMOKE_LARGE"
+    effects:
+        - type: "IGNITE"
+          target: "HOSTILE_MOBS"
+          duration: "10s"
+        - type: "EXPLOSION"
+          target: "HOSTILE_MOBS"
+          value: 1.5      # Sức nổ nhỏ
+          fire: true      # Vụ nổ tạo ra lửa
+          break_blocks: false # Vụ nổ không phá khối

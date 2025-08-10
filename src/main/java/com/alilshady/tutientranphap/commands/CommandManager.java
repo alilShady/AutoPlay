@@ -1,10 +1,11 @@
-// SỬA LỖI: Đã sửa lại đúng package
+// src/main/java/com/alilshady/tutientranphap/commands/CommandManager.java
 package com.alilshady.tutientranphap.commands;
 
 import com.alilshady.tutientranphap.TuTienTranPhap;
 import com.alilshady.tutientranphap.object.Formation;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.command.Command;
@@ -41,6 +42,8 @@ public class CommandManager implements CommandExecutor {
                 return handleReload(sender);
             case "give":
                 return handleGive(sender, args, label);
+            case "test":
+                return handleTest(sender, args, label);
             default:
                 sender.sendMessage(plugin.getConfigManager().getMessage("commands.usage", "%command%", label));
                 return true;
@@ -100,6 +103,46 @@ public class CommandManager implements CommandExecutor {
                 "%item_name%", blueprint.getItemMeta().getDisplayName(),
                 "%player%", target.getName()));
 
+        return true;
+    }
+
+    /**
+     * Xử lý lệnh /ttp test <id> để nhanh chóng kích hoạt một trận pháp.
+     */
+    private boolean handleTest(CommandSender sender, String[] args, String label) {
+        if (!(sender instanceof Player)) {
+            sender.sendMessage("Lệnh này chỉ dành cho người chơi.");
+            return true;
+        }
+
+        Player player = (Player) sender;
+
+        if (!player.hasPermission("tutientranphap.test")) {
+            player.sendMessage(plugin.getConfigManager().getMessage("commands.reload.no-permission"));
+            return true;
+        }
+
+        if (args.length < 2) {
+            player.sendMessage(ChatColor.YELLOW + "Sử dụng: /" + label + " test <ID trận pháp>");
+            return true;
+        }
+
+        String formationId = args[1];
+        Formation formation = plugin.getFormationManager().getFormationById(formationId);
+
+        if (formation == null) {
+            player.sendMessage(plugin.getConfigManager().getMessage("commands.give.formation-not-found", "%id%", formationId));
+            return true;
+        }
+
+        Location location = player.getLocation().getBlock().getLocation();
+
+        // Đặt khối trung tâm để trận pháp không tự hủy ngay lập tức
+        location.getBlock().setType(formation.getCenterBlock());
+
+        plugin.getEffectHandler().startFormationEffects(formation, location);
+
+        player.sendMessage(ChatColor.GREEN + "Đã kích hoạt thử nghiệm trận pháp: " + formation.getDisplayName());
         return true;
     }
 

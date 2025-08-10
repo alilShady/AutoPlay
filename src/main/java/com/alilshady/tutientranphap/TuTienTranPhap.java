@@ -1,13 +1,16 @@
+// src/main/java/com/alilshady/tutientranphap/TuTienTranPhap.java
 package com.alilshady.tutientranphap;
 
 import com.alilshady.tutientranphap.commands.CommandManager;
-import com.alilshady.tutientranphap.commands.CommandTabCompleter; // THÊM DÒNG NÀY
+import com.alilshady.tutientranphap.commands.CommandTabCompleter;
 import com.alilshady.tutientranphap.listeners.ActivationListener;
 import com.alilshady.tutientranphap.listeners.BlueprintListener;
+import com.alilshady.tutientranphap.listeners.SanctuaryListener; // Thêm import này
 import com.alilshady.tutientranphap.managers.ConfigManager;
 import com.alilshady.tutientranphap.managers.EffectHandler;
 import com.alilshady.tutientranphap.managers.FormationManager;
 import org.bukkit.plugin.java.JavaPlugin;
+import com.alilshady.tutientranphap.listeners.StasisListener;
 
 import java.util.Objects;
 
@@ -28,10 +31,12 @@ public final class TuTienTranPhap extends JavaPlugin {
         // Đăng ký listener
         getServer().getPluginManager().registerEvents(new ActivationListener(this), this);
         getServer().getPluginManager().registerEvents(new BlueprintListener(this), this);
+        getServer().getPluginManager().registerEvents(new SanctuaryListener(this), this); // ĐĂNG KÝ LISTENER MỚI
+        getServer().getPluginManager().registerEvents(new StasisListener(this), this); // ĐĂNG KÝ LISTENER MỚI
 
         // Đăng ký command executor và tab completer
         Objects.requireNonNull(getCommand("tutientranphap")).setExecutor(new CommandManager(this));
-        Objects.requireNonNull(getCommand("tutientranphap")).setTabCompleter(new CommandTabCompleter(this)); // THÊM DÒNG NÀY
+        Objects.requireNonNull(getCommand("tutientranphap")).setTabCompleter(new CommandTabCompleter(this));
 
         if (configManager.isDebugLoggingEnabled()) {
             getLogger().info("TuTienTranPhap by AlilShady has been enabled!");

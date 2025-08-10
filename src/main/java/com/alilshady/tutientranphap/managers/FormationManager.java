@@ -1,6 +1,8 @@
+// src/main/java/com/alilshady/tutientranphap/managers/FormationManager.java
 package com.alilshady.tutientranphap.managers;
 
 import com.alilshady.tutientranphap.TuTienTranPhap;
+import com.alilshady.tutientranphap.effects.EffectUtils;
 import com.alilshady.tutientranphap.object.Formation;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -16,6 +18,7 @@ public class FormationManager {
     private Map<Material, List<Formation>> formationsByCenterBlock;
     private final List<Location> activeFormationCenters;
     private Map<String, Formation> formationsById;
+    private final Map<Location, Formation> activeFormations = new HashMap<>(); // Theo dõi trận pháp nào đang hoạt động ở đâu
 
     public FormationManager(TuTienTranPhap plugin) {
         this.plugin = plugin;
@@ -72,7 +75,7 @@ public class FormationManager {
                 if (blockChar == ' ') continue;
 
                 Block relativeBlock = startLocation.getBlock().getRelative(x - centerXOffset, 0, z - centerZOffset);
-                if (relativeBlock.getType() != Material.AIR) {
+                if (relativeBlock.getType() != Material.AIR && !relativeBlock.isPassable()) {
                     if (plugin.getConfigManager().isDebugLoggingEnabled()) {
                         plugin.getLogger().warning("[DEBUG][BUILD] Build failed. Block " + relativeBlock.getType() + " at " + relativeBlock.getLocation() + " is not AIR.");
                     }
@@ -116,6 +119,7 @@ public class FormationManager {
                 if (isPatternMatch(centerBlock, formation)) {
                     activationItem.setAmount(activationItem.getAmount() - 1);
                     activeFormationCenters.add(centerBlock.getLocation());
+                    activeFormations.put(centerBlock.getLocation(), formation); // THEO DÕI TRẬN PHÁP HOẠT ĐỘNG
                     plugin.getEffectHandler().startFormationEffects(formation, centerBlock.getLocation());
 
                     player.sendMessage(plugin.getConfigManager().getMessage("formation.activate.success", "%formation_name%", formation.getDisplayName()));
@@ -161,5 +165,41 @@ public class FormationManager {
 
     public void deactivateFormation(Location center) {
         activeFormationCenters.remove(center);
+        activeFormations.remove(center); // DỪNG THEO DÕI
+    }
+
+    public boolean isLocationInActiveFormation(Location location, String effectType) {
+        for (Map.Entry<Location, Formation> entry : activeFormations.entrySet()) {
+            Formation formation = entry.getValue();
+            Location center = entry.getKey();
+
+            boolean hasEffect = formation.getEffects().stream()
+                    .anyMatch(effectMap -> effectType.equalsIgnoreCase(String.valueOf(effectMap.get("type"))));
+
+            if (hasEffect) {
+                if (center.getWorld().equals(location.getWorld())) {
+                    if (center.distanceSquared(location) <= Math.pow(formation.getRadius(), 2)) {
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
+    public int getFormationEffectValue(Location location, String effectType, String key, int defaultValue) {
+        for (Map.Entry<Location, Formation> entry : activeFormations.entrySet()) {
+            Formation formation = entry.getValue();
+            Location center = entry.getKey();
+
+            if (center.getWorld().equals(location.getWorld()) && center.distanceSquared(location) <= Math.pow(formation.getRadius(), 2)) {
+                for (Map<?, ?> effectMap : formation.getEffects()) {
+                    if (effectType.equalsIgnoreCase(String.valueOf(effectMap.get("type")))) {
+                        return EffectUtils.getIntFromConfig(effectMap, key, defaultValue);
+                    }
+                }
+            }
+        }
+        return defaultValue;
     }
 }
