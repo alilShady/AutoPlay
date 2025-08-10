@@ -1,6 +1,6 @@
 # ----------------------------------------------------
 #  Tệp cấu hình Trận Pháp cho plugin TuTienTranPhap
-#  Phiên bản: 3.0 - Hỗ trợ nhiều loại hiệu ứng mới
+#  Phiên bản: 3.1 - Hỗ trợ hiệu ứng sét
 # ----------------------------------------------------
 #
 # HƯỚNG DẪN CẤU HÌNH CÁC LOẠI HIỆU ỨNG (type)
@@ -35,6 +35,10 @@
 # 7. ITEM_REPAIR - Sửa chữa vật phẩm
 #    target: PLAYERS, ALL (áp dụng cho mọi người chơi)
 #    amount: Số độ bền được sửa mỗi lần (Mặc định: 5)
+#
+# 8. LIGHTNING_STRIKE - Đánh sét vào mục tiêu
+#    target: HOSTILE_MOBS, PLAYERS, ALL
+#    visual_only: true/false (Mặc định: false). Nếu true, sét chỉ là hiệu ứng, không gây sát thương.
 #
 # ----------------------------------------------------
 
@@ -130,3 +134,27 @@ on-duong-tran:
       main_particle: "TOTEM_OF_UNDYING"
       dome_particle: "END_ROD"
       rotation_speed: 0.5
+
+loi-dinh-tran:
+  display_name: "&e&lLôi Đình Trận"
+  activation_item: "NETHER_STAR"
+  duration_seconds: 600
+  radius: 15
+  pattern:
+    key:
+      X: "LODESTONE"
+      P: "COPPER_BLOCK"
+      L: "LIGHTNING_ROD"
+    shape:
+      - " L P L "
+      - " P   P "
+      - "L  X  L"
+      - " P   P "
+      - " L P L "
+  effects:
+    - type: "LIGHTNING_STRIKE"
+      target: "HOSTILE_MOBS"
+      visual_only: false
+    - type: "PARTICLE_SHIELD"
+      main_particle: "ELECTRIC_SPARK"
+      dome_particle: "WAX_ON"

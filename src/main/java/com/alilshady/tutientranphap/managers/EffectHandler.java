@@ -94,6 +94,12 @@ public class EffectHandler {
                         applyAreaDamage(nearbyEntities, effectMap);
                     }
                     break;
+                case "LIGHTNING_STRIKE":
+                    if (currentTick % plugin.getConfigManager().getEffectCheckInterval() == 0) {
+                        if (nearbyEntities == null) nearbyEntities = world.getNearbyLivingEntities(center, formation.getRadius());
+                        applyLightningStrike(nearbyEntities, effectMap);
+                    }
+                    break;
                 // ------------------------------------
 
                 default:
@@ -104,6 +110,44 @@ public class EffectHandler {
             }
         }
     }
+
+    /**
+     * Phương thức mới để gọi sét
+     * @param entities Các thực thể trong vùng
+     * @param config Cấu hình của hiệu ứng
+     */
+    private void applyLightningStrike(Collection<LivingEntity> entities, Map<?, ?> config) {
+        String targetType = getStringFromConfig(config, "target", "HOSTILE_MOBS").toUpperCase();
+        boolean visualOnly = getBooleanFromConfig(config, "visual_only", false);
+
+        for (LivingEntity entity : entities) {
+            if (entity instanceof Player && ((Player) entity).getGameMode() != GameMode.SURVIVAL) {
+                continue;
+            }
+
+            boolean shouldStrike = false;
+            switch (targetType) {
+                case "PLAYERS":
+                    if (entity instanceof Player) shouldStrike = true;
+                    break;
+                case "HOSTILE_MOBS":
+                    if (entity instanceof Monster) shouldStrike = true;
+                    break;
+                case "ALL":
+                    shouldStrike = true;
+                    break;
+            }
+
+            if (shouldStrike) {
+                if (visualOnly) {
+                    entity.getWorld().strikeLightningEffect(entity.getLocation());
+                } else {
+                    entity.getWorld().strikeLightning(entity.getLocation());
+                }
+            }
+        }
+    }
+
 
     /**
      * Phương thức mới để gây sát thương vùng
@@ -219,6 +263,13 @@ public class EffectHandler {
             }
         }
         return Optional.empty();
+    }
+
+    private boolean getBooleanFromConfig(Map<?, ?> config, String key, boolean defaultValue) {
+        if (config.get(key) instanceof Boolean) {
+            return (Boolean) config.get(key);
+        }
+        return defaultValue;
     }
 
     private String getStringFromConfig(Map<?, ?> config, String key, String defaultValue) {
