@@ -63,7 +63,9 @@ public class EffectHandler {
                 new VortexEffect(),
                 new StasisEffect(),
                 new ExplosionEffect(),
-                new IgniteEffect()
+                new IgniteEffect(),
+                new ClimateEffect(),
+                new BarrierEffect()
         ).forEach(strategy -> effectStrategies.put(strategy.getType(), strategy));
     }
 

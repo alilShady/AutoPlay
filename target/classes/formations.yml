@@ -15,6 +15,8 @@
 # - VORTEX:     Hút quái vật. (Cần `target`, `value`)
 # - BREED:      Tự động nhân giống. (Cần `value` làm cooldown)
 # - STASIS:     Làm chậm thực thể và vật thể bay. (Cần `value`)
+# - EXPLOSION:  Gây nổ (không phá khối, luôn có lửa). (Cần `target`, `value`)
+# - IGNITE:     Đốt cháy mục tiêu. (Cần `target`, `duration`)
 #
 # --- Tiện ích & Kinh tế ---
 # - REPAIR:     Sửa chữa vật phẩm. (Cần `target`, `value`)
@@ -27,6 +29,7 @@
 # - HARVEST:    Tự động thu hoạch. (Cần `replant`)
 # - FREEZE:     Đóng băng chất lỏng.
 # - SANCTUARY:  Ngăn quái sinh ra tự nhiên.
+# - CLIMATE:    Tạo thời tiết giả lập cục bộ. (Cần `mode`: RAIN, SNOW, THUNDER và `density`)
 #
 # ----------------------------------------------------
 
@@ -172,11 +175,11 @@ thanh-tinh-tran:
     effects:
         - type: "CLEANSE"
           target: "PLAYERS"
+        - type: "SANCTUARY"
         - type: "POTION"
           target: "PLAYERS"
           potion_effect: "REGENERATION"
           value: 0
-        - type: "SANCTUARY"
 
 sinh-truong-tran:
     display_name: "&2&lSinh Trưởng Trận"
@@ -205,30 +208,29 @@ sinh-truong-tran:
         - type: "BREED"
           value: 200 # Cooldown 10 giây
 
-bang-han-tran:
-    display_name: "&b&lBăng Hàn Trận"
-    activation_item: "BLUE_ICE"
-    duration: "1h"
-    radius: 20
+bang-phong-tran:
+    display_name: "&b&lBăng Phong Tuyết Trận"
+    activation_item: "SNOW_BLOCK"
+    duration: "30m"
+    radius: 30
     pattern:
         key:
-            X: "ICE"
+            X: "BLUE_ICE"
             P: "PACKED_ICE"
             S: "SNOW_BLOCK"
         shape:
-            - " SSS "
-            - "SP PS"
-            - "S P S"
-            - "SPXPS"
-            - " SSS "
+            - "SPSPS"
+            - "P S P"
+            - "S X S"
+            - "P S P"
+            - "SPSPS"
     particles:
         ring: "SNOWFLAKE"
-        dome: "SNOW_SHOVEL"
+        dome: "SNOWBALL"
     effects:
-        - type: "POTION"
-          target: "ALL"
-          potion_effect: "SLOWNESS"
-          value: 1
+        - type: "CLIMATE"
+          mode: "SNOW"
+          density: 150
         - type: "FREEZE"
 
 tu-linh-thap:
@@ -268,9 +270,9 @@ hap-dan-tran:
     particles:
         ring: "PORTAL"
     effects:
-        - type: "COLLECT" # Hút vật phẩm
+        - type: "COLLECT"
           value: 0.5
-        - type: "VORTEX"  # Hút quái
+        - type: "VORTEX"
           target: "HOSTILE_MOBS"
           value: 0.3
 
@@ -295,7 +297,7 @@ thoi-khong-tran:
         dome: "END_ROD"
     effects:
         - type: "STASIS"
-          value: 3 # Làm chậm quái vật và vật thể bay đi 3 lần
+          value: 3
 
 hoa-nguc-tran:
     display_name: "&c&lHỏa Ngục Trận"
@@ -323,6 +325,101 @@ hoa-nguc-tran:
           duration: "10s"
         - type: "EXPLOSION"
           target: "HOSTILE_MOBS"
-          value: 1.5      # Sức nổ nhỏ
-          fire: true      # Vụ nổ tạo ra lửa
-          break_blocks: false # Vụ nổ không phá khối
+          value: 1.5
+# Thêm vào cuối tệp formations.yml
+
+lao-nguc-tran:
+    display_name: "&8&lLao Ngục Trận"
+    activation_item: "IRON_BARS"
+    duration: "10m"
+    radius: 15
+    pattern:
+        key:
+            X: "OBSIDIAN"
+            P: "IRON_BARS"
+            C: "CHAIN"
+        shape:
+            - " CPC "
+            - "P   P"
+            - "C X C"
+            - "P   P"
+            - " CPC "
+    particles:
+        ring: "SQUID_INK"
+        dome: "CRIT_MAGIC"
+    effects:
+        - type: "BARRIER"
+          target: "ALL"   # Áp dụng cho tất cả: ALL, PLAYERS, HOSTILE_MOBS
+          value: 1.0      # Lực đẩy, càng cao đẩy càng mạnh
+        - type: "POTION"
+          target: "ALL"
+          potion_effect: "SLOW" # Thêm hiệu ứng làm chậm cho những ai bị nhốt
+          value: 1
+# Thêm vào cuối tệp formations.yml
+
+phong-loi-tran:
+    display_name: "&7&lPhong Lôi Trận"
+    activation_item: "LIGHTNING_ROD"
+    duration: "10m"
+    radius: 30
+    pattern:
+        key:
+            X: "LODESTONE"
+            P: "POLISHED_ANDESITE"
+            C: "CHAIN"
+        shape:
+            - " CPC "
+            - "P   P"
+            - "C X C"
+            - "P   P"
+            - " CPC "
+    particles:
+        ring: "ELECTRIC_SPARK"
+        dome: "CLOUD"
+    effects:
+        - type: "CLIMATE"
+          mode: "THUNDER" # Chế độ bão tố giờ sẽ tự có gió lốc
+
+o-ue-tran:
+    display_name: "&2&lÔ Uế Trận"
+    activation_item: "SLIME_BALL"
+    duration: "15m"
+    radius: 20
+    pattern:
+        key:
+            X: "SLIME_BLOCK"
+            P: "MOSS_BLOCK"
+            S: "SOUL_SAND"
+        shape:
+            - " S S "
+            - "SP PS"
+            - " PXP "
+            - "SP PS"
+            - " S S "
+    particles:
+        ring: "DRIPPING_OBSIDIAN_TEAR"
+    effects:
+        - type: "CLIMATE"
+          mode: "ACID_RAIN" # Mưa axit gây sát thương và bào mòn giáp
+
+xich-dia-tran:
+    display_name: "&4&lXích Địa Trận"
+    activation_item: "MAGMA_CREAM"
+    duration: "20m"
+    radius: 25
+    pattern:
+        key:
+            X: "MAGMA_BLOCK"
+            P: "NETHERRACK"
+            S: "SOUL_SOIL"
+        shape:
+            - " S S "
+            - "SP PS"
+            - " PXP "
+            - "SP PS"
+            - " S S "
+    particles:
+        ring: "ASH"
+    effects:
+        - type: "CLIMATE"
+          mode: "DROUGHT" # Hạn hán làm khô đất, bốc hơi nước và gây cháy

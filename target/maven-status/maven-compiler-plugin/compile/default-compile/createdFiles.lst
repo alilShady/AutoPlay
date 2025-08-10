@@ -2,8 +2,10 @@ com\alilshady\tutientranphap\effects\MobRepulsionEffect.class
 com\alilshady\tutientranphap\effects\ItemRepairEffect.class
 com\alilshady\tutientranphap\managers\ConfigManager.class
 com\alilshady\tutientranphap\effects\RootEffect.class
+com\alilshady\tutientranphap\effects\ClimateEffect.class
 com\alilshady\tutientranphap\managers\FormationManager.class
 com\alilshady\tutientranphap\effects\ExplosionEffect.class
+com\alilshady\tutientranphap\effects\BarrierEffect.class
 com\alilshady\tutientranphap\listeners\StasisListener.class
 com\alilshady\tutientranphap\effects\FurnaceBoostEffect.class
 com\alilshady\tutientranphap\effects\PotionEffectStrategy.class
