@@ -1,4 +1,3 @@
-// src/main/java/com/alilshady/tutientranphap/effects/CollectEffect.java
 package com.alilshady.tutientranphap.effects;
 
 import com.alilshady.tutientranphap.TuTienTranPhap;
@@ -13,6 +12,7 @@ import org.bukkit.util.Vector;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID; // Thêm import
 
 public class CollectEffect implements FormationEffect {
 
@@ -21,19 +21,17 @@ public class CollectEffect implements FormationEffect {
         return "COLLECT";
     }
 
+    // SỬA Ở ĐÂY: Thêm UUID ownerId
     @Override
-    public void apply(TuTienTranPhap plugin, Formation formation, Location center, Map<?, ?> config, Collection<LivingEntity> nearbyEntities, List<Block> nearbyBlocks) {
-        // Hiệu ứng này không dùng nearbyEntities hay nearbyBlocks, nó lấy các thực thể riêng
+    public void apply(TuTienTranPhap plugin, Formation formation, Location center, Map<?, ?> config, Collection<LivingEntity> nearbyEntities, List<Block> nearbyBlocks, UUID ownerId) {
         double speed = EffectUtils.getDoubleFromConfig(config, "value", 0.8);
         Vector centerVector = center.clone().add(0.5, 0.5, 0.5).toVector();
 
-        // Lấy tất cả thực thể trong bán kính, không chỉ LivingEntity
         Collection<Entity> allEntities = center.getWorld().getNearbyEntities(center, formation.getRadius(), formation.getRadius(), formation.getRadius());
 
         for (Entity entity : allEntities) {
             if (entity instanceof Item) {
                 Item item = (Item) entity;
-                // Nếu vật phẩm đã ở rất gần trung tâm thì bỏ qua
                 if (item.getLocation().toVector().distanceSquared(centerVector) < 1.0) {
                     continue;
                 }

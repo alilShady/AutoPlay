@@ -1,4 +1,3 @@
-// src/main/java/com/alilshady/tutientranphap/effects/CropGrowthEffect.java
 package com.alilshady.tutientranphap.effects;
 
 import com.alilshady.tutientranphap.TuTienTranPhap;
@@ -12,6 +11,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import java.util.UUID; // Thêm import
 
 public class CropGrowthEffect implements FormationEffect {
 
@@ -22,8 +22,9 @@ public class CropGrowthEffect implements FormationEffect {
         return "GROWTH";
     }
 
+    // SỬA Ở ĐÂY: Thêm UUID ownerId
     @Override
-    public void apply(TuTienTranPhap plugin, Formation formation, Location center, Map<?, ?> config, Collection<LivingEntity> nearbyEntities, List<Block> nearbyBlocks) {
+    public void apply(TuTienTranPhap plugin, Formation formation, Location center, Map<?, ?> config, Collection<LivingEntity> nearbyEntities, List<Block> nearbyBlocks, UUID ownerId) {
         if (nearbyBlocks == null) return;
 
         double multiplier = EffectUtils.getDoubleFromConfig(config, "value", 1.5);
@@ -32,7 +33,6 @@ public class CropGrowthEffect implements FormationEffect {
             if (block.getBlockData() instanceof Ageable) {
                 Ageable ageable = (Ageable) block.getBlockData();
                 if (ageable.getAge() < ageable.getMaximumAge()) {
-                    // Tăng cơ hội cây trồng lớn lên dựa trên hệ số
                     if (random.nextDouble() < (0.1 * multiplier)) {
                         ageable.setAge(ageable.getAge() + 1);
                         block.setBlockData(ageable);

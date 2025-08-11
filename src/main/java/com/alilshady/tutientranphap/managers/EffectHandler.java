@@ -112,7 +112,8 @@ public class EffectHandler {
             }
 
             if (strategy instanceof BarrierEffect) {
-                ((BarrierEffect) strategy).applyBarrierPush(formation, center, effectMap, allNearbyLivingEntities, ownerId);
+                // ĐÂY LÀ DÒNG ĐÃ SỬA
+                ((BarrierEffect) strategy).applyBarrierPush(plugin, formation, center, effectMap, allNearbyLivingEntities, ownerId);
             }
         }
 

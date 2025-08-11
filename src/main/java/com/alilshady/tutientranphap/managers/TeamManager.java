@@ -2,7 +2,7 @@ package com.alilshady.tutientranphap.managers;
 
 import com.alilshady.tutientranphap.TuTienTranPhap;
 import com.booksaw.betterTeams.Team;
-import com.gmail.nossr50.api.party.PartyAPI;
+// import com.gmail.nossr50.api.party.PartyAPI; // TẠM VÔ HIỆU HÓA
 import net.sacredlabyrinth.phaed.simpleclans.SimpleClans;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -18,7 +18,7 @@ public class TeamManager {
     private enum TeamPluginProvider {
         BETTERTEAMS,
         SIMPLECLANS,
-        MCMMO,
+        MCMMO, // Vẫn giữ lại để logic không lỗi
         VANILLA,
         NONE
     }
@@ -58,7 +58,7 @@ public class TeamManager {
             case SIMPLECLANS:
                 return isAllySimpleClans(player1, player2);
             case MCMMO:
-                return isAllyMcMMO(player1, player2);
+                return isAllyMcMMO(player1, player2); // SỬA Ở ĐÂY
             case VANILLA:
                 return isAllyVanilla(player1, player2);
             default:
@@ -77,7 +77,10 @@ public class TeamManager {
     }
 
     private boolean isAllyMcMMO(Player p1, Player p2) {
-        return PartyAPI.inSameParty(p1, p2);
+        // TẠM VÔ HIỆU HÓA LOGIC - Sẽ không gây lỗi build
+        // Khi nào có thư viện, bạn có thể bỏ comment dòng dưới và xóa dòng "return false;"
+        // return PartyAPI.inSameParty(p1, p2);
+        return false;
     }
 
     private boolean isAllyVanilla(Player p1, Player p2) {

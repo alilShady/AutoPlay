@@ -1,4 +1,3 @@
-// src/main/java/com/alilshady/tutientranphap/effects/FurnaceBoostEffect.java
 package com.alilshady.tutientranphap.effects;
 
 import com.alilshady.tutientranphap.TuTienTranPhap;
@@ -11,6 +10,7 @@ import org.bukkit.entity.LivingEntity;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID; // Thêm import
 
 public class FurnaceBoostEffect implements FormationEffect {
 
@@ -19,8 +19,9 @@ public class FurnaceBoostEffect implements FormationEffect {
         return "SMELT";
     }
 
+    // SỬA Ở ĐÂY: Thêm UUID ownerId
     @Override
-    public void apply(TuTienTranPhap plugin, Formation formation, Location center, Map<?, ?> config, Collection<LivingEntity> nearbyEntities, List<Block> nearbyBlocks) {
+    public void apply(TuTienTranPhap plugin, Formation formation, Location center, Map<?, ?> config, Collection<LivingEntity> nearbyEntities, List<Block> nearbyBlocks, UUID ownerId) {
         if (nearbyBlocks == null) return;
 
         float multiplier = (float) EffectUtils.getDoubleFromConfig(config, "value", 2.0);
@@ -29,7 +30,6 @@ public class FurnaceBoostEffect implements FormationEffect {
             if (block.getState() instanceof Furnace) {
                 Furnace furnace = (Furnace) block.getState();
                 if (furnace.getBurnTime() > 0 && furnace.getCookTimeTotal() > 0) {
-                    // Tăng tiến độ nung
                     furnace.setCookTime((short) Math.min(furnace.getCookTimeTotal() - 1, furnace.getCookTime() + (int)(multiplier - 1)));
                     furnace.update();
                 }

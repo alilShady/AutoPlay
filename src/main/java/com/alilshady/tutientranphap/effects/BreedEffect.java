@@ -1,4 +1,3 @@
-// src/main/java/com/alilshady/tutientranphap/effects/BreedEffect.java
 package com.alilshady.tutientranphap.effects;
 
 import com.alilshady.tutientranphap.TuTienTranPhap;
@@ -12,11 +11,10 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
+import java.util.UUID; // Thêm import
 
 public class BreedEffect implements FormationEffect {
 
-    // Sử dụng Map để quản lý cooldown cho từng trận pháp riêng biệt
     private final Map<Location, Long> cooldowns = new HashMap<>();
 
     @Override
@@ -24,15 +22,15 @@ public class BreedEffect implements FormationEffect {
         return "BREED";
     }
 
+    // SỬA Ở ĐÂY: Thêm UUID ownerId
     @Override
-    public void apply(TuTienTranPhap plugin, Formation formation, Location center, Map<?, ?> config, Collection<LivingEntity> nearbyEntities, List<Block> nearbyBlocks) {
+    public void apply(TuTienTranPhap plugin, Formation formation, Location center, Map<?, ?> config, Collection<LivingEntity> nearbyEntities, List<Block> nearbyBlocks, UUID ownerId) {
         if (nearbyEntities == null) return;
 
-        long cooldownTicks = EffectUtils.getIntFromConfig(config, "value", 200); // 10 giây mặc định
+        long cooldownTicks = EffectUtils.getIntFromConfig(config, "value", 200);
         long currentTime = center.getWorld().getFullTime();
         long lastBreedTime = cooldowns.getOrDefault(center, 0L);
 
-        // Kiểm tra cooldown
         if (currentTime - lastBreedTime < cooldownTicks) {
             return;
         }
@@ -41,9 +39,9 @@ public class BreedEffect implements FormationEffect {
             if (entity instanceof Animals) {
                 Animals animal = (Animals) entity;
                 if (animal.isAdult() && animal.canBreed()) {
-                    animal.setLoveModeTicks(600); // Kích hoạt chế độ "yêu"
-                    cooldowns.put(center, currentTime); // Đặt lại cooldown
-                    return; // Mỗi lần chỉ nhân giống một con để tránh lag
+                    animal.setLoveModeTicks(600);
+                    cooldowns.put(center, currentTime);
+                    return;
                 }
             }
         }

@@ -1,6 +1,6 @@
 # src/main/resources/plugin.yml
 name: TuTienTranPhap
-version: 1.0
+version: ${project.version}
 main: com.alilshady.tutientranphap.TuTienTranPhap
 api-version: 1.20
 author: AlilShady

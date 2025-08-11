@@ -26,10 +26,11 @@ public class BarrierEffect implements FormationEffect {
 
     @Override
     public void apply(TuTienTranPhap plugin, Formation formation, Location center, Map<?, ?> config, Collection<LivingEntity> nearbyEntities, List<Block> nearbyBlocks, UUID ownerId) {
-        // Logic được gọi mỗi tick trong applyBarrierPush
+        // Logic được gọi mỗi tick trong applyBarrierPush, không cần code ở đây
     }
 
-    public void applyBarrierPush(Formation formation, Location center, Map<?, ?> config, Collection<LivingEntity> nearbyEntities, UUID ownerId) {
+    // SỬA Ở ĐÂY: Thêm TuTienTranPhap plugin vào tham số
+    public void applyBarrierPush(TuTienTranPhap plugin, Formation formation, Location center, Map<?, ?> config, Collection<LivingEntity> nearbyEntities, UUID ownerId) {
         if (nearbyEntities == null) return;
 
         double radius = formation.getRadius();
@@ -55,11 +56,13 @@ public class BarrierEffect implements FormationEffect {
                     }
                     break;
                 case "DAMAGEABLE":
+                    // SỬA Ở ĐÂY: Dùng biến plugin đã được truyền vào
                     if (entity instanceof Monster || (entity instanceof Player && owner != null && !plugin.getTeamManager().isAlly(owner, (Player) entity))) {
                         shouldApply = true;
                     }
                     break;
                 case "UNDAMAGEABLE":
+                    // SỬA Ở ĐÂY: Dùng biến plugin đã được truyền vào
                     if (entity instanceof Animals || (entity instanceof Player && owner != null && plugin.getTeamManager().isAlly(owner, (Player) entity))) {
                         shouldApply = true;
                     }

@@ -1,4 +1,3 @@
-// src/main/java/com/alilshady/tutientranphap/effects/HarvestEffect.java
 package com.alilshady.tutientranphap.effects;
 
 import com.alilshady.tutientranphap.TuTienTranPhap;
@@ -15,6 +14,7 @@ import org.bukkit.inventory.ItemStack;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID; // Thêm import
 
 public class HarvestEffect implements FormationEffect {
 
@@ -23,8 +23,9 @@ public class HarvestEffect implements FormationEffect {
         return "HARVEST";
     }
 
+    // SỬA Ở ĐÂY: Thêm UUID ownerId
     @Override
-    public void apply(TuTienTranPhap plugin, Formation formation, Location center, Map<?, ?> config, Collection<LivingEntity> nearbyEntities, List<Block> nearbyBlocks) {
+    public void apply(TuTienTranPhap plugin, Formation formation, Location center, Map<?, ?> config, Collection<LivingEntity> nearbyEntities, List<Block> nearbyBlocks, UUID ownerId) {
         if (nearbyBlocks == null) return;
         World world = center.getWorld();
         if (world == null) return;
@@ -37,14 +38,12 @@ public class HarvestEffect implements FormationEffect {
                 if (ageable.getAge() == ageable.getMaximumAge()) {
                     Location dropLocation = block.getLocation().add(0.5, 0.5, 0.5);
 
-                    // Thu hoạch
                     Collection<ItemStack> drops = block.getDrops();
                     for (ItemStack item : drops) {
                         world.dropItemNaturally(dropLocation, item);
                     }
                     world.playSound(dropLocation, Sound.BLOCK_CROP_BREAK, 1.0f, 1.0f);
 
-                    // Trồng lại hoặc xóa
                     if (replant) {
                         ageable.setAge(0);
                         block.setBlockData(ageable);

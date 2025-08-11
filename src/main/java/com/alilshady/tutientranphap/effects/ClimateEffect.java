@@ -1,4 +1,3 @@
-// src/main/java/com/alilshady/tutientranphap/effects/ClimateEffect.java
 package com.alilshady.tutientranphap.effects;
 
 import com.alilshady.tutientranphap.TuTienTranPhap;
@@ -15,12 +14,13 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.Damageable;
-import org.bukkit.util.Vector; // SỬA LỖI: Thêm import còn thiếu
+import org.bukkit.util.Vector;
 
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import java.util.UUID; // Thêm import
 
 public class ClimateEffect implements FormationEffect {
 
@@ -33,8 +33,9 @@ public class ClimateEffect implements FormationEffect {
         return "CLIMATE";
     }
 
+    // SỬA Ở ĐÂY: Thêm UUID ownerId
     @Override
-    public void apply(TuTienTranPhap plugin, Formation formation, Location center, Map<?, ?> config, Collection<LivingEntity> nearbyEntities, List<Block> nearbyBlocks) {
+    public void apply(TuTienTranPhap plugin, Formation formation, Location center, Map<?, ?> config, Collection<LivingEntity> nearbyEntities, List<Block> nearbyBlocks, UUID ownerId) {
         if (nearbyEntities != null) {
             applyVisualEffects(nearbyEntities, config);
         }
@@ -75,7 +76,6 @@ public class ClimateEffect implements FormationEffect {
     private void applyPhysicalEffects(Collection<LivingEntity> nearbyEntities, List<Block> nearbyBlocks, Map<?, ?> config) {
         String mode = EffectUtils.getStringFromConfig(config, "mode", "RAIN").toUpperCase();
 
-        // Dùng vòng lặp for-each cho nearbyBlocks trước
         for (Block block : nearbyBlocks) {
             if (random.nextDouble() > PHYSICAL_CHANCE) continue;
 
@@ -93,7 +93,6 @@ public class ClimateEffect implements FormationEffect {
             }
         }
 
-        // Xử lý Mưa Axit riêng vì nó cần vòng lặp nearbyEntities
         if (mode.equals("ACID_RAIN")) {
             if (random.nextDouble() <= PHYSICAL_CHANCE) {
                 handleAcidRainEffects(nearbyEntities);
