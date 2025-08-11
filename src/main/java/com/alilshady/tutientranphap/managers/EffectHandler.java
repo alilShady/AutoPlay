@@ -41,7 +41,6 @@ public class EffectHandler {
 
     /**
      * Đăng ký tất cả các lớp hiệu ứng (chiến lược) vào map.
-     * Khi cần thêm hiệu ứng mới, chỉ cần thêm vào stream này.
      */
     private void registerEffectStrategies() {
         Stream.of(
@@ -90,7 +89,6 @@ public class EffectHandler {
 
             @Override
             public void run() {
-                // Kiểm tra điều kiện dừng: hết thời gian hoặc khối trung tâm bị phá
                 if ((maxDurationTicks > 0 && ticksLived >= maxDurationTicks) || world.getBlockAt(center).getType() != formation.getCenterBlock()) {
                     stopAndCleanup();
                     return;
@@ -104,7 +102,7 @@ public class EffectHandler {
             private void stopAndCleanup() {
                 this.cancel();
                 removePotionEffects(formation, center);
-                stopEffect(center); // Dọn dẹp task và các map
+                stopEffect(center);
                 world.playSound(center, Sound.BLOCK_BEACON_DEACTIVATE, 1.0f, 1.0f);
                 world.spawnParticle(Particle.SMOKE_LARGE, center.clone().add(0.5, 1, 0.5), 50, 0.5, 0.5, 0.5, 0);
             }
@@ -116,56 +114,66 @@ public class EffectHandler {
 
     /**
      * Áp dụng tất cả các hiệu ứng được cấu hình cho trận pháp.
-     * Phương thức này giờ chỉ đóng vai trò điều phối.
      */
     private void applyEffects(Formation formation, Location center) {
         World world = center.getWorld();
         if (world == null) return;
         long currentTick = animationTickMap.getOrDefault(center, 0L);
 
-        // 1. Áp dụng hiệu ứng hạt (nếu có)
+        // 1. Áp dụng hiệu ứng hạt (chạy mỗi tick)
         Map<String, Object> particleConfig = formation.getParticleConfig();
         if (particleConfig != null && !particleConfig.isEmpty()) {
             applyCinematicParticleShield(formation, center, particleConfig, currentTick);
         }
 
-        // 2. Chỉ áp dụng hiệu ứng logic theo tần suất đã định
+        // Lấy danh sách thực thể một lần để tối ưu cho các hiệu ứng chạy mỗi tick
+        Collection<LivingEntity> allNearbyLivingEntities = world.getNearbyLivingEntities(center, formation.getRadius());
+
+        // 2. Chạy các hiệu ứng cần thực thi mỗi tick
+        for (Map<?, ?> effectMap : formation.getEffects()) {
+            String typeStr = String.valueOf(effectMap.get("type")).toUpperCase();
+            FormationEffect strategy = effectStrategies.get(typeStr);
+
+            if (strategy instanceof StasisEffect) {
+                int slowAmplifier = EffectUtils.getIntFromConfig(effectMap, "value", 3);
+                ((StasisEffect) strategy).applyToProjectiles(world, center, formation.getRadius(), slowAmplifier);
+            }
+
+            if (strategy instanceof BarrierEffect) {
+                ((BarrierEffect) strategy).applyBarrierPush(formation, center, effectMap, allNearbyLivingEntities);
+            }
+        }
+
+        // 3. Chỉ áp dụng hiệu ứng logic theo tần suất đã định
         if (currentTick % plugin.getConfigManager().getEffectCheckInterval() != 0) {
             return;
         }
 
-        // 3. Lấy danh sách thực thể và khối một lần duy nhất để tối ưu
-        Collection<LivingEntity> nearbyEntities = world.getNearbyLivingEntities(center, formation.getRadius());
+        // 4. Lấy danh sách khối theo tần suất
         List<Block> nearbyBlocks = getBlocksInRadius(center, (int) Math.ceil(formation.getRadius()));
-
         final boolean isDebug = plugin.getConfigManager().isDebugLoggingEnabled();
 
-        // 4. Vòng lặp và ủy thác cho các lớp Strategy
+        // 5. Vòng lặp và ủy thác cho các lớp Strategy (trừ các hiệu ứng đã chạy mỗi tick)
         for (Map<?, ?> effectMap : formation.getEffects()) {
             String typeStr = String.valueOf(effectMap.get("type")).toUpperCase();
             FormationEffect strategy = effectStrategies.get(typeStr);
 
             if (strategy != null) {
                 if (isDebug) plugin.getLogger().info("[DEBUG][EFFECT] Running effect: " + typeStr);
-                strategy.apply(plugin, formation, center, effectMap, nearbyEntities, nearbyBlocks);
+                // Các hiệu ứng đã chạy mỗi tick sẽ có phương thức apply trống hoặc chỉ xử lý phần logic còn lại
+                strategy.apply(plugin, formation, center, effectMap, allNearbyLivingEntities, nearbyBlocks);
             } else {
-                if (isDebug && currentTick % 200 == 0) { // Log cảnh báo không thường xuyên
+                if (isDebug && currentTick % 200 == 0) {
                     plugin.getLogger().warning("Loại hiệu ứng không xác định '" + typeStr + "' trong trận pháp: " + formation.getId());
                 }
             }
         }
     }
 
-    /**
-     * Được gọi bởi PotionEffectStrategy để theo dõi các thực thể bị ảnh hưởng.
-     */
     public void trackAffectedEntity(Location center, UUID entityId) {
         affectedEntitiesByFormation.computeIfAbsent(center, k -> new HashSet<>()).add(entityId);
     }
 
-    /**
-     * Dừng và dọn dẹp một hiệu ứng trận pháp tại một vị trí.
-     */
     public void stopEffect(Location center) {
         BukkitTask task = activeEffectTasks.remove(center);
         if (task != null && !task.isCancelled()) {
@@ -173,24 +181,16 @@ public class EffectHandler {
         }
         affectedEntitiesByFormation.remove(center);
         animationTickMap.remove(center);
-        // Thông báo cho FormationManager rằng trận pháp không còn hoạt động
         plugin.getFormationManager().deactivateFormation(center);
     }
 
-    /**
-     * Dừng tất cả các hiệu ứng trận pháp đang hoạt động trên server.
-     */
     public void stopAllEffects() {
-        // Tạo một bản sao của keySet để tránh ConcurrentModificationException
         new ArrayList<>(activeEffectTasks.keySet()).forEach(this::stopEffect);
         activeEffectTasks.clear();
         affectedEntitiesByFormation.clear();
         animationTickMap.clear();
     }
 
-    /**
-     * Lấy tất cả các khối trong một bán kính hình tròn.
-     */
     private List<Block> getBlocksInRadius(Location center, int radius) {
         List<Block> blocks = new ArrayList<>();
         World world = center.getWorld();
@@ -200,7 +200,6 @@ public class EffectHandler {
 
         for (int x = cX - radius; x <= cX + radius; x++) {
             for (int z = cZ - radius; z <= cZ + radius; z++) {
-                // Chỉ lấy các khối trên cùng một mặt phẳng Y
                 if (center.distanceSquared(new Location(world, x, cY, z)) <= radiusSquared) {
                     blocks.add(world.getBlockAt(x, cY, z));
                 }
@@ -209,14 +208,10 @@ public class EffectHandler {
         return blocks;
     }
 
-    /**
-     * Xóa các hiệu ứng thuốc do trận pháp gây ra khi nó hết hiệu lực.
-     */
     private void removePotionEffects(Formation formation, Location center) {
         Set<UUID> affectedUuids = affectedEntitiesByFormation.get(center);
         if (affectedUuids == null || affectedUuids.isEmpty()) return;
 
-        // Lấy danh sách các loại hiệu ứng thuốc từ cấu hình trận pháp
         Set<PotionEffectType> formationPotionTypes = formation.getEffects().stream()
                 .filter(map -> "POTION".equalsIgnoreCase(String.valueOf(map.get("type"))))
                 .map(map -> EffectUtils.getStringFromConfig(map, "potion_effect", ""))
@@ -235,9 +230,6 @@ public class EffectHandler {
         }
     }
 
-    /**
-     * Vẽ các hiệu ứng hạt phức tạp (giữ nguyên).
-     */
     private void applyCinematicParticleShield(Formation formation, Location center, Map<?, ?> config, long tick) {
         World world = center.getWorld();
         if (world == null) return;
@@ -251,6 +243,7 @@ public class EffectHandler {
         Optional<Particle> orbParticle = Optional.ofNullable(EffectUtils.getStringFromConfig(config, "orb", null)).map(s -> Particle.valueOf(s.toUpperCase()));
         Optional<Particle> domeParticle = Optional.ofNullable(EffectUtils.getStringFromConfig(config, "dome", null)).map(s -> Particle.valueOf(s.toUpperCase()));
         double rotationAngle = Math.toRadians(tick * rotationSpeed);
+
         mainParticle.ifPresent(p -> {
             for (double angle = 0; angle < 2 * Math.PI; angle += Math.PI / 32) {
                 double x = centerPoint.getX() + radius * Math.cos(angle + rotationAngle);

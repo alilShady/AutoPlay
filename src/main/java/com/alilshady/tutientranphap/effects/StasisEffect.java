@@ -27,18 +27,14 @@ public class StasisEffect implements FormationEffect {
     @Override
     public void apply(TuTienTranPhap plugin, Formation formation, Location center, Map<?, ?> config, Collection<LivingEntity> nearbyEntities, List<Block> nearbyBlocks) {
         if (nearbyEntities == null) return;
-        World world = center.getWorld();
-        if (world == null) return;
 
         // --- Logic làm chậm Thực thể sống (LivingEntity) ---
         int slowAmplifier = EffectUtils.getIntFromConfig(config, "value", 3);
         int durationTicks = plugin.getConfigManager().getEffectCheckInterval() + 40;
-        // Cho phép tùy chỉnh mục tiêu, mặc định là quái vật thù địch
         String targetType = EffectUtils.getStringFromConfig(config, "target", "HOSTILE_MOBS").toUpperCase();
         PotionEffect slowEffect = new PotionEffect(PotionEffectType.SLOW, durationTicks, slowAmplifier - 1, true, false);
 
         for (LivingEntity entity : nearbyEntities) {
-            // Bỏ qua người chơi ở chế độ sáng tạo/quan sát
             if (entity instanceof Player && ((Player) entity).getGameMode() != GameMode.SURVIVAL) {
                 continue;
             }
@@ -61,9 +57,17 @@ public class StasisEffect implements FormationEffect {
             }
         }
 
-        // --- Logic làm chậm Vật thể bay (Projectile) không đổi ---
+        // --- Logic làm chậm Vật thể bay đã được chuyển đi ---
+        // Logic này giờ sẽ được gọi mỗi tick từ EffectHandler
+    }
+
+    /**
+     * Phương thức mới để xử lý vật thể bay, sẽ được gọi mỗi tick.
+     */
+    public void applyToProjectiles(World world, Location center, double radius, int slowAmplifier) {
+        if (world == null) return;
+
         double slowFactor = 1.0 / slowAmplifier;
-        double radius = formation.getRadius();
         Collection<Entity> allEntities = world.getNearbyEntities(center, radius, radius, radius);
 
         for (Entity entity : allEntities) {
@@ -71,7 +75,6 @@ public class StasisEffect implements FormationEffect {
                 Projectile projectile = (Projectile) entity;
                 Vector velocity = projectile.getVelocity();
                 if (!velocity.isZero()) {
-                    // Áp dụng lực cản và lực đẩy nhẹ lên trên
                     projectile.setVelocity(velocity.multiply(slowFactor).add(new Vector(0, 0.03, 0)));
                     world.spawnParticle(Particle.END_ROD, projectile.getLocation(), 1, 0, 0, 0, 0);
                 }

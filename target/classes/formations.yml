@@ -18,6 +18,7 @@
 # - EXPLOSION:  Gây nổ (không phá khối, luôn có lửa). (Cần `target`, `value`)
 # - IGNITE:     Đốt cháy mục tiêu. (Cần `target`, `duration`)
 # - BARRIER:    Tạo rào cản vô hình. (Cần `target`, `value`)
+# - DEVOLVE:    Làm thoái hóa (biến động vật lớn thành bé, giảm size slime,...)
 #
 # --- Tiện ích & Kinh tế ---
 # - REPAIR:     Sửa chữa vật phẩm. (Cần `target`, `value`)
@@ -34,7 +35,7 @@
 #
 # ----------------------------------------------------
 
-# --- DANH SÁCH CÁC TRẬN PHÁP ---
+# --- DANH SÁCH CÁC TRẬN PHÁP GỐC ---
 
 kim-cang-tran:
     display_name: "&e&lKim Cang Hộ Thể Trận"
@@ -107,57 +108,6 @@ hoa-luyen-tran:
         - type: "SMELT"
           value: 3.0
 
-on-duong-tran:
-    display_name: "&d&lÔn Dưỡng Trận"
-    activation_item: "EXPERIENCE_BOTTLE"
-    duration: "30m"
-    radius: 12
-    pattern:
-        key:
-            X: "ANVIL"
-            P: "AMETHYST_BLOCK"
-        shape:
-            - "  P  "
-            - " P P "
-            - "P X P"
-            - " P P "
-            - "  P  "
-    particles:
-        ring: "VILLAGER_HAPPY"
-        dome: "END_ROD"
-    effects:
-        - type: "REPAIR"
-          target: "PLAYERS"
-          value: 10
-
-thanh-tinh-tran:
-    display_name: "&a&lThanh Tịnh Trận"
-    activation_item: "MILK_BUCKET"
-    duration: "30m"
-    radius: 25
-    pattern:
-        key:
-            X: "BEACON"
-            P: "WHITE_WOOL"
-            G: "GLASS"
-        shape:
-            - " GGG "
-            - "G P G"
-            - "GPXPG"
-            - "G P G"
-            - " GGG "
-    particles:
-        ring: "VILLAGER_HAPPY"
-        dome: "CLOUD"
-    effects:
-        - type: "CLEANSE"
-          target: "PLAYERS"
-        - type: "SANCTUARY"
-        - type: "POTION"
-          target: "PLAYERS"
-          potion_effect: "REGENERATION"
-          value: 0
-
 sinh-truong-tran:
     display_name: "&2&lSinh Trưởng Trận"
     activation_item: "BONE_MEAL"
@@ -184,79 +134,6 @@ sinh-truong-tran:
         - type: "BREED"
           value: 200
 
-hap-dan-tran:
-    display_name: "&5&lHấp Dẫn Trận"
-    activation_item: "HOPPER"
-    duration: "1h"
-    radius: 15
-    pattern:
-        key:
-            X: "LODESTONE"
-            P: "IRON_BLOCK"
-        shape:
-            - " P P "
-            - "P X P"
-            - " P P "
-    particles:
-        ring: "PORTAL"
-    effects:
-        - type: "COLLECT"
-          value: 0.5
-        - type: "VORTEX"
-          target: "HOSTILE_MOBS"
-          value: 0.3
-
-thoi-khong-tran:
-    display_name: "&3&lThời Không Trì Hoãn Trận"
-    activation_item: "CLOCK"
-    duration: "15m"
-    radius: 25
-    pattern:
-        key:
-            X: "CRYING_OBSIDIAN"
-            P: "SOUL_SOIL"
-            G: "TINTED_GLASS"
-        shape:
-            - " GGG "
-            - "G P G"
-            - "GPXPG"
-            - "G P G"
-            - " GGG "
-    particles:
-        ring: "REVERSE_PORTAL"
-        dome: "END_ROD"
-    effects:
-        - type: "STASIS"
-          value: 3
-
-hoa-nguc-tran:
-    display_name: "&c&lHỏa Ngục Trận"
-    activation_item: "TNT"
-    duration: "5m"
-    radius: 15
-    pattern:
-        key:
-            X: "NETHERRACK"
-            P: "BLACKSTONE"
-            F: "FIRE_CHARGE"
-        shape:
-            - " FPF "
-            - "P   P"
-            - "F X F"
-            - "P   P"
-            - " FPF "
-    particles:
-        ring: "FLAME"
-        orb: "LAVA"
-        pillar: "SMOKE_LARGE"
-    effects:
-        - type: "IGNITE"
-          target: "HOSTILE_MOBS"
-          duration: "10s"
-        - type: "EXPLOSION"
-          target: "HOSTILE_MOBS"
-          value: 1.5
-
 lao-nguc-tran:
     display_name: "&8&lLao Ngục Trận"
     activation_item: "IRON_BARS"
@@ -279,77 +156,170 @@ lao-nguc-tran:
     effects:
         - type: "BARRIER"
           target: "ALL"
-          value: 1.0
+          value: 1.5 # Tăng lực đẩy để khó thoát hơn
         - type: "POTION"
           target: "ALL"
           potion_effect: "SLOW"
           value: 1
 
-# --- CÁC TRẬN PHÁP MỚI ĐỂ THỬ NGHIỆM CLIMATE 2.0 ---
+# ----------------------------------------------------
+# --- CÁC TRẬN PHÁP MỚI VỚI HIỆU ỨNG HẠT NÂNG CAO ---
+# ----------------------------------------------------
 
-phong-loi-tran:
-    display_name: "&7&lPhong Lôi Trận"
-    activation_item: "LIGHTNING_ROD"
-    duration: "10m"
-    radius: 30
-    pattern:
-        key:
-            X: "LODESTONE"
-            P: "POLISHED_ANDESITE"
-            C: "CHAIN"
-        shape:
-            - " CPC "
-            - "P   P"
-            - "C X C"
-            - "P   P"
-            - " CPC "
-    particles:
-        ring: "ELECTRIC_SPARK"
-        dome: "CLOUD"
-    effects:
-        - type: "CLIMATE"
-          mode: "THUNDER"
-
-o-ue-tran:
-    display_name: "&2&lÔ Uế Trận"
-    activation_item: "SLIME_BALL"
-    duration: "15m"
-    radius: 20
-    pattern:
-        key:
-            X: "SLIME_BLOCK"
-            P: "MOSS_BLOCK"
-            S: "SOUL_SAND"
-        shape:
-            - " S S "
-            - "SP PS"
-            - " PXP "
-            - "SP PS"
-            - " S S "
-    particles:
-        ring: "DRIPPING_OBSIDIAN_TEAR"
-    effects:
-        - type: "CLIMATE"
-          mode: "ACID_RAIN"
-
-xich-dia-tran:
-    display_name: "&4&lXích Địa Trận"
-    activation_item: "MAGMA_CREAM"
+thanh-quang-tran:
+    display_name: "&a&lThánh Quang Tẩy Tễ Trận"
+    activation_item: "GOLD_BLOCK"
     duration: "20m"
     radius: 25
     pattern:
         key:
-            X: "MAGMA_BLOCK"
-            P: "NETHERRACK"
-            S: "SOUL_SOIL"
+            X: "BEACON"
+            P: "QUARTZ_BLOCK"
+            G: "GOLD_BLOCK"
         shape:
-            - " S S "
-            - "SP PS"
-            - " PXP "
-            - "SP PS"
-            - " S S "
+            - " GPG "
+            - "P   P"
+            - "G X G"
+            - "P   P"
+            - " GPG "
     particles:
-        ring: "ASH"
+        rotation_speed: 1.0 # Tốc độ quay của các vòng hạt
+        pillar_count: 4      # Số cột hạt
+        ring: "TOTEM_OF_UNDYING"
+        pillar: "VILLAGER_HAPPY"
+        dome: "END_ROD"
     effects:
-        - type: "CLIMATE"
-          mode: "DROUGHT"
+        - type: "HEAL"
+          target: "PLAYERS"
+          value: 1 # Hồi 1 máu (nửa trái tim) mỗi giây
+        - type: "CLEANSE"
+          target: "PLAYERS"
+        - type: "POTION"
+          target: "PLAYERS"
+          potion_effect: "REGENERATION"
+          value: 0
+        - type: "SANCTUARY"
+
+hu-thuc-tran:
+    display_name: "&8&lHủ Thực Ma Trận"
+    activation_item: "WITHER_SKELETON_SKULL"
+    duration: "15m"
+    radius: 20
+    pattern:
+        key:
+            X: "SOUL_SAND"
+            P: "POLISHED_BLACKSTONE_BRICKS"
+            C: "CRYING_OBSIDIAN"
+        shape:
+            - " CPC "
+            - "C   C"
+            - "P X P"
+            - "C   C"
+            - " CPC "
+    particles:
+        rotation_speed: 2.5
+        ring: "SQUID_INK"
+        orb: "DRAGON_BREATH"
+        pillar: "SOUL_FIRE_FLAME"
+    effects:
+        - type: "POTION"
+          target: "HOSTILE_MOBS"
+          potion_effect: "WITHER"
+          value: 0 # Wither I
+        - type: "POTION"
+          target: "PLAYERS" # Cũng ảnh hưởng người chơi nếu đứng trong
+          potion_effect: "HUNGER"
+          value: 0
+        - type: "DEVOLVE"
+          value: 1
+
+bang-phong-tran:
+    display_name: "&b&lBăng Phong Cấm Cố Trận"
+    activation_item: "BLUE_ICE"
+    duration: "10m"
+    radius: 18
+    pattern:
+        key:
+            X: "BLUE_ICE"
+            P: "PACKED_ICE"
+            I: "ICE"
+        shape:
+            - " III "
+            - "I P I"
+            - "IPXPI"
+            - "I P I"
+            - " III "
+    particles:
+        rotation_speed: -1.2 # Quay ngược chiều
+        dome_lines: 10
+        ring: "SNOWFLAKE"
+        dome: "END_ROD"
+        pillar: "REVERSE_PORTAL" # Giống sương lạnh
+    effects:
+        - type: "FREEZE" # Đóng băng nước và lava
+        - type: "ROOT"
+          target: "HOSTILE_MOBS"
+          duration: "2s" # Giữ chân trong 2 giây
+          value: 5 # Mức độ làm chậm
+        - type: "REPEL"
+          value: 0.7 # Đẩy nhẹ ra
+
+loi-nguc-tran:
+    display_name: "&e&lThiên Lôi Ngục Trận"
+    activation_item: "LIGHTNING_ROD"
+    duration: "5m"
+    radius: 20
+    pattern:
+        key:
+            X: "LODESTONE"
+            P: "IRON_BARS"
+            C: "COPPER_BLOCK"
+        shape:
+            - " P P "
+            - "PCXCP"
+            - " C C "
+            - "PCXCP"
+            - " P P "
+    particles:
+        ring: "ELECTRIC_SPARK"
+        dome: "CLOUD"
+        pillar: "FIREWORK"
+    effects:
+        - type: "VORTEX" # Hút quái vào giữa
+          target: "HOSTILE_MOBS"
+          value: 0.4
+        - type: "LIGHTNING" # Đánh sét
+          target: "HOSTILE_MOBS"
+          visual_only: false # Gây sát thương thật
+        - type: "BARRIER" # Giữ quái bên trong
+          target: "HOSTILE_MOBS"
+          value: 1.0
+
+huyet-te-tran:
+    display_name: "&4&lHuyết Tế Trận"
+    activation_item: "NETHER_STAR"
+    duration: "10m"
+    radius: 15
+    pattern:
+        key:
+            X: "RESPAWN_ANCHOR"
+            P: "REDSTONE_BLOCK"
+            N: "NETHERITE_BLOCK"
+        shape:
+            - "  P  "
+            - " P P "
+            - "P X P"
+            - " P P "
+            - "  N  "
+    particles:
+        ring: "DAMAGE_INDICATOR"
+        orb: "DRIPPING_OBSIDIAN_TEAR"
+        dome: "ENCHANTMENT_TABLE"
+    effects:
+        - type: "DAMAGE" # Gây sát thương liên tục cho quái
+          target: "HOSTILE_MOBS"
+          value: 2.0 # 1 trái tim mỗi giây
+        - type: "COLLECT" # Hút vật phẩm
+          value: 0.6
+        - type: "XP" # Tạo ra kinh nghiệm từ quái bị giết
+          value: 10
