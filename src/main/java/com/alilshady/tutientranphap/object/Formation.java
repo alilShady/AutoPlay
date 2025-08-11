@@ -1,14 +1,15 @@
 package com.alilshady.tutientranphap.object;
 
 import org.bukkit.Material;
+import org.bukkit.inventory.ItemStack;
 import java.util.List;
 import java.util.Map;
 
 public class Formation {
     private final String id;
     private final String displayName;
-    private final Material activationItem;
-    private final String duration; // Đã đổi từ int durationSeconds
+    private final ItemStack activationItem; // Sửa từ Material thành ItemStack
+    private final String duration;
     private final int radius;
     private final Map<Character, Material> patternKey;
     private final List<String> shape;
@@ -16,7 +17,7 @@ public class Formation {
     private final List<Map<?, ?>> effects;
     private final Map<String, Object> particleConfig;
 
-    public Formation(String id, String displayName, Material activationItem, String duration, int radius, Map<Character, Material> patternKey, List<String> shape, List<Map<?, ?>> effects, Map<String, Object> particleConfig) {
+    public Formation(String id, String displayName, ItemStack activationItem, String duration, int radius, Map<Character, Material> patternKey, List<String> shape, List<Map<?, ?>> effects, Map<String, Object> particleConfig) {
         this.id = id;
         this.displayName = displayName;
         this.activationItem = activationItem;
@@ -32,8 +33,8 @@ public class Formation {
     // Getters
     public String getId() { return id; }
     public String getDisplayName() { return displayName; }
-    public Material getActivationItem() { return activationItem; }
-    public String getDuration() { return duration; } // Đã đổi tên từ getDurationSeconds
+    public ItemStack getActivationItem() { return activationItem; } // Sửa kiểu trả về
+    public String getDuration() { return duration; }
     public int getRadius() { return radius; }
     public Map<Character, Material> getPatternKey() { return patternKey; }
     public List<String> getShape() { return shape; }

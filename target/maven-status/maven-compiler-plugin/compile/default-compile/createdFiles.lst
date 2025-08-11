@@ -2,7 +2,9 @@ com\alilshady\tutientranphap\effects\MobRepulsionEffect.class
 com\alilshady\tutientranphap\effects\ItemRepairEffect.class
 com\alilshady\tutientranphap\managers\ConfigManager.class
 com\alilshady\tutientranphap\effects\RootEffect.class
+com\alilshady\tutientranphap\utils\ItemFactory.class
 com\alilshady\tutientranphap\effects\ClimateEffect.class
+com\alilshady\tutientranphap\utils\ConfigUpdater.class
 com\alilshady\tutientranphap\managers\TeamManager$TeamPluginProvider.class
 com\alilshady\tutientranphap\managers\FormationManager.class
 com\alilshady\tutientranphap\effects\ExplosionEffect.class
@@ -25,6 +27,7 @@ com\alilshady\tutientranphap\effects\IgniteEffect.class
 com\alilshady\tutientranphap\listeners\SanctuaryListener.class
 com\alilshady\tutientranphap\managers\EffectHandler$1.class
 com\alilshady\tutientranphap\effects\FormationEffect.class
+com\alilshady\tutientranphap\utils\UP.class
 com\alilshady\tutientranphap\effects\CleanseEffect.class
 com\alilshady\tutientranphap\effects\LightningStrikeEffect.class
 com\alilshady\tutientranphap\effects\VortexEffect.class

@@ -1,4 +1,3 @@
-// src/main/java/com/alilshady/tutientranphap/commands/CommandManager.java
 package com.alilshady.tutientranphap.commands;
 
 import com.alilshady.tutientranphap.TuTienTranPhap;
@@ -40,8 +39,10 @@ public class CommandManager implements CommandExecutor {
         switch (subCommand) {
             case "reload":
                 return handleReload(sender);
-            case "give":
-                return handleGive(sender, args, label);
+            case "give": // Lệnh give Trận Đồ (giấy)
+                return handleGiveBlueprint(sender, args, label);
+            case "giveitem": // Lệnh give Vật phẩm kích hoạt
+                return handleGiveItem(sender, args, label);
             case "test":
                 return handleTest(sender, args, label);
             default:
@@ -61,7 +62,7 @@ public class CommandManager implements CommandExecutor {
         return true;
     }
 
-    private boolean handleGive(CommandSender sender, String[] args, String label) {
+    private boolean handleGiveBlueprint(CommandSender sender, String[] args, String label) {
         if (!sender.hasPermission("tutientranphap.give")) {
             sender.sendMessage(plugin.getConfigManager().getMessage("commands.reload.no-permission"));
             return true;
@@ -101,6 +102,59 @@ public class CommandManager implements CommandExecutor {
         sender.sendMessage(plugin.getConfigManager().getMessage("commands.give.success",
                 "%amount%", String.valueOf(amount),
                 "%item_name%", blueprint.getItemMeta().getDisplayName(),
+                "%player%", target.getName()));
+
+        return true;
+    }
+
+    // --- LỆNH MỚI ĐỂ GIVE VẬT PHẨM "XỊN" ---
+    private boolean handleGiveItem(CommandSender sender, String[] args, String label) {
+        if (!sender.hasPermission("tutientranphap.giveitem")) {
+            sender.sendMessage(plugin.getConfigManager().getMessage("commands.reload.no-permission"));
+            return true;
+        }
+
+        if (args.length < 3) {
+            sender.sendMessage(ChatColor.YELLOW + "Sử dụng: /" + label + " giveitem <tên người chơi> <ID trận pháp> [số lượng]");
+            return true;
+        }
+
+        Player target = Bukkit.getPlayer(args[1]);
+        if (target == null) {
+            sender.sendMessage(plugin.getConfigManager().getMessage("commands.give.player-not-found", "%player%", args[1]));
+            return true;
+        }
+
+        String formationId = args[2];
+        Formation formation = plugin.getFormationManager().getFormationById(formationId);
+        if (formation == null) {
+            sender.sendMessage(plugin.getConfigManager().getMessage("commands.give.formation-not-found", "%id%", formationId));
+            return true;
+        }
+
+        int amount = 1;
+        if (args.length >= 4) {
+            try {
+                amount = Integer.parseInt(args[3]);
+            } catch (NumberFormatException e) {
+                sender.sendMessage(ChatColor.RED + "Số lượng không hợp lệ.");
+                return true;
+            }
+        }
+
+        // Lấy vật phẩm kích hoạt đã được tạo sẵn từ config (đã có tag ẩn)
+        ItemStack activationItem = formation.getActivationItem().clone();
+        activationItem.setAmount(amount);
+
+        target.getInventory().addItem(activationItem);
+
+        String itemName = activationItem.hasItemMeta() && activationItem.getItemMeta().hasDisplayName()
+                ? ChatColor.stripColor(activationItem.getItemMeta().getDisplayName())
+                : activationItem.getType().name();
+
+        sender.sendMessage(plugin.getConfigManager().getMessage("commands.give.success",
+                "%amount%", String.valueOf(amount),
+                "%item_name%", itemName,
                 "%player%", target.getName()));
 
         return true;

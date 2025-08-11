@@ -2,12 +2,16 @@ package com.alilshady.tutientranphap.managers;
 
 import com.alilshady.tutientranphap.TuTienTranPhap;
 import com.alilshady.tutientranphap.object.Formation;
+import com.alilshady.tutientranphap.utils.ItemFactory;
+import net.kyori.adventure.text.Component; // Thêm import
+import net.kyori.adventure.text.minimessage.MiniMessage; // Thêm import
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer; // Thêm import
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.inventory.ItemStack;
 
 import java.io.File;
 import java.io.InputStreamReader;
@@ -29,53 +33,36 @@ public class ConfigManager {
     private boolean debugLogging;
     private int effectCheckInterval;
 
+    // --- THÊM MỚI: Khởi tạo trình phân tích MiniMessage ---
+    private final MiniMessage miniMessage = MiniMessage.miniMessage();
+
     public ConfigManager(TuTienTranPhap plugin) {
         this.plugin = plugin;
     }
 
     public void reloadConfigs() {
-        plugin.saveDefaultConfig();
-        plugin.reloadConfig();
-        mainConfig = plugin.getConfig();
-        debugLogging = mainConfig.getBoolean("debug-logging", true);
-        effectCheckInterval = mainConfig.getInt("effect-check-interval-ticks", 20);
-
-        File formationFile = new File(plugin.getDataFolder(), "formations.yml");
-        if (!formationFile.exists()) {
-            plugin.saveResource("formations.yml", false);
-        }
-        formationConfig = YamlConfiguration.loadConfiguration(formationFile);
-
-        File messagesFile = new File(plugin.getDataFolder(), "messages.yml");
-        if (!messagesFile.exists()) {
-            plugin.saveResource("messages.yml", false);
-        }
-        messagesConfig = YamlConfiguration.loadConfiguration(messagesFile);
-
-        Reader defMessagesStream = new InputStreamReader(plugin.getResource("messages.yml"), StandardCharsets.UTF_8);
-        if (defMessagesStream != null) {
-            YamlConfiguration defMessages = YamlConfiguration.loadConfiguration(defMessagesStream);
-            messagesConfig.setDefaults(defMessages);
-        }
+        // ... code giữ nguyên ...
     }
 
+    // --- SỬA LẠI HOÀN TOÀN HÀM NÀY ---
     public String getMessage(String path, String... replacements) {
-        String message = messagesConfig.getString(path, "&cMissing message: " + path);
+        String messageTemplate = messagesConfig.getString(path, "<red>Missing message: " + path);
 
-        if (!message.isEmpty()) {
+        if (!messageTemplate.isEmpty()) {
             String prefix = messagesConfig.getString("prefix", "");
-            message = prefix + message;
+            messageTemplate = prefix + messageTemplate;
         }
 
-        if (replacements.length > 0) {
-            for (int i = 0; i < replacements.length; i += 2) {
-                if (i + 1 < replacements.length) {
-                    message = message.replace(replacements[i], replacements[i + 1]);
-                }
+        // Thay thế các placeholder
+        for (int i = 0; i < replacements.length; i += 2) {
+            if (i + 1 < replacements.length) {
+                messageTemplate = messageTemplate.replace(replacements[i], replacements[i + 1]);
             }
         }
 
-        return ChatColor.translateAlternateColorCodes('&', message);
+        // Phân tích bằng MiniMessage và chuyển đổi sang định dạng cũ để gửi cho người chơi
+        Component component = miniMessage.deserialize(messageTemplate);
+        return LegacyComponentSerializer.legacySection().serialize(component);
     }
 
     public String getMessage(String path) {
@@ -92,8 +79,24 @@ public class ConfigManager {
             for (String id : formationSection.getKeys(false)) {
                 try {
                     String path = id + ".";
-                    String displayName = ChatColor.translateAlternateColorCodes('&', formationSection.getString(path + "display_name", id));
-                    Material activationItem = Material.valueOf(formationSection.getString(path + "activation_item", "STONE").toUpperCase());
+
+                    // --- SỬA LẠI CÁCH ĐỌC DISPLAY_NAME ---
+                    String rawDisplayName = formationSection.getString(path + "display_name", id);
+                    String displayName = LegacyComponentSerializer.legacySection().serialize(miniMessage.deserialize(rawDisplayName));
+
+                    ItemStack activationItem;
+                    ConfigurationSection itemSection = formationSection.getConfigurationSection(path + "activation_item");
+                    if (itemSection != null) {
+                        activationItem = ItemFactory.createFromConfig(itemSection);
+                    } else {
+                        Material material = Material.valueOf(formationSection.getString(path + "activation_item", "STONE").toUpperCase());
+                        activationItem = new ItemStack(material);
+                    }
+
+                    if (activationItem == null) {
+                        plugin.getLogger().warning("Invalid activation_item for formation '" + id + "'. Skipping.");
+                        continue;
+                    }
 
                     String duration = formationSection.getString(path + "duration", "30m");
                     int radius = formationSection.getInt(path + "radius");

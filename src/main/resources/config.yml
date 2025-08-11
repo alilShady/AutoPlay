@@ -1,5 +1,8 @@
 # Cài đặt chung cho plugin TuTienTranPhap
 
+# PHIÊN BẢN CẤU HÌNH (KHÔNG THAY ĐỔI)
+config-version: '${project.version}'
+
 # Bật/Tắt các tin nhắn debug trong console (ví dụ: "Loaded formation...")
 # Mặc định: true
 debug-logging: true

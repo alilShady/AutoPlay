@@ -1,32 +1,21 @@
-# ----------------------------------------------------
-#  Tệp tin nhắn cho plugin TuTienTranPhap
-# ----------------------------------------------------
-#
-# Hướng dẫn:
-# - Bạn có thể sử dụng mã màu với ký tự '&'. Ví dụ: '&aXin chào'
-# - Các biến thay thế (placeholder) được đặt trong dấu %. Ví dụ: %player%
-# ----------------------------------------------------
+config-version: '${project.version}'
+prefix: "<gray>[<yellow>TTTP</yellow>]<gray> "
 
-# Tin nhắn chung
-prefix: "&7[&eTTTP&7] "
-
-# Lệnh /tranphap
 commands:
   reload:
-    success: "&aPlugin đã được tải lại thành công!"
-    no-permission: "&cBạn không có quyền sử dụng lệnh này."
+    success: "<green>Plugin đã được tải lại thành công!</green>"
+    no-permission: "<red>Bạn không có quyền sử dụng lệnh này.</red>"
   give:
-    success: "&aĐã trao &f%amount% x &e%item_name% &acho người chơi &f%player%&a."
-    player-not-found: "&cKhông tìm thấy người chơi &f%player%&c."
-    formation-not-found: "&cKhông tìm thấy trận pháp với ID: &f%id%&c."
-    usage: "&eSử dụng: &f/%command% give <tên người chơi> <ID trận pháp> [số lượng]"
-  usage: "&eSử dụng: &f/%command% [reload|give]"
+    success: "<green>Đã trao <white>%amount% x <yellow>%item_name% </yellow>cho người chơi <white>%player%</white>.</green>"
+    player-not-found: "<red>Không tìm thấy người chơi <white>%player%</red>."
+    formation-not-found: "<red>Không tìm thấy trận pháp với ID: <white>%id%</white>.</red>"
+    usage: "<yellow>Sử dụng: <white>/%command% give <tên người chơi> <ID trận pháp> [số lượng]</white>"
+  usage: "<yellow>Sử dụng: <white>/%command% [reload|give|giveitem]</white>"
 
-# Kích hoạt và xây dựng trận pháp
 formation:
   activate:
-    success: "%formation_name% &ađã được kích hoạt!"
-    already-active: "&cTrận pháp tại đây đã được kích hoạt."
+    success: "<green>%formation_name%<green> đã được kích hoạt!</green>"
+    already-active: "<red>Trận pháp tại đây đã được kích hoạt.</red>"
   blueprint:
-    build-success: "&aĐã xây dựng thành công &e%formation_name%&a!"
-    build-fail-space: "&cKhông đủ không gian để xây dựng trận pháp tại đây."
+    build-success: "<green>Đã xây dựng thành công <yellow>%formation_name%</yellow>!</green>"
+    build-fail-space: "<red>Không đủ không gian để xây dựng trận pháp tại đây.</red>"

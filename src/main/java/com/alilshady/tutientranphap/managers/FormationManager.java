@@ -1,15 +1,16 @@
-// src/main/java/com/alilshady/tutientranphap/managers/FormationManager.java
 package com.alilshady.tutientranphap.managers;
 
 import com.alilshady.tutientranphap.TuTienTranPhap;
-import com.alilshady.tutientranphap.effects.EffectUtils;
 import com.alilshady.tutientranphap.object.Formation;
+import com.alilshady.tutientranphap.utils.ItemFactory;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.persistence.PersistentDataType;
 
 import java.util.*;
 
@@ -18,8 +19,8 @@ public class FormationManager {
     private Map<Material, List<Formation>> formationsByCenterBlock;
     private final List<Location> activeFormationCenters;
     private Map<String, Formation> formationsById;
-    private final Map<Location, Formation> activeFormations = new HashMap<>(); // Theo dõi trận pháp nào đang hoạt động ở đâu
-    private final Map<Location, UUID> formationOwners = new HashMap<>(); // THÊM MỚI: Lưu chủ nhân trận pháp
+    private final Map<Location, Formation> activeFormations = new HashMap<>();
+    private final Map<Location, UUID> formationOwners = new HashMap<>();
 
     public FormationManager(TuTienTranPhap plugin) {
         this.plugin = plugin;
@@ -104,7 +105,7 @@ public class FormationManager {
         return true;
     }
 
-    public void attemptToActivate(Player player, Block centerBlock, ItemStack activationItem) {
+    public void attemptToActivate(Player player, Block centerBlock, ItemStack activationItemInHand) {
         if (activeFormationCenters.contains(centerBlock.getLocation())) {
             player.sendMessage(plugin.getConfigManager().getMessage("formation.activate.already-active"));
             return;
@@ -116,19 +117,43 @@ public class FormationManager {
         }
 
         for (Formation formation : possibleFormations) {
-            if (activationItem.getType() == formation.getActivationItem()) {
+            if (isSpecialItemMatch(activationItemInHand, formation.getActivationItem())) {
                 if (isPatternMatch(centerBlock, formation)) {
-                    activationItem.setAmount(activationItem.getAmount() - 1);
+                    activationItemInHand.setAmount(activationItemInHand.getAmount() - 1);
                     activeFormationCenters.add(centerBlock.getLocation());
                     activeFormations.put(centerBlock.getLocation(), formation);
                     formationOwners.put(centerBlock.getLocation(), player.getUniqueId());
-
                     plugin.getEffectHandler().startFormationEffects(formation, centerBlock.getLocation(), player.getUniqueId());
-
                     player.sendMessage(plugin.getConfigManager().getMessage("formation.activate.success", "%formation_name%", formation.getDisplayName()));
                     return;
                 }
             }
+        }
+    }
+
+    private boolean isSpecialItemMatch(ItemStack itemInHand, ItemStack requiredItem) {
+        if (itemInHand == null) return false;
+
+        ItemMeta requiredMeta = requiredItem.getItemMeta();
+        // Kiểm tra xem vật phẩm yêu cầu có được đánh dấu là 'unique' không
+        String requiredTag = (requiredMeta != null) ? requiredMeta.getPersistentDataContainer().get(ItemFactory.ACTIVATION_ITEM_KEY, PersistentDataType.STRING) : null;
+
+        if (requiredTag != null) {
+            // Trường hợp 1: Vật phẩm YÊU CẦU có "dấu vân tay"
+            if (!itemInHand.hasItemMeta()) return false;
+            String handTag = itemInHand.getItemMeta().getPersistentDataContainer().get(ItemFactory.ACTIVATION_ITEM_KEY, PersistentDataType.STRING);
+
+            // Phải có tag và tag phải giống nhau. Sau đó mới so sánh các thuộc tính khác.
+            return requiredTag.equals(handTag) && itemInHand.isSimilar(requiredItem);
+        } else {
+            // Trường hợp 2: Vật phẩm không yêu cầu "dấu vân tay"
+            // So sánh thông thường, nhưng đảm bảo vật phẩm trên tay cũng không có tag.
+            // Điều này ngăn việc dùng vật phẩm "xịn" để kích hoạt trận pháp "thường".
+            if (itemInHand.hasItemMeta()) {
+                String handTag = itemInHand.getItemMeta().getPersistentDataContainer().get(ItemFactory.ACTIVATION_ITEM_KEY, PersistentDataType.STRING);
+                if(handTag != null) return false; // Vật phẩm trên tay có tag -> không khớp
+            }
+            return itemInHand.isSimilar(requiredItem);
         }
     }
 
@@ -193,21 +218,5 @@ public class FormationManager {
             }
         }
         return false;
-    }
-
-    public int getFormationEffectValue(Location location, String effectType, String key, int defaultValue) {
-        for (Map.Entry<Location, Formation> entry : activeFormations.entrySet()) {
-            Formation formation = entry.getValue();
-            Location center = entry.getKey();
-
-            if (center.getWorld().equals(location.getWorld()) && center.distanceSquared(location) <= Math.pow(formation.getRadius(), 2)) {
-                for (Map<?, ?> effectMap : formation.getEffects()) {
-                    if (effectType.equalsIgnoreCase(String.valueOf(effectMap.get("type")))) {
-                        return EffectUtils.getIntFromConfig(effectMap, key, defaultValue);
-                    }
-                }
-            }
-        }
-        return defaultValue;
     }
 }

@@ -1,264 +1,176 @@
+# PHIÊN BẢN CẤU HÌNH (KHÔNG THAY ĐỔI)
+config-version: '${project.version}'
+
 # ----------------------------------------------------
 #  Tệp cấu hình Trận Pháp cho plugin TuTienTranPhap
 # ----------------------------------------------------
 #
-# === GIẢI THÍCH CÁC MỤC TIÊU (target) MỚI ===
+# === HƯỚNG DẪN VỀ VẬT PHẨM KÍCH HOẠT (activation_item) ===
 #
-# - OWNER:        Chỉ tác động lên người đã kích hoạt trận pháp.
-# - ALL:          Tác động lên TẤT CẢ thực thể sống trong phạm vi (cả người chơi, quái, động vật).
-# - MOBS:         Chỉ tác động lên quái vật (zombie, skeleton, etc.).
+# CÁCH 1: VẬT PHẨM THƯỜNG (Dễ kiếm)
+# Chỉ cần khai báo tên vật liệu. Bất kỳ vật phẩm nào cùng loại đều có thể kích hoạt.
 #
-# - DAMAGEABLE:   (Mục tiêu TẤN CÔNG) Tác động lên quái vật VÀ người chơi không phải là đồng minh.
-#                 Hệ thống sẽ tự nhận diện đồng minh qua các plugin team/factions/towny...
-#
-# - UNDAMAGEABLE: (Mục tiêu HỖ TRỢ) Tác động lên động vật hiền lành VÀ người chơi là chủ nhân hoặc đồng minh.
+#   activation_item: "DIAMOND"
 #
 # ----------------------------------------------------
-
-# --- CÁC TRẬN PHÁP CŨ ĐÃ ĐƯỢC NÂNG CẤP ---
+#
+# CÁCH 2: VẬT PHẨM ĐẶC BIỆT (Chống làm giả bằng đe)
+# Định nghĩa chi tiết vật phẩm với 'name' hoặc 'lore'. Plugin sẽ tự động hiểu
+# đây là vật phẩm "unique" và yêu cầu người chơi phải có đúng vật phẩm "xịn"
+# (do admin give) để kích hoạt.
+#
+#   activation_item:
+#     material: "NETHER_STAR"
+#     name: "<gold>Linh Hồn Trận Pháp"
+#     lore:
+#       - "<gray>Một vật phẩm cổ xưa chứa đầy năng lượng."
+#
+# Bạn có thể sử dụng mã màu MiniMessage cho 'name' và 'lore'.
+#
+# =================================================================
 
 kim-cang-tran:
-    display_name: "&e&lKim Cang Hộ Thể Trận"
-    activation_item: "NETHERITE_INGOT"
-    duration: "30m"
-    radius: 20
-    pattern:
-        key:
-            X: "OBSIDIAN"
-            P: "CHISELED_QUARTZ_BLOCK"
-        shape:
-            - "PPPPP"
-            - "P   P"
-            - "P X P"
-            - "P   P"
-            - "PPPPP"
-    particles:
-        ring: "TOTEM"
-        pillar: "FLAME"
-    effects:
-        # NÂNG CẤP: Giờ sẽ tự động buff cho cả chủ nhân và đồng minh.
-        - type: "POTION"
-          target: "UNDAMAGEABLE"
-          potion_effect: "DAMAGE_RESISTANCE"
-          value: 1
-        # NÂNG CẤP: Gây hiệu ứng xấu lên cả quái và người chơi địch.
-        - type: "POTION"
-          target: "DAMAGEABLE"
-          potion_effect: "WEAKNESS"
-          value: 1
+  display_name: "<yellow><bold>Kim Cang Hộ Thể Trận</bold></yellow>"
+  activation_item: "NETHERITE_INGOT"
+  duration: "30m"
+  radius: 20
+  pattern:
+    key:
+      X: "OBSIDIAN"
+      P: "CHISELED_QUARTZ_BLOCK"
+    shape:
+      - "PPPPP"
+      - "P   P"
+      - "P X P"
+      - "P   P"
+      - "PPPPP"
+  particles:
+    ring: "TOTEM"
+    pillar: "FLAME"
+  effects:
+    - type: "POTION"
+      target: "UNDAMAGEABLE"
+      potion_effect: "DAMAGE_RESISTANCE"
+      value: 1
+    - type: "POTION"
+      target: "DAMAGEABLE"
+      potion_effect: "WEAKNESS"
+      value: 1
 
 thoi-ma-tran:
-    display_name: "&b&lThối Ma Trận"
-    activation_item: "HEART_OF_THE_SEA"
-    duration: "1h"
-    radius: 25
-    pattern:
-        key:
-            X: "CONDUIT"
-            P: "PRISMARINE_BRICKS"
-        shape:
-            - " PPP "
-            - "P   P"
-            - "P X P"
-            - "P   P"
-            - " PPP "
-    particles:
-        ring: "SQUID_INK"
-    effects:
-        # NÂNG CẤP: Đẩy lùi tất cả các mục tiêu có thể gây hại, bao gồm cả người chơi địch.
-        - type: "REPEL"
-          target: "DAMAGEABLE"
-          value: 1.2
+  display_name: "<aqua><bold>Thối Ma Trận</bold></aqua>"
+  activation_item: "HEART_OF_THE_SEA"
+  duration: "1h"
+  radius: 25
+  pattern:
+    key:
+      X: "CONDUIT"
+      P: "PRISMARINE_BRICKS"
+    shape:
+      - " PPP "
+      - "P   P"
+      - "P X P"
+      - "P   P"
+      - " PPP "
+  particles:
+    ring: "SQUID_INK"
+  effects:
+    - type: "REPEL"
+      target: "DAMAGEABLE"
+      value: 1.2
 
 loi-nguc-tran:
-    display_name: "&e&lThiên Lôi Ngục Trận"
-    activation_item: "LIGHTNING_ROD"
-    duration: "5m"
-    radius: 20
-    pattern:
-        key:
-            X: "LODESTONE"
-            P: "IRON_BARS"
-            C: "COPPER_BLOCK"
-        shape:
-            - " P P "
-            - "PCXCP"
-            - " C C "
-            - "PCXCP"
-            - " P P "
-    particles:
-        ring: "ELECTRIC_SPARK"
-        dome: "CLOUD"
-        pillar: "FIREWORK"
-    effects:
-        # NÂNG CẤP: Hút tất cả kẻ địch (người chơi và quái) vào giữa.
-        - type: "VORTEX"
-          target: "DAMAGEABLE"
-          value: 0.4
-        # NÂNG CẤP: Đánh sét lên tất cả kẻ địch.
-        - type: "LIGHTNING"
-          target: "DAMAGEABLE"
-          visual_only: false
-        # NÂNG CẤP: Rào cản chỉ chặn kẻ địch, đồng minh có thể đi qua.
-        - type: "BARRIER"
-          target: "DAMAGEABLE"
-          value: 1.0
+  display_name: "<yellow><bold>Thiên Lôi Ngục Trận</bold></yellow>"
+  activation_item: "LIGHTNING_ROD"
+  duration: "5m"
+  radius: 20
+  pattern:
+    key:
+      X: "LODESTONE"
+      P: "IRON_BARS"
+      C: "COPPER_BLOCK"
+    shape:
+      - " P P "
+      - "PCXCP"
+      - " C C "
+      - "PCXCP"
+      - " P P "
+  particles:
+    ring: "ELECTRIC_SPARK"
+    dome: "CLOUD"
+    pillar: "FIREWORK"
+  effects:
+    - type: "VORTEX"
+      target: "DAMAGEABLE"
+      value: 0.4
+    - type: "LIGHTNING"
+      target: "DAMAGEABLE"
+      visual_only: false
+    - type: "BARRIER"
+      target: "DAMAGEABLE"
+      value: 1.0
 
 huyet-te-tran:
-    display_name: "&4&lHuyết Tế Trận"
-    activation_item: "NETHER_STAR"
-    duration: "10m"
-    radius: 15
-    pattern:
-        key:
-            X: "RESPAWN_ANCHOR"
-            P: "REDSTONE_BLOCK"
-            N: "NETHERITE_BLOCK"
-        shape:
-            - "  P  "
-            - " P P "
-            - "P X P"
-            - " P P "
-            - "  N  "
-    particles:
-        ring: "DAMAGE_INDICATOR"
-        orb: "DRIPPING_OBSIDIAN_TEAR"
-    effects:
-        # NÂNG CẤP: Gây sát thương lên tất cả mục tiêu có thể gây hại.
-        - type: "DAMAGE"
-          target: "DAMAGEABLE"
-          value: 2.0
-        - type: "COLLECT"
-          value: 0.6
-        - type: "XP"
-          value: 10
+  display_name: "<dark_red><bold>Huyết Tế Trận</bold></dark_red>"
+  activation_item:
+    material: "NETHER_STAR"
+    name: "<red>Trái Tim Huyết Tế"
+    lore:
+      - "<gray>Năng lượng sinh mệnh bị hút cạn."
+  duration: "10m"
+  radius: 15
+  pattern:
+    key:
+      X: "RESPAWN_ANCHOR"
+      P: "REDSTONE_BLOCK"
+      N: "NETHERITE_BLOCK"
+    shape:
+      - "  P  "
+      - " P P "
+      - "P X P"
+      - " P P "
+      - "  N  "
+  particles:
+    ring: "DAMAGE_INDICATOR"
+    orb: "DRIPPING_OBSIDIAN_TEAR"
+  effects:
+    - type: "DAMAGE"
+      target: "DAMAGEABLE"
+      value: 2.0
+    - type: "COLLECT"
+      value: 0.6
+    - type: "XP"
+      value: 10
 
 thanh-quang-tran:
-    display_name: "&a&lThánh Quang Tẩy Tễ Trận"
-    activation_item: "GOLD_BLOCK"
-    duration: "20m"
-    radius: 25
-    pattern:
-        key:
-            X: "BEACON"
-            P: "QUARTZ_BLOCK"
-            G: "GOLD_BLOCK"
-        shape:
-            - " GPG "
-            - "P   P"
-            - "G X G"
-            - "P   P"
-            - " GPG "
-    particles:
-        rotation_speed: 1.0
-        pillar_count: 4
-        ring: "TOTEM"
-        pillar: "HAPPY_VILLAGER"
-    effects:
-        # NÂNG CẤP: Tất cả hiệu ứng hỗ trợ giờ sẽ áp dụng cho chủ nhân và đồng minh.
-        - type: "HEAL"
-          target: "UNDAMAGEABLE"
-          value: 1
-        - type: "CLEANSE"
-          target: "UNDAMAGEABLE"
-        - type: "POTION"
-          target: "UNDAMAGEABLE"
-          potion_effect: "REGENERATION"
-          value: 0
-        - type: "SANCTUARY"
-
-# ----------------------------------------------------
-# --- CÁC TRẬN PHÁP MỚI, KHAI THÁC LOGIC TARGET MỚI ---
-# ----------------------------------------------------
-
-hap-huyet-tran:
-    display_name: "&c&lHấp Huyết Trận"
-    activation_item: "GHAST_TEAR"
-    duration: "10m"
-    radius: 18
-    pattern:
-        key:
-            X: "REDSTONE_BLOCK"
-            P: "NETHER_WART_BLOCK"
-            C: "CRYING_OBSIDIAN"
-        shape:
-            - " C C "
-            - "CPXPC"
-            - " C C "
-    particles:
-        ring: "DAMAGE_INDICATOR"
-        orb: "HEART"
-    effects:
-        # Ý TƯỞNG: Gây sát thương từ từ lên kẻ địch...
-        - type: "POTION"
-          target: "DAMAGEABLE"
-          potion_effect: "WITHER"
-          value: 0
-        # ...và chuyển hóa thành máu cho chủ nhân.
-        - type: "HEAL"
-          target: "OWNER"
-          value: 1
-
-thanh-vuc-phan-quyet:
-    display_name: "&b&lThánh Vực Phán Quyết"
-    activation_item: "DIAMOND_BLOCK"
-    duration: "15m"
-    radius: 22
-    pattern:
-        key:
-            X: "LAPIS_BLOCK"
-            P: "GOLD_BLOCK"
-            D: "DIAMOND_BLOCK"
-        shape:
-            - " DPD "
-            - "P X P"
-            - " DPD "
-    particles:
-        dome: "ENCHANT"
-        pillar: "VILLAGER_HAPPY"
-    effects:
-        # Ý TƯỞNG: Tạo ra một vùng chiến địa rõ rệt "phe ta vs phe địch".
-        # Buff mạnh cho phe ta (chủ nhân và đồng minh).
-        - type: "POTION"
-          target: "UNDAMAGEABLE"
-          potion_effect: "STRENGTH"
-          value: 0
-        - type: "REPAIR"
-          target: "UNDAMAGEABLE"
-          value: 20
-        # Debuff mạnh cho phe địch.
-        - type: "POTION"
-          target: "DAMAGEABLE"
-          potion_effect: "SLOW"
-          value: 1
-        - type: "POTION"
-          target: "DAMAGEABLE"
-          potion_effect: "GLOWING" # Đánh dấu kẻ địch
-          value: 0
-
-trung-hoa-tran:
-    display_name: "&7&lTrung Hòa Trận"
-    activation_item: "MILK_BUCKET"
-    duration: "5m"
-    radius: 30
-    pattern:
-        key:
-            X: "CAULDRON"
-            P: "QUARTZ_PILLAR"
-        shape:
-            - "  P  "
-            - " P P "
-            - "P X P"
-            - " P P "
-            - "  P  "
-    particles:
-        ring: "CLOUD"
-        dome: "WHITE_ASH"
-    effects:
-        # Ý TƯỞNG: Một trận pháp vô hiệu hóa hoàn toàn mọi hiệu ứng thuốc trong vùng.
-        # Nó sẽ xóa hiệu ứng xấu của phe ta...
-        - type: "CLEANSE"
-          target: "UNDAMAGEABLE"
-        # ...và xóa cả hiệu ứng TỐT của phe địch!
-        - type: "CLEANSE"
-          target: "DAMAGEABLE"
+  display_name: "<green><bold>Thánh Quang Tẩy Tễ Trận</bold></green>"
+  activation_item: "GOLD_BLOCK"
+  duration: "20m"
+  radius: 25
+  pattern:
+    key:
+      X: "BEACON"
+      P: "QUARTZ_BLOCK"
+      G: "GOLD_BLOCK"
+    shape:
+      - " GPG "
+      - "P   P"
+      - "G X G"
+      - "P   P"
+      - " GPG "
+  particles:
+    rotation_speed: 1.0
+    pillar_count: 4
+    ring: "TOTEM"
+    pillar: "HAPPY_VILLAGER"
+  effects:
+    - type: "HEAL"
+      target: "UNDAMAGEABLE"
+      value: 1
+    - type: "CLEANSE"
+      target: "UNDAMAGEABLE"
+    - type: "POTION"
+      target: "UNDAMAGEABLE"
+      potion_effect: "REGENERATION"
+      value: 0
+    - type: "SANCTUARY"
