@@ -65,7 +65,8 @@ public class EffectHandler {
                 new ExplosionEffect(),
                 new IgniteEffect(),
                 new ClimateEffect(),
-                new BarrierEffect()
+                new BarrierEffect(),
+                new DevolveEffect()
         ).forEach(strategy -> effectStrategies.put(strategy.getType(), strategy));
     }
 

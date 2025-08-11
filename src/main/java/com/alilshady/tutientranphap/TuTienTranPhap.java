@@ -10,7 +10,6 @@ import com.alilshady.tutientranphap.managers.ConfigManager;
 import com.alilshady.tutientranphap.managers.EffectHandler;
 import com.alilshady.tutientranphap.managers.FormationManager;
 import org.bukkit.plugin.java.JavaPlugin;
-import com.alilshady.tutientranphap.listeners.StasisListener;
 
 import java.util.Objects;
 
@@ -32,8 +31,6 @@ public final class TuTienTranPhap extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new ActivationListener(this), this);
         getServer().getPluginManager().registerEvents(new BlueprintListener(this), this);
         getServer().getPluginManager().registerEvents(new SanctuaryListener(this), this); // ĐĂNG KÝ LISTENER MỚI
-        getServer().getPluginManager().registerEvents(new StasisListener(this), this); // ĐĂNG KÝ LISTENER MỚI
-
         // Đăng ký command executor và tab completer
         Objects.requireNonNull(getCommand("tutientranphap")).setExecutor(new CommandManager(this));
         Objects.requireNonNull(getCommand("tutientranphap")).setTabCompleter(new CommandTabCompleter(this));
