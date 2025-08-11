@@ -23,6 +23,26 @@
             <id>papermc-repo</id>
             <url>https://repo.papermc.io/repository/maven-public/</url>
         </repository>
+        <repository>
+            <id>factions-repo</id>
+            <url>https://massivecraft.com/repo/</url>
+        </repository>
+        <repository>
+            <id>towny-repo</id>
+            <url>https://repo.palmergames.com/repository/maven-public/</url>
+        </repository>
+        <repository>
+            <id>jitpack.io</id>
+            <url>https://jitpack.io</url>
+        </repository>
+        <repository>
+            <id>mcmmo-repo</id>
+            <url>https://repo.mcmmo.org/repository/maven-public/</url>
+        </repository>
+        <repository>
+            <id>booksaw-repo</id>
+            <url>https://mvn.booksaw.net/repository/booksaw/</url>
+        </repository>
     </repositories>
 
     <dependencies>
@@ -32,35 +52,42 @@
             <version>1.20.1-R0.1-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
+
+        <dependency>
+            <groupId>com.massivecraft</groupId>
+            <artifactId>Factions</artifactId>
+            <version>1.6.9.5-U0.5.16</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>com.palmergames.bukkit.towny</groupId>
+            <artifactId>towny</artifactId>
+            <version>0.100.1.0</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>com.github.Phaedra</groupId>
+            <artifactId>SimpleClans</artifactId>
+            <version>2.16.1</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>com.gmail.nossr50</groupId>
+            <artifactId>mcMMO</artifactId>
+            <version>2.1.220</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>com.booksaw</groupId>
+            <artifactId>BetterTeams</artifactId>
+            <version>5.2.1</version> <scope>provided</scope>
+        </dependency>
     </dependencies>
 
     <build>
-        <defaultGoal>clean install</defaultGoal>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.8.1</version>
-                <configuration>
-                    <source>${maven.compiler.source}</source>
-                    <target>${maven.compiler.target}</target>
-                    <encoding>${project.build.sourceEncoding}</encoding>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-resources-plugin</artifactId>
-                <version>3.3.1</version>
-                <configuration>
-                    <encoding>${project.build.sourceEncoding}</encoding>
-                </configuration>
-            </plugin>
-        </plugins>
-        <resources>
-            <resource>
-                <directory>src/main/resources</directory>
-                <filtering>true</filtering>
-            </resource>
-        </resources>
     </build>
 </project>

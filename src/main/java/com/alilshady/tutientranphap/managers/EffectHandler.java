@@ -24,10 +24,8 @@ public class EffectHandler {
     private final Map<Location, Set<UUID>> affectedEntitiesByFormation = new ConcurrentHashMap<>();
     private final Map<Location, Long> animationTickMap = new ConcurrentHashMap<>();
 
-    // Map để lưu trữ các chiến lược hiệu ứng (Strategy Pattern)
     private final Map<String, FormationEffect> effectStrategies = new HashMap<>();
 
-    // Danh sách các debuff sẽ bị xóa bởi hiệu ứng CLEANSE
     public static final List<PotionEffectType> DEBUFFS_TO_CLEANSE = Collections.unmodifiableList(Arrays.asList(
             PotionEffectType.SLOW, PotionEffectType.SLOW_DIGGING, PotionEffectType.WEAKNESS,
             PotionEffectType.POISON, PotionEffectType.WITHER, PotionEffectType.CONFUSION,
@@ -39,40 +37,20 @@ public class EffectHandler {
         registerEffectStrategies();
     }
 
-    /**
-     * Đăng ký tất cả các lớp hiệu ứng (chiến lược) vào map.
-     */
     private void registerEffectStrategies() {
         Stream.of(
-                new PotionEffectStrategy(),
-                new DamageEffect(),
-                new HealEffect(),
-                new LightningStrikeEffect(),
-                new MobRepulsionEffect(),
-                new RootEffect(),
-                new CleanseEffect(),
-                new ItemRepairEffect(),
-                new XpOrbGenerationEffect(),
-                new FurnaceBoostEffect(),
-                new CropGrowthEffect(),
-                new HarvestEffect(),
-                new FreezeLiquidsEffect(),
-                new CollectEffect(),
-                new BreedEffect(),
-                new VortexEffect(),
-                new StasisEffect(),
-                new ExplosionEffect(),
-                new IgniteEffect(),
-                new ClimateEffect(),
-                new BarrierEffect(),
+                new PotionEffectStrategy(), new DamageEffect(), new HealEffect(),
+                new LightningStrikeEffect(), new MobRepulsionEffect(), new RootEffect(),
+                new CleanseEffect(), new ItemRepairEffect(), new XpOrbGenerationEffect(),
+                new FurnaceBoostEffect(), new CropGrowthEffect(), new HarvestEffect(),
+                new FreezeLiquidsEffect(), new CollectEffect(), new BreedEffect(),
+                new VortexEffect(), new StasisEffect(), new ExplosionEffect(),
+                new IgniteEffect(), new ClimateEffect(), new BarrierEffect(),
                 new DevolveEffect()
         ).forEach(strategy -> effectStrategies.put(strategy.getType(), strategy));
     }
 
-    /**
-     * Bắt đầu vòng lặp hiệu ứng cho một trận pháp tại một vị trí.
-     */
-    public void startFormationEffects(Formation formation, Location center) {
+    public void startFormationEffects(Formation formation, Location center, UUID ownerId) {
         if (activeEffectTasks.containsKey(center)) {
             stopEffect(center);
         }
@@ -94,7 +72,7 @@ public class EffectHandler {
                     return;
                 }
 
-                applyEffects(formation, center);
+                applyEffects(formation, center, ownerId);
                 animationTickMap.computeIfPresent(center, (k, v) -> v + 1);
                 ticksLived++;
             }
@@ -106,30 +84,24 @@ public class EffectHandler {
                 world.playSound(center, Sound.BLOCK_BEACON_DEACTIVATE, 1.0f, 1.0f);
                 world.spawnParticle(Particle.SMOKE_LARGE, center.clone().add(0.5, 1, 0.5), 50, 0.5, 0.5, 0.5, 0);
             }
-        }.runTaskTimer(plugin, 0L, 1L); // Chạy mỗi tick
+        }.runTaskTimer(plugin, 0L, 1L);
 
         activeEffectTasks.put(center, task);
         world.playSound(center, Sound.BLOCK_BEACON_ACTIVATE, 1.0f, 1.0f);
     }
 
-    /**
-     * Áp dụng tất cả các hiệu ứng được cấu hình cho trận pháp.
-     */
-    private void applyEffects(Formation formation, Location center) {
+    private void applyEffects(Formation formation, Location center, UUID ownerId) {
         World world = center.getWorld();
         if (world == null) return;
         long currentTick = animationTickMap.getOrDefault(center, 0L);
 
-        // 1. Áp dụng hiệu ứng hạt (chạy mỗi tick)
         Map<String, Object> particleConfig = formation.getParticleConfig();
         if (particleConfig != null && !particleConfig.isEmpty()) {
             applyCinematicParticleShield(formation, center, particleConfig, currentTick);
         }
 
-        // Lấy danh sách thực thể một lần để tối ưu cho các hiệu ứng chạy mỗi tick
         Collection<LivingEntity> allNearbyLivingEntities = world.getNearbyLivingEntities(center, formation.getRadius());
 
-        // 2. Chạy các hiệu ứng cần thực thi mỗi tick
         for (Map<?, ?> effectMap : formation.getEffects()) {
             String typeStr = String.valueOf(effectMap.get("type")).toUpperCase();
             FormationEffect strategy = effectStrategies.get(typeStr);
@@ -140,28 +112,24 @@ public class EffectHandler {
             }
 
             if (strategy instanceof BarrierEffect) {
-                ((BarrierEffect) strategy).applyBarrierPush(formation, center, effectMap, allNearbyLivingEntities);
+                ((BarrierEffect) strategy).applyBarrierPush(formation, center, effectMap, allNearbyLivingEntities, ownerId);
             }
         }
 
-        // 3. Chỉ áp dụng hiệu ứng logic theo tần suất đã định
         if (currentTick % plugin.getConfigManager().getEffectCheckInterval() != 0) {
             return;
         }
 
-        // 4. Lấy danh sách khối theo tần suất
         List<Block> nearbyBlocks = getBlocksInRadius(center, (int) Math.ceil(formation.getRadius()));
         final boolean isDebug = plugin.getConfigManager().isDebugLoggingEnabled();
 
-        // 5. Vòng lặp và ủy thác cho các lớp Strategy (trừ các hiệu ứng đã chạy mỗi tick)
         for (Map<?, ?> effectMap : formation.getEffects()) {
             String typeStr = String.valueOf(effectMap.get("type")).toUpperCase();
             FormationEffect strategy = effectStrategies.get(typeStr);
 
             if (strategy != null) {
                 if (isDebug) plugin.getLogger().info("[DEBUG][EFFECT] Running effect: " + typeStr);
-                // Các hiệu ứng đã chạy mỗi tick sẽ có phương thức apply trống hoặc chỉ xử lý phần logic còn lại
-                strategy.apply(plugin, formation, center, effectMap, allNearbyLivingEntities, nearbyBlocks);
+                strategy.apply(plugin, formation, center, effectMap, allNearbyLivingEntities, nearbyBlocks, ownerId);
             } else {
                 if (isDebug && currentTick % 200 == 0) {
                     plugin.getLogger().warning("Loại hiệu ứng không xác định '" + typeStr + "' trong trận pháp: " + formation.getId());

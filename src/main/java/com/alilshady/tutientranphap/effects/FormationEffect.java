@@ -10,6 +10,7 @@ import org.bukkit.entity.LivingEntity;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID; // Thêm import này
 
 public interface FormationEffect {
 
@@ -27,6 +28,7 @@ public interface FormationEffect {
      * @param config         Cấu hình riêng của hiệu ứng này từ formations.yml.
      * @param nearbyEntities Danh sách các thực thể sống trong bán kính.
      * @param nearbyBlocks   Danh sách các khối trong bán kính.
+     * @param ownerId        UUID của người chơi đã kích hoạt trận pháp (có thể là null).
      */
-    void apply(TuTienTranPhap plugin, Formation formation, Location center, Map<?, ?> config, Collection<LivingEntity> nearbyEntities, List<Block> nearbyBlocks);
+    void apply(TuTienTranPhap plugin, Formation formation, Location center, Map<?, ?> config, Collection<LivingEntity> nearbyEntities, List<Block> nearbyBlocks, UUID ownerId);
 }

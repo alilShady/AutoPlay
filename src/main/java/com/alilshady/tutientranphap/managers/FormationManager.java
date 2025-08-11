@@ -19,6 +19,7 @@ public class FormationManager {
     private final List<Location> activeFormationCenters;
     private Map<String, Formation> formationsById;
     private final Map<Location, Formation> activeFormations = new HashMap<>(); // Theo dõi trận pháp nào đang hoạt động ở đâu
+    private final Map<Location, UUID> formationOwners = new HashMap<>(); // THÊM MỚI: Lưu chủ nhân trận pháp
 
     public FormationManager(TuTienTranPhap plugin) {
         this.plugin = plugin;
@@ -119,8 +120,10 @@ public class FormationManager {
                 if (isPatternMatch(centerBlock, formation)) {
                     activationItem.setAmount(activationItem.getAmount() - 1);
                     activeFormationCenters.add(centerBlock.getLocation());
-                    activeFormations.put(centerBlock.getLocation(), formation); // THEO DÕI TRẬN PHÁP HOẠT ĐỘNG
-                    plugin.getEffectHandler().startFormationEffects(formation, centerBlock.getLocation());
+                    activeFormations.put(centerBlock.getLocation(), formation);
+                    formationOwners.put(centerBlock.getLocation(), player.getUniqueId());
+
+                    plugin.getEffectHandler().startFormationEffects(formation, centerBlock.getLocation(), player.getUniqueId());
 
                     player.sendMessage(plugin.getConfigManager().getMessage("formation.activate.success", "%formation_name%", formation.getDisplayName()));
                     return;
@@ -165,7 +168,12 @@ public class FormationManager {
 
     public void deactivateFormation(Location center) {
         activeFormationCenters.remove(center);
-        activeFormations.remove(center); // DỪNG THEO DÕI
+        activeFormations.remove(center);
+        formationOwners.remove(center);
+    }
+
+    public UUID getOwner(Location center) {
+        return formationOwners.get(center);
     }
 
     public boolean isLocationInActiveFormation(Location location, String effectType) {

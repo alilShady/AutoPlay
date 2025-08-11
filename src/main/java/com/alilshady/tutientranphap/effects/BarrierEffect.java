@@ -1,11 +1,12 @@
-// src/main/java/com/alilshady/tutientranphap/effects/BarrierEffect.java
 package com.alilshady.tutientranphap.effects;
 
 import com.alilshady.tutientranphap.TuTienTranPhap;
 import com.alilshady.tutientranphap.object.Formation;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Particle;
 import org.bukkit.block.Block;
+import org.bukkit.entity.Animals;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Monster;
 import org.bukkit.entity.Player;
@@ -14,6 +15,7 @@ import org.bukkit.util.Vector;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 public class BarrierEffect implements FormationEffect {
 
@@ -22,38 +24,45 @@ public class BarrierEffect implements FormationEffect {
         return "BARRIER";
     }
 
-    /**
-     * Phương thức này giờ sẽ để trống vì logic đã được chuyển sang một phương thức
-     * riêng để gọi mỗi tick.
-     */
     @Override
-    public void apply(TuTienTranPhap plugin, Formation formation, Location center, Map<?, ?> config, Collection<LivingEntity> nearbyEntities, List<Block> nearbyBlocks) {
-        // Logic đã được chuyển đi
+    public void apply(TuTienTranPhap plugin, Formation formation, Location center, Map<?, ?> config, Collection<LivingEntity> nearbyEntities, List<Block> nearbyBlocks, UUID ownerId) {
+        // Logic được gọi mỗi tick trong applyBarrierPush
     }
 
-    /**
-     * Phương thức mới xử lý logic đẩy lùi, được gọi mỗi tick từ EffectHandler.
-     */
-    public void applyBarrierPush(Formation formation, Location center, Map<?, ?> config, Collection<LivingEntity> nearbyEntities) {
+    public void applyBarrierPush(Formation formation, Location center, Map<?, ?> config, Collection<LivingEntity> nearbyEntities, UUID ownerId) {
         if (nearbyEntities == null) return;
 
         double radius = formation.getRadius();
         double radiusSquared = radius * radius;
         double force = EffectUtils.getDoubleFromConfig(config, "value", 1.5);
         String targetType = EffectUtils.getStringFromConfig(config, "target", "ALL").toUpperCase();
+        Player owner = (ownerId != null) ? Bukkit.getPlayer(ownerId) : null;
 
         for (LivingEntity entity : nearbyEntities) {
             boolean shouldApply = false;
             switch (targetType) {
-                case "PLAYERS":
-                    if (entity instanceof Player) shouldApply = true;
-                    break;
-                case "HOSTILE_MOBS":
-                    if (entity instanceof Monster) shouldApply = true;
+                case "OWNER":
+                    if (owner != null && entity.getUniqueId().equals(owner.getUniqueId())) {
+                        shouldApply = true;
+                    }
                     break;
                 case "ALL":
-                default:
                     shouldApply = true;
+                    break;
+                case "MOBS":
+                    if (entity instanceof Monster) {
+                        shouldApply = true;
+                    }
+                    break;
+                case "DAMAGEABLE":
+                    if (entity instanceof Monster || (entity instanceof Player && owner != null && !plugin.getTeamManager().isAlly(owner, (Player) entity))) {
+                        shouldApply = true;
+                    }
+                    break;
+                case "UNDAMAGEABLE":
+                    if (entity instanceof Animals || (entity instanceof Player && owner != null && plugin.getTeamManager().isAlly(owner, (Player) entity))) {
+                        shouldApply = true;
+                    }
                     break;
             }
 

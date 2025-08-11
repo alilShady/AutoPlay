@@ -1,12 +1,8 @@
-// src/main/java/com/alilshady/tutientranphap/effects/StasisEffect.java
 package com.alilshady.tutientranphap.effects;
 
 import com.alilshady.tutientranphap.TuTienTranPhap;
 import com.alilshady.tutientranphap.object.Formation;
-import org.bukkit.GameMode;
-import org.bukkit.Location;
-import org.bukkit.Particle;
-import org.bukkit.World;
+import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.entity.*;
 import org.bukkit.potion.PotionEffect;
@@ -16,6 +12,7 @@ import org.bukkit.util.Vector;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 public class StasisEffect implements FormationEffect {
 
@@ -25,14 +22,14 @@ public class StasisEffect implements FormationEffect {
     }
 
     @Override
-    public void apply(TuTienTranPhap plugin, Formation formation, Location center, Map<?, ?> config, Collection<LivingEntity> nearbyEntities, List<Block> nearbyBlocks) {
+    public void apply(TuTienTranPhap plugin, Formation formation, Location center, Map<?, ?> config, Collection<LivingEntity> nearbyEntities, List<Block> nearbyBlocks, UUID ownerId) {
         if (nearbyEntities == null) return;
 
-        // --- Logic làm chậm Thực thể sống (LivingEntity) ---
         int slowAmplifier = EffectUtils.getIntFromConfig(config, "value", 3);
         int durationTicks = plugin.getConfigManager().getEffectCheckInterval() + 40;
-        String targetType = EffectUtils.getStringFromConfig(config, "target", "HOSTILE_MOBS").toUpperCase();
+        String targetType = EffectUtils.getStringFromConfig(config, "target", "DAMAGEABLE").toUpperCase();
         PotionEffect slowEffect = new PotionEffect(PotionEffectType.SLOW, durationTicks, slowAmplifier - 1, true, false);
+        Player owner = (ownerId != null) ? Bukkit.getPlayer(ownerId) : null;
 
         for (LivingEntity entity : nearbyEntities) {
             if (entity instanceof Player && ((Player) entity).getGameMode() != GameMode.SURVIVAL) {
@@ -41,14 +38,28 @@ public class StasisEffect implements FormationEffect {
 
             boolean shouldApply = false;
             switch (targetType) {
-                case "PLAYERS":
-                    if (entity instanceof Player) shouldApply = true;
-                    break;
-                case "HOSTILE_MOBS":
-                    if (entity instanceof Monster) shouldApply = true;
+                case "OWNER":
+                    if (owner != null && entity.getUniqueId().equals(owner.getUniqueId())) {
+                        shouldApply = true;
+                    }
                     break;
                 case "ALL":
                     shouldApply = true;
+                    break;
+                case "MOBS":
+                    if (entity instanceof Monster) {
+                        shouldApply = true;
+                    }
+                    break;
+                case "DAMAGEABLE":
+                    if (entity instanceof Monster || (entity instanceof Player && owner != null && !plugin.getTeamManager().isAlly(owner, (Player) entity))) {
+                        shouldApply = true;
+                    }
+                    break;
+                case "UNDAMAGEABLE":
+                    if (entity instanceof Animals || (entity instanceof Player && owner != null && plugin.getTeamManager().isAlly(owner, (Player) entity))) {
+                        shouldApply = true;
+                    }
                     break;
             }
 
@@ -56,14 +67,8 @@ public class StasisEffect implements FormationEffect {
                 entity.addPotionEffect(slowEffect);
             }
         }
-
-        // --- Logic làm chậm Vật thể bay đã được chuyển đi ---
-        // Logic này giờ sẽ được gọi mỗi tick từ EffectHandler
     }
 
-    /**
-     * Phương thức mới để xử lý vật thể bay, sẽ được gọi mỗi tick.
-     */
     public void applyToProjectiles(World world, Location center, double radius, int slowAmplifier) {
         if (world == null) return;
 

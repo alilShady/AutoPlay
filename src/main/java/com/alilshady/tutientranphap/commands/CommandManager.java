@@ -106,9 +106,6 @@ public class CommandManager implements CommandExecutor {
         return true;
     }
 
-    /**
-     * Xử lý lệnh /ttp test <id> để nhanh chóng kích hoạt một trận pháp.
-     */
     private boolean handleTest(CommandSender sender, String[] args, String label) {
         if (!(sender instanceof Player)) {
             sender.sendMessage("Lệnh này chỉ dành cho người chơi.");
@@ -136,11 +133,9 @@ public class CommandManager implements CommandExecutor {
         }
 
         Location location = player.getLocation().getBlock().getLocation();
-
-        // Đặt khối trung tâm để trận pháp không tự hủy ngay lập tức
         location.getBlock().setType(formation.getCenterBlock());
 
-        plugin.getEffectHandler().startFormationEffects(formation, location);
+        plugin.getEffectHandler().startFormationEffects(formation, location, player.getUniqueId());
 
         player.sendMessage(ChatColor.GREEN + "Đã kích hoạt thử nghiệm trận pháp: " + formation.getDisplayName());
         return true;
