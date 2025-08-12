@@ -1,156 +1,162 @@
 # PHIÊN BẢN CẤU HÌNH (KHÔNG THAY ĐỔI)
 config-version: '1.0.0'
 
-# ----------------------------------------------------
-#  Tệp cấu hình Trận Pháp cho plugin TuTienTranPhap
-# ----------------------------------------------------
+# =================================================================================================
+# =================================================================================================
 #
-# === HƯỚNG DẪN VỀ VẬT PHẨM KÍCH HOẠT (activation_item) ===
+#                HƯỚNG DẪN CẤU HÌNH TRẬN PHÁP - PLUGIN TUTIENTRANPHAP (BẢN CHI TIẾT)
 #
-# CÁCH 1: VẬT PHẨM THƯỜNG (Dễ kiếm)
-# Chỉ cần khai báo tên vật liệu. Bất kỳ vật phẩm nào cùng loại đều có thể kích hoạt.
+# Chào mừng bạn đến với tệp cấu hình trận pháp! Tại đây, bạn có thể tự do sáng tạo
+# ra những trận pháp độc đáo với hiệu ứng và chức năng riêng. Vui lòng đọc kỹ hướng
+# dẫn dưới đây để hiểu rõ từng tùy chọn.
 #
+# =================================================================================================
+# MỤC 1: CẤU TRÚC CƠ BẢN CỦA MỘT TRẬN PHÁP
+# =================================================================================================
+#
+# ten-tran-phap-cua-ban:               # ID định danh duy nhất, không dấu, không khoảng trắng.
+#   display_name: "<red>Tên Trận Pháp" # Tên hiển thị trong game, hỗ trợ MiniMessage.
+#   activation_item: ...                # Vật phẩm dùng để kích hoạt trận pháp (Xem Mục 2).
+#   duration: "15m"                     # Thời gian tồn tại (t: tick, s: giây, m: phút, h: giờ).
+#   radius: 20                          # Bán kính ảnh hưởng của hiệu ứng.
+#   pattern: ...                        # Cấu trúc vật lý của trận pháp (Xem Mục 3).
+#   particles: ...                      # Hiệu ứng hạt trang trí (Xem Mục 4).
+#   effects: ...                        # Các hiệu ứng gameplay (Xem Mục 5).
+#
+# =================================================================================================
+# MỤC 2: VẬT PHẨM KÍCH HOẠT (activation_item)
+# =================================================================================================
+#
+# CÁCH 1: VẬT PHẨM THƯỜNG (Dựa trên loại vật liệu)
 #   activation_item: "DIAMOND"
 #
-# ----------------------------------------------------
-#
-# CÁCH 2: VẬT PHẨM ĐẶC BIỆT (Chống làm giả bằng đe)
-# Định nghĩa chi tiết vật phẩm với 'name' hoặc 'lore'. Plugin sẽ tự động hiểu
-# đây là vật phẩm "unique" và yêu cầu người chơi phải có đúng vật phẩm "xịn"
-# (do admin give) để kích hoạt.
-#
+# CÁCH 2: VẬT PHẨM ĐẶC BIỆT (Có tên, lore, và tag NBT ẩn để chống làm giả)
 #   activation_item:
 #     material: "NETHER_STAR"
 #     name: "<gold>Linh Hồn Trận Pháp"
 #     lore:
-#       - "<gray>Một vật phẩm cổ xưa chứa đầy năng lượng."
+#       - "<gray>Một vật phẩm cổ xưa."
 #
-# Bạn có thể sử dụng mã màu MiniMessage cho 'name' và 'lore'.
+# =================================================================================================
+# MỤC 3: CẤU TRÚC TRẬN PHÁP (pattern)
+# =================================================================================================
 #
-# =================================================================
+#   pattern:
+#     key:
+#       X: "BEACON"                  # 'X' luôn là khối trung tâm.
+#       G: "GOLD_BLOCK"
+#     shape:
+#       - " GGG "
+#       - "G X G"
+#       - " GGG "
+#
+# =================================================================================================
+# MỤC 4: HIỆU ỨNG HẠT (particles)
+# =================================================================================================
+#
+#   particles:
+#     shapes:
+#       - type: RING
+#         particle: TOTEM
+#         # ... các tùy chọn khác ...
+#
+# --- CÁC KIỂU HÌNH DẠNG (TYPE) ---
+# 1. RING, 2. PILLAR, 3. DOME, 4. SPHERE, 5. HELIX, 6. VORTEX, 7. RAIN
+#
+# =================================================================================================
+# MỤC 5: HIỆU ỨNG GAMEPLAY (effects) - GIẢI THÍCH CHI TIẾT
+# =================================================================================================
+#
+# effects:
+#   - type: "HEAL"
+#     target: "UNDAMAGEABLE"
+#     value: 1.5
+#
+# --- KHÓA "TARGET" (MỤC TIÊU) ---
+# Hầu hết các hiệu ứng đều cần khóa này để xác định đối tượng tác động.
+#
+#   target: <GIÁ_TRỊ>
+#
+#   Các giá trị hợp lệ:
+#   - OWNER:        Chỉ tác động lên người đã kích hoạt trận pháp.
+#   - ALL:          Tác động lên TẤT CẢ người chơi và thực thể sống.
+#   - MOBS:         Chỉ tác động lên quái vật (vd: Zombie, Skeleton, Creeper...).
+#   - DAMAGEABLE:   Tác động lên các mục tiêu "thù địch", bao gồm quái vật và những người
+#                   chơi không phải là đồng minh (không cùng team/clan).
+#   - UNDAMAGEABLE: Tác động lên các mục tiêu "thân thiện", bao gồm động vật (heo, bò...)
+#                   và những người chơi là đồng minh (bao gồm cả chủ nhân).
+#
+# --- DANH SÁCH CÁC LOẠI HIỆU ỨNG (TYPE) VÀ TÙY CHỌN RIÊNG ---
+#
+# 1.  DAMAGE: Gây sát thương.
+#       value: Lượng sát thương (vd: 1.0 tương đương nửa trái tim).
+#
+# 2.  HEAL: Hồi máu.
+#       value: Lượng máu hồi phục (vd: 1.0 tương đương nửa trái tim).
+#
+# 3.  POTION: Thêm hiệu ứng thuốc.
+#       target: Mục tiêu nhận hiệu ứng.
+#       potion_effect: Tên hiệu ứng theo Bukkit (vd: SPEED, REGENERATION, WEAKNESS).
+#       value: Cấp độ hiệu ứng (0 = cấp I, 1 = cấp II, 2 = cấp III...).
+#
+# 4.  REPEL: Đẩy lùi các mục tiêu ra xa khỏi tâm.
+#       value: Lực đẩy (số càng lớn đẩy càng mạnh, 1.0 là khá mạnh).
+#
+# 5.  VORTEX: Hút các mục tiêu vào tâm.
+#       value: Lực hút (số càng lớn hút càng mạnh, 0.5 là vừa phải).
+#
+# 6.  ROOT: Trói chân mục tiêu bằng hiệu ứng SLOW cực mạnh.
+#       target: Mục tiêu bị trói.
+#       duration: Thời gian trói (vd: "5s", "100t").
+#       value: Cấp độ trói (nên để từ 5 trở lên để có hiệu quả).
+#
+# 7.  IGNITE: Đốt cháy mục tiêu.
+#       target: Mục tiêu bị đốt.
+#       duration: Thời gian cháy (vd: "3s" là 3 giây).
+#
+# 8.  CLEANSE: Gột rửa các hiệu ứng xấu (debuff).
+#       target: Mục tiêu được gột rửa. (Không cần 'value').
+#
+# 9.  REPAIR: Sửa chữa độ bền vật phẩm cho người chơi.
+#       target: Người chơi được sửa đồ (chỉ hoạt động với Player).
+#       value: Lượng độ bền được phục hồi mỗi chu kỳ.
+#
+# 10. FREEZE: Đóng băng các khối chất lỏng (Nước -> Băng, Lava -> Obsidian).
+#       (Không cần 'target' hay 'value', tác động lên các khối trong bán kính).
+#
+# 11. GROWTH: Thúc đẩy cây trồng lớn nhanh.
+#       value: Hệ số tăng trưởng (vd: 2.0 làm cây lớn nhanh gấp đôi).
+#
+# 12. HARVEST: Tự động thu hoạch cây trồng đã lớn hết cỡ.
+#       replant: true/false (mặc định là true) - Có tự trồng lại cây sau khi thu hoạch không.
+#
+# 13. BREED: Thúc đẩy động vật giao phối.
+#       value: Thời gian chờ (cooldown) giữa các lần thúc đẩy, tính bằng tick (20 ticks = 1 giây).
+#
+# 14. XP: Tạo ra các quả cầu kinh nghiệm.
+#       value: Tổng số kinh nghiệm sẽ được tạo ra mỗi chu kỳ.
+#
+# 15. STASIS: Tạo vùng làm chậm thời gian, ảnh hưởng đến cả thực thể và vật thể bay (tên, mũi tên).
+#       target: Mục tiêu bị làm chậm.
+#       value: Cấp độ làm chậm (từ 1 đến 5, càng cao càng chậm).
+#
+# 16. LIGHTNING: Triệu hồi sét.
+#       target: Mục tiêu bị sét đánh.
+#       visual_only: true/false (mặc định là false) - true nếu chỉ muốn hiệu ứng sét mà không gây sát thương.
+#
+# ... (Các hiệu ứng khác sẽ được cập nhật ở đây khi có)
+# =================================================================================================
 
-kim-cang-tran:
-  display_name: "<yellow><bold>Kim Cang Hộ Thể Trận</bold></yellow>"
-  activation_item: "NETHERITE_INGOT"
-  duration: "30m"
+# --- TRẬN PHÁP CHỦ ĐỀ "THÁNH QUANG" ---
+thanh-quang-tri-lieu-tran:
+  display_name: "<gold><bold>Thánh Quang Trị Liệu Trận</bold></gold>"
+  activation_item: "BEACON"
+  duration: "15m"
   radius: 20
-  pattern:
-    key:
-      X: "OBSIDIAN"
-      P: "CHISELED_QUARTZ_BLOCK"
-    shape:
-      - "PPPPP"
-      - "P   P"
-      - "P X P"
-      - "P   P"
-      - "PPPPP"
-  particles:
-    ring: "TOTEM"
-    pillar: "FLAME"
-  effects:
-    - type: "POTION"
-      target: "UNDAMAGEABLE"
-      potion_effect: "DAMAGE_RESISTANCE"
-      value: 1
-    - type: "POTION"
-      target: "DAMAGEABLE"
-      potion_effect: "WEAKNESS"
-      value: 1
-
-thoi-ma-tran:
-  display_name: "<aqua><bold>Thối Ma Trận</bold></aqua>"
-  activation_item: "HEART_OF_THE_SEA"
-  duration: "1h"
-  radius: 25
-  pattern:
-    key:
-      X: "CONDUIT"
-      P: "PRISMARINE_BRICKS"
-    shape:
-      - " PPP "
-      - "P   P"
-      - "P X P"
-      - "P   P"
-      - " PPP "
-  particles:
-    ring: "SQUID_INK"
-  effects:
-    - type: "REPEL"
-      target: "DAMAGEABLE"
-      value: 1.2
-
-loi-nguc-tran:
-  display_name: "<yellow><bold>Thiên Lôi Ngục Trận</bold></yellow>"
-  activation_item: "LIGHTNING_ROD"
-  duration: "5m"
-  radius: 20
-  pattern:
-    key:
-      X: "LODESTONE"
-      P: "IRON_BARS"
-      C: "COPPER_BLOCK"
-    shape:
-      - " P P "
-      - "PCXCP"
-      - " C C "
-      - "PCXCP"
-      - " P P "
-  particles:
-    ring: "ELECTRIC_SPARK"
-    dome: "CLOUD"
-    pillar: "FIREWORK"
-  effects:
-    - type: "VORTEX"
-      target: "DAMAGEABLE"
-      value: 0.4
-    - type: "LIGHTNING"
-      target: "DAMAGEABLE"
-      visual_only: false
-    - type: "BARRIER"
-      target: "DAMAGEABLE"
-      value: 1.0
-
-huyet-te-tran:
-  display_name: "<dark_red><bold>Huyết Tế Trận</bold></dark_red>"
-  activation_item:
-    material: "NETHER_STAR"
-    name: "<red>Trái Tim Huyết Tế"
-    lore:
-      - "<gray>Năng lượng sinh mệnh bị hút cạn."
-  duration: "10m"
-  radius: 15
-  pattern:
-    key:
-      X: "RESPAWN_ANCHOR"
-      P: "REDSTONE_BLOCK"
-      N: "NETHERITE_BLOCK"
-    shape:
-      - "  P  "
-      - " P P "
-      - "P X P"
-      - " P P "
-      - "  N  "
-  particles:
-    ring: "DAMAGE_INDICATOR"
-    orb: "DRIPPING_OBSIDIAN_TEAR"
-  effects:
-    - type: "DAMAGE"
-      target: "DAMAGEABLE"
-      value: 2.0
-    - type: "COLLECT"
-      value: 0.6
-    - type: "XP"
-      value: 10
-
-thanh-quang-tran:
-  display_name: "<green><bold>Thánh Quang Tẩy Tễ Trận</bold></green>"
-  activation_item: "GOLD_BLOCK"
-  duration: "20m"
-  radius: 25
   pattern:
     key:
       X: "BEACON"
-      P: "QUARTZ_BLOCK"
+      P: "QUARTZ_PILLAR"
       G: "GOLD_BLOCK"
     shape:
       - " GPG "
@@ -159,18 +165,284 @@ thanh-quang-tran:
       - "P   P"
       - " GPG "
   particles:
-    rotation_speed: 1.0
-    pillar_count: 4
-    ring: "TOTEM"
-    pillar: "HAPPY_VILLAGER"
+    shapes:
+      - type: RING
+        particle: TOTEM
+        y-offset: 0.1
+        density: 100
+        rotation_speed: 0.8
+      - type: HELIX
+        particle: HAPPY_VILLAGER
+        height: 15
+        strands: 2
+        revolutions: 3
+        density: 250
+        rotation_speed: 1.2
+      - type: SPHERE
+        particle: END_ROD
+        radius: 1.5
+        y-offset: 2.0
+        density: 150
   effects:
     - type: "HEAL"
       target: "UNDAMAGEABLE"
-      value: 1
+      value: 1.5
     - type: "CLEANSE"
       target: "UNDAMAGEABLE"
     - type: "POTION"
       target: "UNDAMAGEABLE"
       potion_effect: "REGENERATION"
+      value: 1
+
+# --- TRẬN PHÁP CHỦ ĐỀ "BÃO TỐ" ---
+thuy-than-phan-no-tran:
+  display_name: "<blue><bold>Thủy Thần Phẫn Nộ Trận</bold></blue>"
+  activation_item: "TRIDENT"
+  duration: "10m"
+  radius: 25
+  pattern:
+    key:
+      X: "CONDUIT"
+      P: "PRISMARINE_BRICKS"
+      S: "SEA_LANTERN"
+    shape:
+      - " SPS "
+      - "P   P"
+      - "S X S"
+      - "P   P"
+      - " SPS "
+  particles:
+    shapes:
+      - type: RING
+        particle: WATER_WAKE
+        y-offset: 0.2
+        density: 80
+        rotation_speed: -2.5 # Quay ngược
+      - type: RAIN
+        particle: WATER_DROP
+        height: 20
+        density: 60
+      - type: VORTEX
+        particle: SQUID_INK
+        radius: 10
+        height: 15
+        density: 200
+        rotation_speed: 3.0
+  effects:
+    - type: "VORTEX"
+      target: "DAMAGEABLE"
+      value: 0.3
+    - type: "POTION"
+      target: "DAMAGEABLE"
+      potion_effect: "SLOW"
+      value: 1
+    - type: "LIGHTNING"
+      target: "DAMAGEABLE"
+      visual_only: false
+
+# --- TRẬN PHÁP CHỦ ĐỀ "HỎA NGỤC" ---
+hoa-nguc-tran:
+  display_name: "<dark_red><bold>Hỏa Ngục Trận</bold></dark_red>"
+  activation_item: "BLAZE_ROD"
+  duration: "10m"
+  radius: 18
+  pattern:
+    key:
+      X: "MAGMA_BLOCK"
+      N: "NETHERRACK"
+      B: "NETHER_BRICKS"
+    shape:
+      - " NBN "
+      - "B X B"
+      - " NBN "
+  particles:
+    shapes:
+      - type: RING
+        particle: FLAME
+        density: 100
+        y-offset: 0.2
+      - type: PILLAR
+        particle: LAVA
+        count: 6
+        height: 10
+        density: 30
+        rotation_speed: 1.5
+      - type: RAIN
+        particle: WHITE_ASH
+        height: 15
+        density: 20
+  effects:
+    - type: "DAMAGE"
+      target: "DAMAGEABLE"
+      value: 1.0
+    - type: "IGNITE"
+      target: "DAMAGEABLE"
+      duration: "5s"
+
+# --- TRẬN PHÁP CHỦ ĐỀ "BÓNG TỐI" ---
+huyen-am-phong-an-tran:
+  display_name: "<dark_purple><bold>Huyền Âm Phong Ấn Trận</bold></dark_purple>"
+  activation_item: "WITHER_SKELETON_SKULL"
+  duration: "5m"
+  radius: 15
+  pattern:
+    key:
+      X: "CRYING_OBSIDIAN"
+      O: "OBSIDIAN"
+      S: "SOUL_SAND"
+    shape:
+      - " OSO "
+      - "S X S"
+      - " OSO "
+  particles:
+    shapes:
+      - type: DOME
+        particle: SQUID_INK
+        density: 300
+        lines: 12
+        rotation_speed: -0.5
+      - type: PILLAR
+        particle: SOUL_FIRE_FLAME
+        count: 8
+        height: 8
+        density: 15
+      - type: SPHERE
+        particle: PORTAL
+        radius: 2.0
+        y-offset: 2.5
+        density: 150
+  effects:
+    - type: "ROOT"
+      target: "DAMAGEABLE"
+      duration: "5s"
+      value: 5
+    - type: "POTION"
+      target: "DAMAGEABLE"
+      potion_effect: "BLINDNESS"
       value: 0
-    - type: "SANCTUARY"
+    - type: "POTION"
+      target: "DAMAGEABLE"
+      potion_effect: "WITHER"
+      value: 0
+
+# --- TRẬN PHÁP CHỦ ĐỀ "SINH MỆNH" ---
+moc-linh-tran:
+  display_name: "<green><bold>Mộc Linh Trận</bold></green>"
+  activation_item: "GRASS_BLOCK"
+  duration: "30m"
+  radius: 22
+  pattern:
+    key:
+      X: "MOSS_BLOCK"
+      L: "OAK_LOG"
+      V: "VINE"
+    shape:
+      - " VLV "
+      - "L X L"
+      - " VLV "
+  particles:
+    shapes:
+      - type: RING
+        particle: HAPPY_VILLAGER
+        y-offset: 0.3
+        density: 60
+      - type: HELIX
+        particle: COMPOSTER
+        height: 12
+        strands: 4
+        revolutions: 2.5
+        rotation_speed: 0.5
+        density: 300
+      - type: RAIN
+        particle: SPORE_BLOSSOM_AIR
+        height: 15
+        density: 15
+  effects:
+    - type: "GROWTH"
+      value: 3.0
+    - type: "BREED"
+      value: 100 # Cooldown 5 giây
+    - type: "POTION"
+      target: "UNDAMAGEABLE"
+      potion_effect: "SATURATION"
+      value: 0
+
+# --- TRẬN PHÁP CHỦ ĐỀ "BĂNG GIÁ" ---
+bang-phach-tran:
+  display_name: "<aqua><bold>Băng Phách Trận</bold></aqua>"
+  activation_item: "BLUE_ICE"
+  duration: "10m"
+  radius: 18
+  pattern:
+    key:
+      X: "BLUE_ICE"
+      I: "ICE"
+      P: "PACKED_ICE"
+    shape:
+      - " IPI "
+      - "P X P"
+      - " IPI "
+  particles:
+    shapes:
+      - type: RING
+        particle: SNOWFLAKE
+        y-offset: 0.2
+        density: 80
+      - type: PILLAR
+        particle: END_ROD
+        count: 8
+        height: 6
+        density: 20
+        rotation_speed: -1.0
+      - type: DOME
+        particle: SNOWFLAKE
+        density: 400
+        lines: 10
+  effects:
+    - type: "FREEZE"
+    - type: "POTION"
+      target: "DAMAGEABLE"
+      potion_effect: "SLOW"
+      value: 2
+    - type: "STASIS" # Làm chậm projectile
+      value: 3
+
+# --- TRẬN PHÁP CHỦ ĐỀ "THỜI GIAN" ---
+thoi-khong-tran:
+  display_name: "<light_purple><bold>Thời Không Trận</bold></light_purple>"
+  activation_item: "CLOCK"
+  duration: "1m"
+  radius: 15
+  pattern:
+    key:
+      X: "END_GATEWAY"
+      C: "AMETHYST_BLOCK"
+      E: "END_ROD"
+    shape:
+      - " ECE "
+      - "C X C"
+      - " ECE "
+  particles:
+    shapes:
+      - type: RING
+        particle: REVERSE_PORTAL
+        density: 50
+        rotation_speed: 2.0
+      - type: RING
+        particle: PORTAL
+        radius: 14
+        density: 50
+        rotation_speed: -2.0
+      - type: SPHERE
+        particle: END_ROD
+        y-offset: 2
+        radius: 1
+        density: 50
+  effects:
+    - type: "STASIS" # Làm chậm thực thể và projectile
+      target: "ALL"
+      value: 5
+    - type: "POTION"
+      target: "ALL"
+      potion_effect: "SLOW"
+      value: 4
