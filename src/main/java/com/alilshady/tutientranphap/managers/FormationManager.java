@@ -6,6 +6,7 @@ import com.alilshady.tutientranphap.utils.ItemFactory;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.Tag;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -21,6 +22,36 @@ public class FormationManager {
     private Map<String, Formation> formationsById;
     private final Map<Location, Formation> activeFormations = new HashMap<>();
     private final Map<Location, UUID> formationOwners = new HashMap<>();
+
+    // --- THÊM MỚI: Danh sách các khối tự nhiên có thể bị thay thế ---
+    private static final Set<Material> REPLACEABLE_PLANTS = new HashSet<>(Arrays.asList(
+            Material.GRASS,
+            Material.TALL_GRASS,
+            Material.FERN,
+            Material.LARGE_FERN,
+            Material.DEAD_BUSH,
+            Material.VINE,
+            Material.POPPY,
+            Material.DANDELION,
+            Material.BLUE_ORCHID,
+            Material.ALLIUM,
+            Material.AZURE_BLUET,
+            Material.RED_TULIP,
+            Material.ORANGE_TULIP,
+            Material.WHITE_TULIP,
+            Material.PINK_TULIP,
+            Material.OXEYE_DAISY,
+            Material.CORNFLOWER,
+            Material.LILY_OF_THE_VALLEY,
+            Material.WITHER_ROSE,
+            Material.SUNFLOWER,
+            Material.LILAC,
+            Material.ROSE_BUSH,
+            Material.PEONY,
+            Material.BROWN_MUSHROOM,
+            Material.RED_MUSHROOM,
+            Material.SNOW
+    ));
 
     public FormationManager(TuTienTranPhap plugin) {
         this.plugin = plugin;
@@ -70,6 +101,7 @@ public class FormationManager {
         int centerXOffset = patternWidth / 2;
         int centerZOffset = patternHeight / 2;
 
+        // --- SỬA LẠI LOGIC KIỂM TRA KHÔNG GIAN ---
         for (int z = 0; z < patternHeight; z++) {
             String row = shape.get(z);
             for (int x = 0; x < patternWidth; x++) {
@@ -77,16 +109,23 @@ public class FormationManager {
                 if (blockChar == ' ') continue;
 
                 Block relativeBlock = startLocation.getBlock().getRelative(x - centerXOffset, 0, z - centerZOffset);
-                if (relativeBlock.getType() != Material.AIR && !relativeBlock.isPassable()) {
+                Material blockType = relativeBlock.getType();
+
+                // Kiểm tra xem khối có thể được thay thế không
+                boolean isReplaceable = (blockType == Material.AIR || REPLACEABLE_PLANTS.contains(blockType));
+
+                if (!isReplaceable) {
                     if (plugin.getConfigManager().isDebugLoggingEnabled()) {
-                        plugin.getLogger().warning("[DEBUG][BUILD] Build failed. Block " + relativeBlock.getType() + " at " + relativeBlock.getLocation() + " is not AIR.");
+                        plugin.getLogger().warning("[DEBUG][BUILD] Build failed. Block " + blockType + " at " + relativeBlock.getLocation() + " is not replaceable.");
                     }
                     player.sendMessage(plugin.getConfigManager().getMessage("formation.blueprint.build-fail-space"));
-                    return false;
+                    return false; // Dừng lại nếu gặp khối rắn không thể thay thế
                 }
             }
         }
+        // --- KẾT THÚC SỬA ĐỔI ---
 
+        // Vòng lặp xây dựng giữ nguyên, nó sẽ tự động ghi đè lên các khối cỏ/hoa
         for (int z = 0; z < patternHeight; z++) {
             String row = shape.get(z);
             for (int x = 0; x < patternWidth; x++) {
@@ -135,23 +174,16 @@ public class FormationManager {
         if (itemInHand == null) return false;
 
         ItemMeta requiredMeta = requiredItem.getItemMeta();
-        // Kiểm tra xem vật phẩm yêu cầu có được đánh dấu là 'unique' không
         String requiredTag = (requiredMeta != null) ? requiredMeta.getPersistentDataContainer().get(ItemFactory.ACTIVATION_ITEM_KEY, PersistentDataType.STRING) : null;
 
         if (requiredTag != null) {
-            // Trường hợp 1: Vật phẩm YÊU CẦU có "dấu vân tay"
             if (!itemInHand.hasItemMeta()) return false;
             String handTag = itemInHand.getItemMeta().getPersistentDataContainer().get(ItemFactory.ACTIVATION_ITEM_KEY, PersistentDataType.STRING);
-
-            // Phải có tag và tag phải giống nhau. Sau đó mới so sánh các thuộc tính khác.
             return requiredTag.equals(handTag) && itemInHand.isSimilar(requiredItem);
         } else {
-            // Trường hợp 2: Vật phẩm không yêu cầu "dấu vân tay"
-            // So sánh thông thường, nhưng đảm bảo vật phẩm trên tay cũng không có tag.
-            // Điều này ngăn việc dùng vật phẩm "xịn" để kích hoạt trận pháp "thường".
             if (itemInHand.hasItemMeta()) {
                 String handTag = itemInHand.getItemMeta().getPersistentDataContainer().get(ItemFactory.ACTIVATION_ITEM_KEY, PersistentDataType.STRING);
-                if(handTag != null) return false; // Vật phẩm trên tay có tag -> không khớp
+                if(handTag != null) return false;
             }
             return itemInHand.isSimilar(requiredItem);
         }
@@ -180,7 +212,6 @@ public class FormationManager {
                     }
                     return false;
                 }
-                if(x == centerXOffset && z == centerZOffset) continue;
 
                 Block relativeBlock = centerBlock.getRelative(x - centerXOffset, 0, z - centerZOffset);
                 if (relativeBlock.getType() != expectedMaterial) {
@@ -210,7 +241,7 @@ public class FormationManager {
                     .anyMatch(effectMap -> effectType.equalsIgnoreCase(String.valueOf(effectMap.get("type"))));
 
             if (hasEffect) {
-                if (center.getWorld().equals(location.getWorld())) {
+                if (Objects.equals(center.getWorld(), location.getWorld())) {
                     if (center.distanceSquared(location) <= Math.pow(formation.getRadius(), 2)) {
                         return true;
                     }

@@ -2,6 +2,7 @@ package com.alilshady.tutientranphap.commands;
 
 import com.alilshady.tutientranphap.TuTienTranPhap;
 import com.alilshady.tutientranphap.object.Formation;
+import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -17,6 +18,7 @@ import org.bukkit.persistence.PersistentDataType;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Collections;
+import java.util.Objects;
 
 public class CommandManager implements CommandExecutor {
 
@@ -39,9 +41,9 @@ public class CommandManager implements CommandExecutor {
         switch (subCommand) {
             case "reload":
                 return handleReload(sender);
-            case "give": // Lệnh give Trận Đồ (giấy)
+            case "give":
                 return handleGiveBlueprint(sender, args, label);
-            case "giveitem": // Lệnh give Vật phẩm kích hoạt
+            case "giveitem":
                 return handleGiveItem(sender, args, label);
             case "test":
                 return handleTest(sender, args, label);
@@ -99,15 +101,16 @@ public class CommandManager implements CommandExecutor {
         ItemStack blueprint = createBlueprintItem(formation, amount);
         target.getInventory().addItem(blueprint);
 
+        String itemName = PlainTextComponentSerializer.plainText().serialize(Objects.requireNonNull(blueprint.getItemMeta().displayName()));
+
         sender.sendMessage(plugin.getConfigManager().getMessage("commands.give.success",
                 "%amount%", String.valueOf(amount),
-                "%item_name%", blueprint.getItemMeta().getDisplayName(),
+                "%item_name%", itemName,
                 "%player%", target.getName()));
 
         return true;
     }
 
-    // --- LỆNH MỚI ĐỂ GIVE VẬT PHẨM "XỊN" ---
     private boolean handleGiveItem(CommandSender sender, String[] args, String label) {
         if (!sender.hasPermission("tutientranphap.giveitem")) {
             sender.sendMessage(plugin.getConfigManager().getMessage("commands.reload.no-permission"));
@@ -142,14 +145,13 @@ public class CommandManager implements CommandExecutor {
             }
         }
 
-        // Lấy vật phẩm kích hoạt đã được tạo sẵn từ config (đã có tag ẩn)
         ItemStack activationItem = formation.getActivationItem().clone();
         activationItem.setAmount(amount);
 
         target.getInventory().addItem(activationItem);
 
-        String itemName = activationItem.hasItemMeta() && activationItem.getItemMeta().hasDisplayName()
-                ? ChatColor.stripColor(activationItem.getItemMeta().getDisplayName())
+        String itemName = activationItem.hasItemMeta() && activationItem.getItemMeta().displayName() != null
+                ? PlainTextComponentSerializer.plainText().serialize(activationItem.getItemMeta().displayName())
                 : activationItem.getType().name();
 
         sender.sendMessage(plugin.getConfigManager().getMessage("commands.give.success",
@@ -161,12 +163,13 @@ public class CommandManager implements CommandExecutor {
     }
 
     private boolean handleTest(CommandSender sender, String[] args, String label) {
+        // --- ĐÂY LÀ PHẦN ĐÃ ĐƯỢC SỬA LỖI ---
         if (!(sender instanceof Player)) {
             sender.sendMessage("Lệnh này chỉ dành cho người chơi.");
             return true;
         }
-
         Player player = (Player) sender;
+        // --- KẾT THÚC PHẦN SỬA LỖI ---
 
         if (!player.hasPermission("tutientranphap.test")) {
             player.sendMessage(plugin.getConfigManager().getMessage("commands.reload.no-permission"));
@@ -200,8 +203,10 @@ public class CommandManager implements CommandExecutor {
         ItemMeta meta = item.getItemMeta();
 
         assert meta != null;
-        meta.setDisplayName(ChatColor.AQUA + "Trận Đồ: " + formation.getDisplayName());
-        meta.setLore(Collections.singletonList(ChatColor.GRAY + "Nhấp chuột phải xuống đất để xây dựng."));
+        meta.displayName(plugin.getConfigManager().getMiniMessage().deserialize("<aqua>Trận Đồ: " + formation.getDisplayName()));
+        meta.lore(Collections.singletonList(
+                plugin.getConfigManager().getMiniMessage().deserialize("<gray>Nhấp chuột phải xuống đất để xây dựng.")
+        ));
 
         meta.getPersistentDataContainer().set(formationIdKey, PersistentDataType.STRING, formation.getId());
 

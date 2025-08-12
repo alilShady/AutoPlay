@@ -7,11 +7,11 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.Bukkit;
+import org.bukkit.Material;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.Material;
 
 import java.io.File;
 import java.io.InputStreamReader;
@@ -37,7 +37,6 @@ public class ConfigManager {
 
     public ConfigManager(TuTienTranPhap plugin) {
         this.plugin = plugin;
-        // --- SỬA Ở ĐÂY: Tự động gọi reloadConfigs() ngay khi được khởi tạo ---
         reloadConfigs();
     }
 
@@ -60,7 +59,6 @@ public class ConfigManager {
         }
         messagesConfig = YamlConfiguration.loadConfiguration(messagesFile);
 
-        // Đảm bảo có giá trị mặc định cho tin nhắn
         Reader defMessagesStream = new InputStreamReader(plugin.getResource("messages.yml"), StandardCharsets.UTF_8);
         if (defMessagesStream != null) {
             YamlConfiguration defMessages = YamlConfiguration.loadConfiguration(defMessagesStream);
@@ -90,25 +88,34 @@ public class ConfigManager {
         return getMessage(path, new String[0]);
     }
 
-
     public CompletableFuture<List<Formation>> loadFormationsAsync() {
         return CompletableFuture.supplyAsync(() -> {
             List<Formation> formations = new ArrayList<>();
-            ConfigurationSection formationSection = formationConfig.getConfigurationSection("");
-            if (formationSection == null) return formations;
+            // Sửa ở đây: Lấy section "quest-archetypes" thay vì section gốc
+            ConfigurationSection formationSection = formationConfig.getConfigurationSection("quest-archetypes");
+            if (formationSection == null) {
+                // Thêm một log cảnh báo nếu không tìm thấy section
+                plugin.getLogger().warning("Could not find 'quest-archetypes' section in formations.yml. No formations will be loaded.");
+                return formations;
+            }
 
             for (String id : formationSection.getKeys(false)) {
+                // --- ĐÂY LÀ DÒNG SỬA LỖI QUAN TRỌNG ---
+                // Bỏ qua các khóa không phải là định nghĩa của một trận pháp
+                if (id.equalsIgnoreCase("config-version")) continue;
+
                 try {
-                    String path = id + ".";
-                    String rawDisplayName = formationSection.getString(path + "display_name", id);
+                    // Sửa đường dẫn để trỏ vào trong "quest-archetypes"
+                    String path = "quest-archetypes." + id + ".";
+                    String rawDisplayName = formationConfig.getString(path + "display_name", id);
                     String displayName = LegacyComponentSerializer.legacySection().serialize(miniMessage.deserialize(rawDisplayName));
 
                     ItemStack activationItem;
-                    ConfigurationSection itemSection = formationSection.getConfigurationSection(path + "activation_item");
+                    ConfigurationSection itemSection = formationConfig.getConfigurationSection(path + "activation_item");
                     if (itemSection != null) {
                         activationItem = ItemFactory.createFromConfig(itemSection);
                     } else {
-                        Material material = Material.valueOf(formationSection.getString(path + "activation_item", "STONE").toUpperCase());
+                        Material material = Material.valueOf(formationConfig.getString(path + "activation_item", "STONE").toUpperCase());
                         activationItem = new ItemStack(material);
                     }
 
@@ -117,22 +124,22 @@ public class ConfigManager {
                         continue;
                     }
 
-                    String duration = formationSection.getString(path + "duration", "30m");
-                    int radius = formationSection.getInt(path + "radius");
+                    String duration = formationConfig.getString(path + "duration", "30m");
+                    int radius = formationConfig.getInt(path + "radius");
 
                     Map<Character, Material> keyMap = new HashMap<>();
-                    ConfigurationSection keySection = formationSection.getConfigurationSection(path + "pattern.key");
+                    ConfigurationSection keySection = formationConfig.getConfigurationSection(path + "pattern.key");
                     if (keySection != null) {
                         for (String keyChar : keySection.getKeys(false)) {
                             keyMap.put(keyChar.charAt(0), Material.valueOf(keySection.getString(keyChar).toUpperCase()));
                         }
                     }
 
-                    List<String> shape = formationSection.getStringList(path + "pattern.shape");
-                    List<Map<?, ?>> effects = formationSection.getMapList(path + "effects");
+                    List<String> shape = formationConfig.getStringList(path + "pattern.shape");
+                    List<Map<?, ?>> effects = formationConfig.getMapList(path + "effects");
 
                     Map<String, Object> particleConfig = new HashMap<>();
-                    ConfigurationSection particleSection = formationSection.getConfigurationSection(path + "particles");
+                    ConfigurationSection particleSection = formationConfig.getConfigurationSection(path + "particles");
                     if (particleSection != null) {
                         for (String key : particleSection.getKeys(false)) {
                             particleConfig.put(key, particleSection.get(key));
@@ -155,12 +162,15 @@ public class ConfigManager {
         }, runnable -> Bukkit.getScheduler().runTaskAsynchronously(plugin, runnable));
     }
 
-
     public boolean isDebugLoggingEnabled() {
         return debugLogging;
     }
 
     public int getEffectCheckInterval() {
         return effectCheckInterval;
+    }
+
+    public MiniMessage getMiniMessage() {
+        return this.miniMessage;
     }
 }
