@@ -6,7 +6,6 @@ import com.alilshady.tutientranphap.utils.ItemFactory;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.Tag;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -23,8 +22,8 @@ public class FormationManager {
     private final Map<Location, Formation> activeFormations = new HashMap<>();
     private final Map<Location, UUID> formationOwners = new HashMap<>();
 
-    // --- THÊM MỚI: Danh sách các khối tự nhiên có thể bị thay thế ---
-    private static final Set<Material> REPLACEABLE_PLANTS = new HashSet<>(Arrays.asList(
+    // --- SỬA Ở ĐÂY: Bổ sung thêm các khối đất và cỏ ---
+    private static final Set<Material> REPLACEABLE_BLOCKS = new HashSet<>(Arrays.asList(
             Material.GRASS,
             Material.TALL_GRASS,
             Material.FERN,
@@ -50,7 +49,13 @@ public class FormationManager {
             Material.PEONY,
             Material.BROWN_MUSHROOM,
             Material.RED_MUSHROOM,
-            Material.SNOW
+            Material.SNOW,
+            Material.GRASS_BLOCK, // Thêm khối cỏ
+            Material.DIRT,       // Thêm đất
+            Material.PODZOL,
+            Material.COARSE_DIRT,
+            Material.MYCELIUM,
+            Material.DIRT_PATH   // Thêm đường đất
     ));
 
     public FormationManager(TuTienTranPhap plugin) {
@@ -64,7 +69,6 @@ public class FormationManager {
         plugin.getConfigManager().loadFormationsAsync().thenAcceptAsync(loadedFormations -> {
             Map<Material, List<Formation>> newCenterBlockMap = new HashMap<>();
             Map<String, Formation> newIdMap = new HashMap<>();
-
             for (Formation f : loadedFormations) {
                 newIdMap.put(f.getId(), f);
                 if (f.getCenterBlock() != null) {
@@ -73,7 +77,6 @@ public class FormationManager {
             }
             this.formationsById = newIdMap;
             this.formationsByCenterBlock = newCenterBlockMap;
-
             if (plugin.getConfigManager().isDebugLoggingEnabled()) {
                 plugin.getLogger().info("Successfully loaded " + loadedFormations.size() + " formations.");
             }
@@ -85,9 +88,7 @@ public class FormationManager {
     }
 
     public Set<String> getAllFormationIds() {
-        if (formationsById == null) {
-            return new HashSet<>();
-        }
+        if (formationsById == null) return new HashSet<>();
         return formationsById.keySet();
     }
 
@@ -101,7 +102,6 @@ public class FormationManager {
         int centerXOffset = patternWidth / 2;
         int centerZOffset = patternHeight / 2;
 
-        // --- SỬA LẠI LOGIC KIỂM TRA KHÔNG GIAN ---
         for (int z = 0; z < patternHeight; z++) {
             String row = shape.get(z);
             for (int x = 0; x < patternWidth; x++) {
@@ -111,27 +111,24 @@ public class FormationManager {
                 Block relativeBlock = startLocation.getBlock().getRelative(x - centerXOffset, 0, z - centerZOffset);
                 Material blockType = relativeBlock.getType();
 
-                // Kiểm tra xem khối có thể được thay thế không
-                boolean isReplaceable = (blockType == Material.AIR || REPLACEABLE_PLANTS.contains(blockType));
+                // Sửa ở đây: Dùng danh sách mới REPLACEABLE_BLOCKS
+                boolean isReplaceable = (blockType == Material.AIR || REPLACEABLE_BLOCKS.contains(blockType));
 
                 if (!isReplaceable) {
                     if (plugin.getConfigManager().isDebugLoggingEnabled()) {
                         plugin.getLogger().warning("[DEBUG][BUILD] Build failed. Block " + blockType + " at " + relativeBlock.getLocation() + " is not replaceable.");
                     }
                     player.sendMessage(plugin.getConfigManager().getMessage("formation.blueprint.build-fail-space"));
-                    return false; // Dừng lại nếu gặp khối rắn không thể thay thế
+                    return false;
                 }
             }
         }
-        // --- KẾT THÚC SỬA ĐỔI ---
 
-        // Vòng lặp xây dựng giữ nguyên, nó sẽ tự động ghi đè lên các khối cỏ/hoa
         for (int z = 0; z < patternHeight; z++) {
             String row = shape.get(z);
             for (int x = 0; x < patternWidth; x++) {
                 char blockChar = row.charAt(x);
                 if (blockChar == ' ') continue;
-
                 Material material = key.get(blockChar);
                 if (material != null) {
                     Block relativeBlock = startLocation.getBlock().getRelative(x - centerXOffset, 0, z - centerZOffset);
@@ -140,10 +137,12 @@ public class FormationManager {
             }
         }
 
+        // --- SỬA LỖI Ở ĐÂY: Truyền tên trận pháp đã được định dạng đúng ---
         player.sendMessage(plugin.getConfigManager().getMessage("formation.blueprint.build-success", "%formation_name%", formation.getDisplayName()));
         return true;
     }
 
+    // ... (Các hàm còn lại giữ nguyên không đổi) ...
     public void attemptToActivate(Player player, Block centerBlock, ItemStack activationItemInHand) {
         if (activeFormationCenters.contains(centerBlock.getLocation())) {
             player.sendMessage(plugin.getConfigManager().getMessage("formation.activate.already-active"));

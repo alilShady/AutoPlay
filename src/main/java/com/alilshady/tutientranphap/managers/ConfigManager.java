@@ -91,24 +91,16 @@ public class ConfigManager {
     public CompletableFuture<List<Formation>> loadFormationsAsync() {
         return CompletableFuture.supplyAsync(() -> {
             List<Formation> formations = new ArrayList<>();
-            // Sửa ở đây: Lấy section "quest-archetypes" thay vì section gốc
-            ConfigurationSection formationSection = formationConfig.getConfigurationSection("quest-archetypes");
-            if (formationSection == null) {
-                // Thêm một log cảnh báo nếu không tìm thấy section
-                plugin.getLogger().warning("Could not find 'quest-archetypes' section in formations.yml. No formations will be loaded.");
-                return formations;
-            }
+            ConfigurationSection formationSection = formationConfig.getConfigurationSection("");
+            if (formationSection == null) return formations;
 
             for (String id : formationSection.getKeys(false)) {
-                // --- ĐÂY LÀ DÒNG SỬA LỖI QUAN TRỌNG ---
-                // Bỏ qua các khóa không phải là định nghĩa của một trận pháp
                 if (id.equalsIgnoreCase("config-version")) continue;
 
                 try {
-                    // Sửa đường dẫn để trỏ vào trong "quest-archetypes"
-                    String path = "quest-archetypes." + id + ".";
-                    String rawDisplayName = formationConfig.getString(path + "display_name", id);
-                    String displayName = LegacyComponentSerializer.legacySection().serialize(miniMessage.deserialize(rawDisplayName));
+                    String path = id + ".";
+                    // --- SỬA LỖI Ở ĐÂY: Lưu displayName dưới dạng MiniMessage gốc ---
+                    String displayName = formationConfig.getString(path + "display_name", id);
 
                     ItemStack activationItem;
                     ConfigurationSection itemSection = formationConfig.getConfigurationSection(path + "activation_item");
@@ -146,9 +138,12 @@ public class ConfigManager {
                         }
                     }
 
-                    formations.add(new Formation(id, displayName, activationItem, duration, radius, keyMap, shape, effects, particleConfig));
+                    // Chuyển đổi sang legacy color code để tương thích với các phần khác của plugin (nếu cần)
+                    String legacyDisplayName = LegacyComponentSerializer.legacySection().serialize(miniMessage.deserialize(displayName));
+
+                    formations.add(new Formation(id, legacyDisplayName, activationItem, duration, radius, keyMap, shape, effects, particleConfig));
                     if (debugLogging) {
-                        Bukkit.getScheduler().runTask(plugin, () -> plugin.getLogger().info("Loaded formation: " + displayName));
+                        Bukkit.getScheduler().runTask(plugin, () -> plugin.getLogger().info("Loaded formation: " + legacyDisplayName));
                     }
 
                 } catch (Exception e) {
