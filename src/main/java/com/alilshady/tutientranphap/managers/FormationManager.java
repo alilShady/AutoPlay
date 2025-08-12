@@ -1,15 +1,16 @@
-// src/main/java/com/alilshady/tutientranphap/managers/FormationManager.java
 package com.alilshady.tutientranphap.managers;
 
 import com.alilshady.tutientranphap.TuTienTranPhap;
-import com.alilshady.tutientranphap.effects.EffectUtils;
 import com.alilshady.tutientranphap.object.Formation;
+import com.alilshady.tutientranphap.utils.ItemFactory;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.persistence.PersistentDataType;
 
 import java.util.*;
 
@@ -18,8 +19,21 @@ public class FormationManager {
     private Map<Material, List<Formation>> formationsByCenterBlock;
     private final List<Location> activeFormationCenters;
     private Map<String, Formation> formationsById;
-    private final Map<Location, Formation> activeFormations = new HashMap<>(); // Theo dõi trận pháp nào đang hoạt động ở đâu
-    private final Map<Location, UUID> formationOwners = new HashMap<>(); // THÊM MỚI: Lưu chủ nhân trận pháp
+    private final Map<Location, Formation> activeFormations = new HashMap<>();
+    private final Map<Location, UUID> formationOwners = new HashMap<>();
+
+    // Danh sách các khối có thể bị thay thế khi xây dựng trận đồ
+    private static final Set<Material> REPLACEABLE_BLOCKS = new HashSet<>(Arrays.asList(
+            Material.AIR, Material.GRASS, Material.TALL_GRASS, Material.FERN,
+            Material.LARGE_FERN, Material.DEAD_BUSH, Material.VINE, Material.POPPY,
+            Material.DANDELION, Material.BLUE_ORCHID, Material.ALLIUM, Material.AZURE_BLUET,
+            Material.RED_TULIP, Material.ORANGE_TULIP, Material.WHITE_TULIP, Material.PINK_TULIP,
+            Material.OXEYE_DAISY, Material.CORNFLOWER, Material.LILY_OF_THE_VALLEY,
+            Material.WITHER_ROSE, Material.SUNFLOWER, Material.LILAC, Material.ROSE_BUSH,
+            Material.PEONY, Material.BROWN_MUSHROOM, Material.RED_MUSHROOM, Material.SNOW,
+            Material.GRASS_BLOCK, Material.DIRT, Material.PODZOL, Material.COARSE_DIRT,
+            Material.MYCELIUM, Material.DIRT_PATH
+    ));
 
     public FormationManager(TuTienTranPhap plugin) {
         this.plugin = plugin;
@@ -32,7 +46,6 @@ public class FormationManager {
         plugin.getConfigManager().loadFormationsAsync().thenAcceptAsync(loadedFormations -> {
             Map<Material, List<Formation>> newCenterBlockMap = new HashMap<>();
             Map<String, Formation> newIdMap = new HashMap<>();
-
             for (Formation f : loadedFormations) {
                 newIdMap.put(f.getId(), f);
                 if (f.getCenterBlock() != null) {
@@ -41,7 +54,6 @@ public class FormationManager {
             }
             this.formationsById = newIdMap;
             this.formationsByCenterBlock = newCenterBlockMap;
-
             if (plugin.getConfigManager().isDebugLoggingEnabled()) {
                 plugin.getLogger().info("Successfully loaded " + loadedFormations.size() + " formations.");
             }
@@ -53,15 +65,12 @@ public class FormationManager {
     }
 
     public Set<String> getAllFormationIds() {
-        if (formationsById == null) {
-            return new HashSet<>();
-        }
+        if (formationsById == null) return new HashSet<>();
         return formationsById.keySet();
     }
 
     public boolean buildFormation(Formation formation, Location startLocation, Player player) {
         List<String> shape = formation.getShape();
-        Map<Character, Material> key = formation.getPatternKey();
         if (shape.isEmpty() || shape.get(0).isEmpty()) return false;
 
         int patternHeight = shape.size();
@@ -69,6 +78,7 @@ public class FormationManager {
         int centerXOffset = patternWidth / 2;
         int centerZOffset = patternHeight / 2;
 
+        // Vòng lặp đầu tiên: Kiểm tra không gian trước khi xây
         for (int z = 0; z < patternHeight; z++) {
             String row = shape.get(z);
             for (int x = 0; x < patternWidth; x++) {
@@ -76,23 +86,24 @@ public class FormationManager {
                 if (blockChar == ' ') continue;
 
                 Block relativeBlock = startLocation.getBlock().getRelative(x - centerXOffset, 0, z - centerZOffset);
-                if (relativeBlock.getType() != Material.AIR && !relativeBlock.isPassable()) {
+
+                if (!REPLACEABLE_BLOCKS.contains(relativeBlock.getType())) {
                     if (plugin.getConfigManager().isDebugLoggingEnabled()) {
-                        plugin.getLogger().warning("[DEBUG][BUILD] Build failed. Block " + relativeBlock.getType() + " at " + relativeBlock.getLocation() + " is not AIR.");
+                        plugin.getLogger().warning("[DEBUG][BUILD] Build failed. Block " + relativeBlock.getType() + " at " + relativeBlock.getLocation() + " is not replaceable.");
                     }
                     player.sendMessage(plugin.getConfigManager().getMessage("formation.blueprint.build-fail-space"));
-                    return false;
+                    return false; // Trả về false, ngăn việc trừ vật phẩm
                 }
             }
         }
 
+        // Vòng lặp thứ hai: Thực hiện xây dựng sau khi đã kiểm tra
         for (int z = 0; z < patternHeight; z++) {
             String row = shape.get(z);
             for (int x = 0; x < patternWidth; x++) {
                 char blockChar = row.charAt(x);
                 if (blockChar == ' ') continue;
-
-                Material material = key.get(blockChar);
+                Material material = formation.getPatternKey().get(blockChar);
                 if (material != null) {
                     Block relativeBlock = startLocation.getBlock().getRelative(x - centerXOffset, 0, z - centerZOffset);
                     relativeBlock.setType(material);
@@ -100,11 +111,12 @@ public class FormationManager {
             }
         }
 
+        // Gửi tin nhắn thành công. `formation.getDisplayName()` lúc này là chuỗi MiniMessage gốc.
         player.sendMessage(plugin.getConfigManager().getMessage("formation.blueprint.build-success", "%formation_name%", formation.getDisplayName()));
-        return true;
+        return true; // Trả về true để xác nhận xây dựng thành công
     }
 
-    public void attemptToActivate(Player player, Block centerBlock, ItemStack activationItem) {
+    public void attemptToActivate(Player player, Block centerBlock, ItemStack activationItemInHand) {
         if (activeFormationCenters.contains(centerBlock.getLocation())) {
             player.sendMessage(plugin.getConfigManager().getMessage("formation.activate.already-active"));
             return;
@@ -116,19 +128,36 @@ public class FormationManager {
         }
 
         for (Formation formation : possibleFormations) {
-            if (activationItem.getType() == formation.getActivationItem()) {
+            if (isSpecialItemMatch(activationItemInHand, formation.getActivationItem())) {
                 if (isPatternMatch(centerBlock, formation)) {
-                    activationItem.setAmount(activationItem.getAmount() - 1);
+                    activationItemInHand.setAmount(activationItemInHand.getAmount() - 1);
                     activeFormationCenters.add(centerBlock.getLocation());
                     activeFormations.put(centerBlock.getLocation(), formation);
                     formationOwners.put(centerBlock.getLocation(), player.getUniqueId());
-
                     plugin.getEffectHandler().startFormationEffects(formation, centerBlock.getLocation(), player.getUniqueId());
-
                     player.sendMessage(plugin.getConfigManager().getMessage("formation.activate.success", "%formation_name%", formation.getDisplayName()));
                     return;
                 }
             }
+        }
+    }
+
+    private boolean isSpecialItemMatch(ItemStack itemInHand, ItemStack requiredItem) {
+        if (itemInHand == null) return false;
+
+        ItemMeta requiredMeta = requiredItem.getItemMeta();
+        String requiredTag = (requiredMeta != null) ? requiredMeta.getPersistentDataContainer().get(ItemFactory.ACTIVATION_ITEM_KEY, PersistentDataType.STRING) : null;
+
+        if (requiredTag != null) {
+            if (!itemInHand.hasItemMeta()) return false;
+            String handTag = itemInHand.getItemMeta().getPersistentDataContainer().get(ItemFactory.ACTIVATION_ITEM_KEY, PersistentDataType.STRING);
+            return requiredTag.equals(handTag) && itemInHand.isSimilar(requiredItem);
+        } else {
+            if (itemInHand.hasItemMeta()) {
+                String handTag = itemInHand.getItemMeta().getPersistentDataContainer().get(ItemFactory.ACTIVATION_ITEM_KEY, PersistentDataType.STRING);
+                if(handTag != null) return false;
+            }
+            return itemInHand.isSimilar(requiredItem);
         }
     }
 
@@ -155,7 +184,6 @@ public class FormationManager {
                     }
                     return false;
                 }
-                if(x == centerXOffset && z == centerZOffset) continue;
 
                 Block relativeBlock = centerBlock.getRelative(x - centerXOffset, 0, z - centerZOffset);
                 if (relativeBlock.getType() != expectedMaterial) {
@@ -185,7 +213,7 @@ public class FormationManager {
                     .anyMatch(effectMap -> effectType.equalsIgnoreCase(String.valueOf(effectMap.get("type"))));
 
             if (hasEffect) {
-                if (center.getWorld().equals(location.getWorld())) {
+                if (Objects.equals(center.getWorld(), location.getWorld())) {
                     if (center.distanceSquared(location) <= Math.pow(formation.getRadius(), 2)) {
                         return true;
                     }
@@ -193,21 +221,5 @@ public class FormationManager {
             }
         }
         return false;
-    }
-
-    public int getFormationEffectValue(Location location, String effectType, String key, int defaultValue) {
-        for (Map.Entry<Location, Formation> entry : activeFormations.entrySet()) {
-            Formation formation = entry.getValue();
-            Location center = entry.getKey();
-
-            if (center.getWorld().equals(location.getWorld()) && center.distanceSquared(location) <= Math.pow(formation.getRadius(), 2)) {
-                for (Map<?, ?> effectMap : formation.getEffects()) {
-                    if (effectType.equalsIgnoreCase(String.valueOf(effectMap.get("type")))) {
-                        return EffectUtils.getIntFromConfig(effectMap, key, defaultValue);
-                    }
-                }
-            }
-        }
-        return defaultValue;
     }
 }

@@ -2,7 +2,7 @@ package com.alilshady.tutientranphap.listeners;
 
 import com.alilshady.tutientranphap.TuTienTranPhap;
 import com.alilshady.tutientranphap.object.Formation;
-import org.bukkit.Location; // Thêm import này
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.event.EventHandler;
@@ -52,15 +52,15 @@ public class BlueprintListener implements Listener {
             Formation formation = plugin.getFormationManager().getFormationById(formationId);
 
             if (formation != null) {
-                // --- THAY ĐỔI QUAN TRỌNG Ở ĐÂY ---
-                // Lấy vị trí xây dựng là 1 khối phía trên khối được nhấp
-                Location buildLocation = Objects.requireNonNull(event.getClickedBlock()).getLocation().add(0, 1, 0);
-
-                // Gọi hàm xây dựng với vị trí mới
+                Location buildLocation = Objects.requireNonNull(event.getClickedBlock()).getLocation();
                 boolean success = plugin.getFormationManager().buildFormation(formation, buildLocation, event.getPlayer());
                 if (success) {
                     item.setAmount(item.getAmount() - 1);
                 }
+            } else {
+                // --- PHẦN THÊM MỚI ---
+                // Gửi tin nhắn cho người chơi nếu Trận Đồ bị lỗi hoặc không hợp lệ
+                event.getPlayer().sendMessage(plugin.getConfigManager().getMessage("commands.give.formation-not-found", "%id%", formationId));
             }
         }
     }

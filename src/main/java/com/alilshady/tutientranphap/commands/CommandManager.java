@@ -1,10 +1,9 @@
-// src/main/java/com/alilshady/tutientranphap/commands/CommandManager.java
 package com.alilshady.tutientranphap.commands;
 
 import com.alilshady.tutientranphap.TuTienTranPhap;
 import com.alilshady.tutientranphap.object.Formation;
+import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
@@ -18,6 +17,7 @@ import org.bukkit.persistence.PersistentDataType;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Collections;
+import java.util.Objects;
 
 public class CommandManager implements CommandExecutor {
 
@@ -41,7 +41,9 @@ public class CommandManager implements CommandExecutor {
             case "reload":
                 return handleReload(sender);
             case "give":
-                return handleGive(sender, args, label);
+                return handleGiveBlueprint(sender, args, label);
+            case "giveitem":
+                return handleGiveItem(sender, args, label);
             case "test":
                 return handleTest(sender, args, label);
             default:
@@ -61,7 +63,7 @@ public class CommandManager implements CommandExecutor {
         return true;
     }
 
-    private boolean handleGive(CommandSender sender, String[] args, String label) {
+    private boolean handleGiveBlueprint(CommandSender sender, String[] args, String label) {
         if (!sender.hasPermission("tutientranphap.give")) {
             sender.sendMessage(plugin.getConfigManager().getMessage("commands.reload.no-permission"));
             return true;
@@ -90,7 +92,7 @@ public class CommandManager implements CommandExecutor {
             try {
                 amount = Integer.parseInt(args[3]);
             } catch (NumberFormatException e) {
-                sender.sendMessage(ChatColor.RED + "Số lượng không hợp lệ.");
+                sender.sendMessage(plugin.getConfigManager().getMessage("commands.give.invalid-amount"));
                 return true;
             }
         }
@@ -98,9 +100,62 @@ public class CommandManager implements CommandExecutor {
         ItemStack blueprint = createBlueprintItem(formation, amount);
         target.getInventory().addItem(blueprint);
 
+        String itemName = PlainTextComponentSerializer.plainText().serialize(Objects.requireNonNull(blueprint.getItemMeta().displayName()));
+
         sender.sendMessage(plugin.getConfigManager().getMessage("commands.give.success",
                 "%amount%", String.valueOf(amount),
-                "%item_name%", blueprint.getItemMeta().getDisplayName(),
+                "%item_name%", itemName,
+                "%player%", target.getName()));
+
+        return true;
+    }
+
+    private boolean handleGiveItem(CommandSender sender, String[] args, String label) {
+        if (!sender.hasPermission("tutientranphap.giveitem")) {
+            sender.sendMessage(plugin.getConfigManager().getMessage("commands.reload.no-permission"));
+            return true;
+        }
+
+        if (args.length < 3) {
+            sender.sendMessage(plugin.getConfigManager().getMessage("commands.giveitem.usage", "%command%", label));
+            return true;
+        }
+
+        Player target = Bukkit.getPlayer(args[1]);
+        if (target == null) {
+            sender.sendMessage(plugin.getConfigManager().getMessage("commands.give.player-not-found", "%player%", args[1]));
+            return true;
+        }
+
+        String formationId = args[2];
+        Formation formation = plugin.getFormationManager().getFormationById(formationId);
+        if (formation == null) {
+            sender.sendMessage(plugin.getConfigManager().getMessage("commands.give.formation-not-found", "%id%", formationId));
+            return true;
+        }
+
+        int amount = 1;
+        if (args.length >= 4) {
+            try {
+                amount = Integer.parseInt(args[3]);
+            } catch (NumberFormatException e) {
+                sender.sendMessage(plugin.getConfigManager().getMessage("commands.give.invalid-amount"));
+                return true;
+            }
+        }
+
+        ItemStack activationItem = formation.getActivationItem().clone();
+        activationItem.setAmount(amount);
+
+        target.getInventory().addItem(activationItem);
+
+        String itemName = activationItem.hasItemMeta() && activationItem.getItemMeta().displayName() != null
+                ? PlainTextComponentSerializer.plainText().serialize(activationItem.getItemMeta().displayName())
+                : activationItem.getType().name();
+
+        sender.sendMessage(plugin.getConfigManager().getMessage("commands.give.success",
+                "%amount%", String.valueOf(amount),
+                "%item_name%", itemName,
                 "%player%", target.getName()));
 
         return true;
@@ -108,10 +163,9 @@ public class CommandManager implements CommandExecutor {
 
     private boolean handleTest(CommandSender sender, String[] args, String label) {
         if (!(sender instanceof Player)) {
-            sender.sendMessage("Lệnh này chỉ dành cho người chơi.");
+            sender.sendMessage(plugin.getConfigManager().getMessage("commands.test.player-only"));
             return true;
         }
-
         Player player = (Player) sender;
 
         if (!player.hasPermission("tutientranphap.test")) {
@@ -120,7 +174,7 @@ public class CommandManager implements CommandExecutor {
         }
 
         if (args.length < 2) {
-            player.sendMessage(ChatColor.YELLOW + "Sử dụng: /" + label + " test <ID trận pháp>");
+            player.sendMessage(plugin.getConfigManager().getMessage("commands.test.usage", "%command%", label));
             return true;
         }
 
@@ -137,7 +191,7 @@ public class CommandManager implements CommandExecutor {
 
         plugin.getEffectHandler().startFormationEffects(formation, location, player.getUniqueId());
 
-        player.sendMessage(ChatColor.GREEN + "Đã kích hoạt thử nghiệm trận pháp: " + formation.getDisplayName());
+        player.sendMessage(plugin.getConfigManager().getMessage("commands.test.success", "%formation_name%", formation.getDisplayName()));
         return true;
     }
 
@@ -146,8 +200,10 @@ public class CommandManager implements CommandExecutor {
         ItemMeta meta = item.getItemMeta();
 
         assert meta != null;
-        meta.setDisplayName(ChatColor.AQUA + "Trận Đồ: " + formation.getDisplayName());
-        meta.setLore(Collections.singletonList(ChatColor.GRAY + "Nhấp chuột phải xuống đất để xây dựng."));
+        meta.displayName(plugin.getConfigManager().getMiniMessage().deserialize("<aqua>Trận Đồ: " + formation.getDisplayName()));
+        meta.lore(Collections.singletonList(
+                plugin.getConfigManager().getMiniMessage().deserialize("<gray>Nhấp chuột phải xuống đất để xây dựng.")
+        ));
 
         meta.getPersistentDataContainer().set(formationIdKey, PersistentDataType.STRING, formation.getId());
 
