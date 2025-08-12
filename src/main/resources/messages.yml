@@ -1,4 +1,4 @@
-config-version: '${project.version}'
+config-version: '1.0.0'
 prefix: "<gray>[<yellow>TTTP</yellow>]<gray> "
 
 commands:
@@ -10,7 +10,14 @@ commands:
     player-not-found: "<red>Không tìm thấy người chơi <white>%player%</red>."
     formation-not-found: "<red>Không tìm thấy trận pháp với ID: <white>%id%</white>.</red>"
     usage: "<yellow>Sử dụng: <white>/%command% give <tên người chơi> <ID trận pháp> [số lượng]</white>"
-  usage: "<yellow>Sử dụng: <white>/%command% [reload|give|giveitem]</white>"
+    invalid-amount: "<red>Số lượng không hợp lệ.</red>"
+  giveitem:
+    usage: "<yellow>Sử dụng: <white>/%command% giveitem <tên người chơi> <ID trận pháp> [số lượng]</white>"
+  test:
+    player-only: "<red>Lệnh này chỉ dành cho người chơi.</red>"
+    usage: "<yellow>Sử dụng: <white>/%command% test <ID trận pháp></white>"
+    success: "<green>Đã kích hoạt thử nghiệm trận pháp: %formation_name%</green>"
+  usage: "<yellow>Sử dụng: <white>/%command% [reload|give|giveitem|test]</white>"
 
 formation:
   activate:

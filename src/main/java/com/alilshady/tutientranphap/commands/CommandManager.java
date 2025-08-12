@@ -4,7 +4,6 @@ import com.alilshady.tutientranphap.TuTienTranPhap;
 import com.alilshady.tutientranphap.object.Formation;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
@@ -93,7 +92,7 @@ public class CommandManager implements CommandExecutor {
             try {
                 amount = Integer.parseInt(args[3]);
             } catch (NumberFormatException e) {
-                sender.sendMessage(ChatColor.RED + "Số lượng không hợp lệ.");
+                sender.sendMessage(plugin.getConfigManager().getMessage("commands.give.invalid-amount"));
                 return true;
             }
         }
@@ -118,7 +117,7 @@ public class CommandManager implements CommandExecutor {
         }
 
         if (args.length < 3) {
-            sender.sendMessage(ChatColor.YELLOW + "Sử dụng: /" + label + " giveitem <tên người chơi> <ID trận pháp> [số lượng]");
+            sender.sendMessage(plugin.getConfigManager().getMessage("commands.giveitem.usage", "%command%", label));
             return true;
         }
 
@@ -140,7 +139,7 @@ public class CommandManager implements CommandExecutor {
             try {
                 amount = Integer.parseInt(args[3]);
             } catch (NumberFormatException e) {
-                sender.sendMessage(ChatColor.RED + "Số lượng không hợp lệ.");
+                sender.sendMessage(plugin.getConfigManager().getMessage("commands.give.invalid-amount"));
                 return true;
             }
         }
@@ -163,13 +162,11 @@ public class CommandManager implements CommandExecutor {
     }
 
     private boolean handleTest(CommandSender sender, String[] args, String label) {
-        // --- ĐÂY LÀ PHẦN ĐÃ ĐƯỢC SỬA LỖI ---
         if (!(sender instanceof Player)) {
-            sender.sendMessage("Lệnh này chỉ dành cho người chơi.");
+            sender.sendMessage(plugin.getConfigManager().getMessage("commands.test.player-only"));
             return true;
         }
         Player player = (Player) sender;
-        // --- KẾT THÚC PHẦN SỬA LỖI ---
 
         if (!player.hasPermission("tutientranphap.test")) {
             player.sendMessage(plugin.getConfigManager().getMessage("commands.reload.no-permission"));
@@ -177,7 +174,7 @@ public class CommandManager implements CommandExecutor {
         }
 
         if (args.length < 2) {
-            player.sendMessage(ChatColor.YELLOW + "Sử dụng: /" + label + " test <ID trận pháp>");
+            player.sendMessage(plugin.getConfigManager().getMessage("commands.test.usage", "%command%", label));
             return true;
         }
 
@@ -194,7 +191,7 @@ public class CommandManager implements CommandExecutor {
 
         plugin.getEffectHandler().startFormationEffects(formation, location, player.getUniqueId());
 
-        player.sendMessage(ChatColor.GREEN + "Đã kích hoạt thử nghiệm trận pháp: " + formation.getDisplayName());
+        player.sendMessage(plugin.getConfigManager().getMessage("commands.test.success", "%formation_name%", formation.getDisplayName()));
         return true;
     }
 

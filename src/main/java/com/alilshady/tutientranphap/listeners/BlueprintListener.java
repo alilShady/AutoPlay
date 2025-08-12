@@ -52,15 +52,15 @@ public class BlueprintListener implements Listener {
             Formation formation = plugin.getFormationManager().getFormationById(formationId);
 
             if (formation != null) {
-                // --- SỬA LỖI Ở ĐÂY ---
-                // Lấy vị trí xây dựng là chính khối được nhấp, không cộng thêm 1 vào Y nữa.
                 Location buildLocation = Objects.requireNonNull(event.getClickedBlock()).getLocation();
-
-                // Gọi hàm xây dựng với vị trí mới chính xác.
                 boolean success = plugin.getFormationManager().buildFormation(formation, buildLocation, event.getPlayer());
                 if (success) {
                     item.setAmount(item.getAmount() - 1);
                 }
+            } else {
+                // --- PHẦN THÊM MỚI ---
+                // Gửi tin nhắn cho người chơi nếu Trận Đồ bị lỗi hoặc không hợp lệ
+                event.getPlayer().sendMessage(plugin.getConfigManager().getMessage("commands.give.formation-not-found", "%id%", formationId));
             }
         }
     }

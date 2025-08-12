@@ -22,40 +22,17 @@ public class FormationManager {
     private final Map<Location, Formation> activeFormations = new HashMap<>();
     private final Map<Location, UUID> formationOwners = new HashMap<>();
 
-    // --- SỬA Ở ĐÂY: Bổ sung thêm các khối đất và cỏ ---
+    // Danh sách các khối có thể bị thay thế khi xây dựng trận đồ
     private static final Set<Material> REPLACEABLE_BLOCKS = new HashSet<>(Arrays.asList(
-            Material.GRASS,
-            Material.TALL_GRASS,
-            Material.FERN,
-            Material.LARGE_FERN,
-            Material.DEAD_BUSH,
-            Material.VINE,
-            Material.POPPY,
-            Material.DANDELION,
-            Material.BLUE_ORCHID,
-            Material.ALLIUM,
-            Material.AZURE_BLUET,
-            Material.RED_TULIP,
-            Material.ORANGE_TULIP,
-            Material.WHITE_TULIP,
-            Material.PINK_TULIP,
-            Material.OXEYE_DAISY,
-            Material.CORNFLOWER,
-            Material.LILY_OF_THE_VALLEY,
-            Material.WITHER_ROSE,
-            Material.SUNFLOWER,
-            Material.LILAC,
-            Material.ROSE_BUSH,
-            Material.PEONY,
-            Material.BROWN_MUSHROOM,
-            Material.RED_MUSHROOM,
-            Material.SNOW,
-            Material.GRASS_BLOCK, // Thêm khối cỏ
-            Material.DIRT,       // Thêm đất
-            Material.PODZOL,
-            Material.COARSE_DIRT,
-            Material.MYCELIUM,
-            Material.DIRT_PATH   // Thêm đường đất
+            Material.AIR, Material.GRASS, Material.TALL_GRASS, Material.FERN,
+            Material.LARGE_FERN, Material.DEAD_BUSH, Material.VINE, Material.POPPY,
+            Material.DANDELION, Material.BLUE_ORCHID, Material.ALLIUM, Material.AZURE_BLUET,
+            Material.RED_TULIP, Material.ORANGE_TULIP, Material.WHITE_TULIP, Material.PINK_TULIP,
+            Material.OXEYE_DAISY, Material.CORNFLOWER, Material.LILY_OF_THE_VALLEY,
+            Material.WITHER_ROSE, Material.SUNFLOWER, Material.LILAC, Material.ROSE_BUSH,
+            Material.PEONY, Material.BROWN_MUSHROOM, Material.RED_MUSHROOM, Material.SNOW,
+            Material.GRASS_BLOCK, Material.DIRT, Material.PODZOL, Material.COARSE_DIRT,
+            Material.MYCELIUM, Material.DIRT_PATH
     ));
 
     public FormationManager(TuTienTranPhap plugin) {
@@ -94,7 +71,6 @@ public class FormationManager {
 
     public boolean buildFormation(Formation formation, Location startLocation, Player player) {
         List<String> shape = formation.getShape();
-        Map<Character, Material> key = formation.getPatternKey();
         if (shape.isEmpty() || shape.get(0).isEmpty()) return false;
 
         int patternHeight = shape.size();
@@ -102,6 +78,7 @@ public class FormationManager {
         int centerXOffset = patternWidth / 2;
         int centerZOffset = patternHeight / 2;
 
+        // Vòng lặp đầu tiên: Kiểm tra không gian trước khi xây
         for (int z = 0; z < patternHeight; z++) {
             String row = shape.get(z);
             for (int x = 0; x < patternWidth; x++) {
@@ -109,27 +86,24 @@ public class FormationManager {
                 if (blockChar == ' ') continue;
 
                 Block relativeBlock = startLocation.getBlock().getRelative(x - centerXOffset, 0, z - centerZOffset);
-                Material blockType = relativeBlock.getType();
 
-                // Sửa ở đây: Dùng danh sách mới REPLACEABLE_BLOCKS
-                boolean isReplaceable = (blockType == Material.AIR || REPLACEABLE_BLOCKS.contains(blockType));
-
-                if (!isReplaceable) {
+                if (!REPLACEABLE_BLOCKS.contains(relativeBlock.getType())) {
                     if (plugin.getConfigManager().isDebugLoggingEnabled()) {
-                        plugin.getLogger().warning("[DEBUG][BUILD] Build failed. Block " + blockType + " at " + relativeBlock.getLocation() + " is not replaceable.");
+                        plugin.getLogger().warning("[DEBUG][BUILD] Build failed. Block " + relativeBlock.getType() + " at " + relativeBlock.getLocation() + " is not replaceable.");
                     }
                     player.sendMessage(plugin.getConfigManager().getMessage("formation.blueprint.build-fail-space"));
-                    return false;
+                    return false; // Trả về false, ngăn việc trừ vật phẩm
                 }
             }
         }
 
+        // Vòng lặp thứ hai: Thực hiện xây dựng sau khi đã kiểm tra
         for (int z = 0; z < patternHeight; z++) {
             String row = shape.get(z);
             for (int x = 0; x < patternWidth; x++) {
                 char blockChar = row.charAt(x);
                 if (blockChar == ' ') continue;
-                Material material = key.get(blockChar);
+                Material material = formation.getPatternKey().get(blockChar);
                 if (material != null) {
                     Block relativeBlock = startLocation.getBlock().getRelative(x - centerXOffset, 0, z - centerZOffset);
                     relativeBlock.setType(material);
@@ -137,12 +111,11 @@ public class FormationManager {
             }
         }
 
-        // --- SỬA LỖI Ở ĐÂY: Truyền tên trận pháp đã được định dạng đúng ---
+        // Gửi tin nhắn thành công. `formation.getDisplayName()` lúc này là chuỗi MiniMessage gốc.
         player.sendMessage(plugin.getConfigManager().getMessage("formation.blueprint.build-success", "%formation_name%", formation.getDisplayName()));
-        return true;
+        return true; // Trả về true để xác nhận xây dựng thành công
     }
 
-    // ... (Các hàm còn lại giữ nguyên không đổi) ...
     public void attemptToActivate(Player player, Block centerBlock, ItemStack activationItemInHand) {
         if (activeFormationCenters.contains(centerBlock.getLocation())) {
             player.sendMessage(plugin.getConfigManager().getMessage("formation.activate.already-active"));

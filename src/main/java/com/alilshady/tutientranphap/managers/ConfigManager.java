@@ -99,7 +99,7 @@ public class ConfigManager {
 
                 try {
                     String path = id + ".";
-                    // --- SỬA LỖI Ở ĐÂY: Lưu displayName dưới dạng MiniMessage gốc ---
+                    // Giữ nguyên displayName dưới dạng chuỗi MiniMessage gốc
                     String displayName = formationConfig.getString(path + "display_name", id);
 
                     ItemStack activationItem;
@@ -138,12 +138,12 @@ public class ConfigManager {
                         }
                     }
 
-                    // Chuyển đổi sang legacy color code để tương thích với các phần khác của plugin (nếu cần)
-                    String legacyDisplayName = LegacyComponentSerializer.legacySection().serialize(miniMessage.deserialize(displayName));
+                    // Truyền trực tiếp chuỗi MiniMessage vào constructor, không chuyển đổi sang legacy
+                    formations.add(new Formation(id, displayName, activationItem, duration, radius, keyMap, shape, effects, particleConfig));
 
-                    formations.add(new Formation(id, legacyDisplayName, activationItem, duration, radius, keyMap, shape, effects, particleConfig));
                     if (debugLogging) {
-                        Bukkit.getScheduler().runTask(plugin, () -> plugin.getLogger().info("Loaded formation: " + legacyDisplayName));
+                        String finalDisplayName = displayName;
+                        Bukkit.getScheduler().runTask(plugin, () -> plugin.getLogger().info("Loaded formation: " + finalDisplayName));
                     }
 
                 } catch (Exception e) {
