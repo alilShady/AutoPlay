@@ -3,15 +3,15 @@ package com.alilshady.tutientranphap.managers;
 import com.alilshady.tutientranphap.TuTienTranPhap;
 import com.alilshady.tutientranphap.object.Formation;
 import com.alilshady.tutientranphap.utils.ItemFactory;
-import net.kyori.adventure.text.Component; // Thêm import
-import net.kyori.adventure.text.minimessage.MiniMessage; // Thêm import
-import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer; // Thêm import
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.minimessage.MiniMessage;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.Bukkit;
-import org.bukkit.Material;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.Material;
 
 import java.io.File;
 import java.io.InputStreamReader;
@@ -33,18 +33,41 @@ public class ConfigManager {
     private boolean debugLogging;
     private int effectCheckInterval;
 
-    // --- THÊM MỚI: Khởi tạo trình phân tích MiniMessage ---
     private final MiniMessage miniMessage = MiniMessage.miniMessage();
 
     public ConfigManager(TuTienTranPhap plugin) {
         this.plugin = plugin;
+        // --- SỬA Ở ĐÂY: Tự động gọi reloadConfigs() ngay khi được khởi tạo ---
+        reloadConfigs();
     }
 
     public void reloadConfigs() {
-        // ... code giữ nguyên ...
+        plugin.saveDefaultConfig();
+        plugin.reloadConfig();
+        mainConfig = plugin.getConfig();
+        debugLogging = mainConfig.getBoolean("debug-logging", true);
+        effectCheckInterval = mainConfig.getInt("effect-check-interval-ticks", 20);
+
+        File formationFile = new File(plugin.getDataFolder(), "formations.yml");
+        if (!formationFile.exists()) {
+            plugin.saveResource("formations.yml", false);
+        }
+        formationConfig = YamlConfiguration.loadConfiguration(formationFile);
+
+        File messagesFile = new File(plugin.getDataFolder(), "messages.yml");
+        if (!messagesFile.exists()) {
+            plugin.saveResource("messages.yml", false);
+        }
+        messagesConfig = YamlConfiguration.loadConfiguration(messagesFile);
+
+        // Đảm bảo có giá trị mặc định cho tin nhắn
+        Reader defMessagesStream = new InputStreamReader(plugin.getResource("messages.yml"), StandardCharsets.UTF_8);
+        if (defMessagesStream != null) {
+            YamlConfiguration defMessages = YamlConfiguration.loadConfiguration(defMessagesStream);
+            messagesConfig.setDefaults(defMessages);
+        }
     }
 
-    // --- SỬA LẠI HOÀN TOÀN HÀM NÀY ---
     public String getMessage(String path, String... replacements) {
         String messageTemplate = messagesConfig.getString(path, "<red>Missing message: " + path);
 
@@ -53,14 +76,12 @@ public class ConfigManager {
             messageTemplate = prefix + messageTemplate;
         }
 
-        // Thay thế các placeholder
         for (int i = 0; i < replacements.length; i += 2) {
             if (i + 1 < replacements.length) {
                 messageTemplate = messageTemplate.replace(replacements[i], replacements[i + 1]);
             }
         }
 
-        // Phân tích bằng MiniMessage và chuyển đổi sang định dạng cũ để gửi cho người chơi
         Component component = miniMessage.deserialize(messageTemplate);
         return LegacyComponentSerializer.legacySection().serialize(component);
     }
@@ -79,8 +100,6 @@ public class ConfigManager {
             for (String id : formationSection.getKeys(false)) {
                 try {
                     String path = id + ".";
-
-                    // --- SỬA LẠI CÁCH ĐỌC DISPLAY_NAME ---
                     String rawDisplayName = formationSection.getString(path + "display_name", id);
                     String displayName = LegacyComponentSerializer.legacySection().serialize(miniMessage.deserialize(rawDisplayName));
 

@@ -28,10 +28,7 @@ public final class TuTienTranPhap extends JavaPlugin {
     @Override
     public void onEnable() {
         instance = this;
-
-        // --- BẮT ĐẦU HIỂN THỊ LOGO KHỞI ĐỘNG ---
         logAsciiArt();
-        // --- KẾT THÚC HIỂN THỊ LOGO ---
 
         try {
             ConfigUpdater.updateFile(this, "config.yml");
@@ -44,12 +41,16 @@ public final class TuTienTranPhap extends JavaPlugin {
             return;
         }
 
+        // Khởi tạo các manager. ConfigManager sẽ tự tải config.
         this.configManager = new ConfigManager(this);
         this.effectHandler = new EffectHandler(this);
         this.formationManager = new FormationManager(this);
         this.teamManager = new TeamManager(this);
 
-        reloadPluginConfigs();
+        // --- SỬA Ở ĐÂY: Xóa dòng này đi ---
+        // reloadPluginConfigs();
+        // Thay vào đó, chúng ta chỉ cần tải các trận pháp
+        this.formationManager.loadFormations();
 
         getServer().getPluginManager().registerEvents(new ActivationListener(this), this);
         getServer().getPluginManager().registerEvents(new BlueprintListener(this), this);
@@ -65,7 +66,6 @@ public final class TuTienTranPhap extends JavaPlugin {
         UP.checkVersion(getDescription().getVersion());
     }
 
-    // --- PHƯƠNG THỨC MỚI ĐỂ HIỂN THỊ LOGO ---
     private void logAsciiArt() {
         getLogger().info("____________________________________________________________");
         getLogger().info("");
@@ -79,7 +79,6 @@ public final class TuTienTranPhap extends JavaPlugin {
         getLogger().info("         TuTienTranPhap plugin by AlilShady");
         getLogger().info("____________________________________________________________");
     }
-    // --- KẾT THÚC PHƯƠNG THỨC MỚI ---
 
     @Override
     public void onDisable() {
@@ -91,6 +90,7 @@ public final class TuTienTranPhap extends JavaPlugin {
         }
     }
 
+    // Hàm này vẫn được giữ lại để lệnh /ttp reload hoạt động
     public void reloadPluginConfigs() {
         configManager.reloadConfigs();
         formationManager.loadFormations();
