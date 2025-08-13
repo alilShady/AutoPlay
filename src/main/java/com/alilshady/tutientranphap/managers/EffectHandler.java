@@ -97,7 +97,7 @@ public class EffectHandler {
 
         Map<String, Object> particleConfig = formation.getParticleConfig();
         if (particleConfig != null && !particleConfig.isEmpty()) {
-            applyCinematicParticleShield(formation, center, particleConfig, currentTick);
+            applyCinematicParticles(formation, center, particleConfig, currentTick);
         }
 
         Collection<LivingEntity> allNearbyLivingEntities = world.getNearbyLivingEntities(center, formation.getRadius());
@@ -112,7 +112,6 @@ public class EffectHandler {
             }
 
             if (strategy instanceof BarrierEffect) {
-                // ĐÂY LÀ DÒNG ĐÃ SỬA
                 ((BarrierEffect) strategy).applyBarrierPush(plugin, formation, center, effectMap, allNearbyLivingEntities, ownerId);
             }
         }
@@ -199,58 +198,170 @@ public class EffectHandler {
         }
     }
 
-    private void applyCinematicParticleShield(Formation formation, Location center, Map<?, ?> config, long tick) {
+    private void applyCinematicParticles(Formation formation, Location center, Map<String, Object> config, long tick) {
         World world = center.getWorld();
         if (world == null) return;
-        double radius = formation.getRadius();
         Location centerPoint = center.clone().add(0.5, 0.1, 0.5);
-        double rotationSpeed = EffectUtils.getDoubleFromConfig(config, "rotation_speed", 1.5);
-        int pillarCount = EffectUtils.getIntFromConfig(config, "pillar_count", 5);
-        int domeLines = EffectUtils.getIntFromConfig(config, "dome_lines", 8);
-        Optional<Particle> mainParticle = Optional.ofNullable(EffectUtils.getStringFromConfig(config, "ring", null)).map(s -> Particle.valueOf(s.toUpperCase()));
-        Optional<Particle> pillarParticle = Optional.ofNullable(EffectUtils.getStringFromConfig(config, "pillar", null)).map(s -> Particle.valueOf(s.toUpperCase()));
-        Optional<Particle> orbParticle = Optional.ofNullable(EffectUtils.getStringFromConfig(config, "orb", null)).map(s -> Particle.valueOf(s.toUpperCase()));
-        Optional<Particle> domeParticle = Optional.ofNullable(EffectUtils.getStringFromConfig(config, "dome", null)).map(s -> Particle.valueOf(s.toUpperCase()));
-        double rotationAngle = Math.toRadians(tick * rotationSpeed);
 
-        mainParticle.ifPresent(p -> {
-            for (double angle = 0; angle < 2 * Math.PI; angle += Math.PI / 32) {
-                double x = centerPoint.getX() + radius * Math.cos(angle + rotationAngle);
-                double z = centerPoint.getZ() + radius * Math.sin(angle + rotationAngle);
-                world.spawnParticle(p, x, centerPoint.getY(), z, 1, 0, 0, 0, 0);
+        Object shapesObject = config.get("shapes");
+        if (!(shapesObject instanceof List)) {
+            return;
+        }
+
+        List<?> shapeConfigs = (List<?>) shapesObject;
+
+        for (Object shapeConfigObj : shapeConfigs) {
+            if (!(shapeConfigObj instanceof Map)) continue;
+            Map<?, ?> shapeConfig = (Map<?, ?>) shapeConfigObj;
+
+            String type = EffectUtils.getStringFromConfig(shapeConfig, "type", "").toUpperCase();
+            Particle particle = Optional.ofNullable(EffectUtils.getStringFromConfig(shapeConfig, "particle", null))
+                    .map(s -> {
+                        try {
+                            return Particle.valueOf(s.toUpperCase());
+                        } catch (IllegalArgumentException e) {
+                            return null;
+                        }
+                    }).orElse(null);
+
+            if (particle == null) continue;
+
+            double radius = EffectUtils.getDoubleFromConfig(shapeConfig, "radius", formation.getRadius());
+            double rotationSpeed = EffectUtils.getDoubleFromConfig(shapeConfig, "rotation_speed", 0.0);
+            double rotationAngle = Math.toRadians(tick * rotationSpeed);
+
+            switch (type) {
+                case "RING":
+                    drawRing(world, centerPoint, particle, radius, rotationAngle, shapeConfig);
+                    break;
+                case "PILLAR":
+                    drawPillars(world, centerPoint, particle, radius, rotationAngle, shapeConfig);
+                    break;
+                case "SPHERE":
+                    drawSphere(world, centerPoint, particle, shapeConfig);
+                    break;
+                case "DOME":
+                    drawDome(world, centerPoint, particle, radius, rotationAngle, shapeConfig, tick);
+                    break;
+                case "HELIX":
+                    drawHelix(world, centerPoint, particle, radius, rotationAngle, shapeConfig);
+                    break;
+                case "VORTEX":
+                    drawVortex(world, centerPoint, particle, radius, rotationAngle, shapeConfig);
+                    break;
+                case "RAIN":
+                    drawRain(world, centerPoint, particle, radius, shapeConfig);
+                    break;
             }
-        });
-        pillarParticle.ifPresent(p -> {
-            for (int i = 0; i < pillarCount; i++) {
-                double pillarAngle = (2 * Math.PI / pillarCount) * i + rotationAngle;
-                double x = centerPoint.getX() + radius * Math.cos(pillarAngle);
-                double z = centerPoint.getZ() + radius * Math.sin(pillarAngle);
-                double yOffset = (tick % 40) / 10.0;
-                world.spawnParticle(p, x, centerPoint.getY() + yOffset, z, 1, 0, 0, 0, 0);
+        }
+    }
+
+    private void drawRing(World world, Location center, Particle particle, double radius, double rotationAngle, Map<?, ?> config) {
+        int density = EffectUtils.getIntFromConfig(config, "density", 64);
+        double yOffset = EffectUtils.getDoubleFromConfig(config, "y-offset", 0.1);
+        for (double angle = 0; angle < 2 * Math.PI; angle += Math.PI / (density / 2.0)) {
+            double x = center.getX() + radius * Math.cos(angle + rotationAngle);
+            double z = center.getZ() + radius * Math.sin(angle + rotationAngle);
+            world.spawnParticle(particle, x, center.getY() + yOffset, z, 1, 0, 0, 0, 0);
+        }
+    }
+
+    private void drawPillars(World world, Location center, Particle particle, double radius, double rotationAngle, Map<?, ?> config) {
+        int count = EffectUtils.getIntFromConfig(config, "count", 4);
+        double height = EffectUtils.getDoubleFromConfig(config, "height", 4.0);
+        int density = EffectUtils.getIntFromConfig(config, "density", 20);
+        for (int i = 0; i < count; i++) {
+            double pillarAngle = (2 * Math.PI / count) * i + rotationAngle;
+            double x = center.getX() + radius * Math.cos(pillarAngle);
+            double z = center.getZ() + radius * Math.sin(pillarAngle);
+            for (double y = 0; y < height; y += height / density) {
+                world.spawnParticle(particle, x, center.getY() + y, z, 1, 0, 0, 0, 0);
             }
-        });
-        orbParticle.ifPresent(p -> {
-            for (int i = 0; i < 5; i++) {
-                Vector dir = new Vector(Math.random() - 0.5, Math.random() - 0.5, Math.random() - 0.5).normalize();
-                world.spawnParticle(p, centerPoint.clone().add(0, 1.5, 0).add(dir.multiply(0.7)), 1, 0, 0, 0, 0);
+        }
+    }
+
+    private void drawSphere(World world, Location center, Particle particle, Map<?, ?> config) {
+        double radius = EffectUtils.getDoubleFromConfig(config, "radius", 1.5);
+        int density = EffectUtils.getIntFromConfig(config, "density", 100);
+        double yOffset = EffectUtils.getDoubleFromConfig(config, "y-offset", 1.5);
+        Location sphereCenter = center.clone().add(0, yOffset, 0);
+
+        for (int i = 0; i < density; i++) {
+            Vector dir = new Vector(Math.random() - 0.5, Math.random() - 0.5, Math.random() - 0.5).normalize().multiply(radius);
+            world.spawnParticle(particle, sphereCenter.clone().add(dir), 1, 0, 0, 0, 0);
+        }
+    }
+
+    private void drawDome(World world, Location center, Particle particle, double radius, double rotationAngle, Map<?, ?> config, long tick) {
+        int lines = EffectUtils.getIntFromConfig(config, "lines", 8);
+        int density = EffectUtils.getIntFromConfig(config, "density", 200);
+
+        for (int i = 0; i < lines; i++) {
+            double lineAngle = (2 * Math.PI / lines) * i + rotationAngle;
+            Location startPoint = new Location(world, center.getX() + radius * Math.cos(lineAngle), center.getY(), center.getZ() + radius * Math.sin(lineAngle));
+            Location topPoint = center.clone().add(0, radius, 0);
+            Vector toTop = topPoint.toVector().subtract(startPoint.toVector());
+
+            int particlesPerLine = density / lines;
+            for (int j = 0; j < particlesPerLine; j++) {
+                double t = (double) j / particlesPerLine;
+                Vector pos = startPoint.toVector().add(toTop.clone().multiply(t));
+                Vector toCenter = center.toVector().subtract(pos.clone());
+                pos.add(toCenter.normalize().multiply(-Math.sin(t * Math.PI) * (radius / 2)));
+                world.spawnParticle(particle, pos.getX(), pos.getY(), pos.getZ(), 1, 0, 0, 0, 0);
             }
-        });
-        domeParticle.ifPresent(p -> {
-            double progress = (double) (tick % 40) / 40.0;
-            int domeDensity = EffectUtils.getIntFromConfig(config, "dome_density", 15);
-            for (int i = 0; i < domeLines; i++) {
-                double lineAngle = (2 * Math.PI / domeLines) * i + rotationAngle / 2;
-                Location startPoint = new Location(world, centerPoint.getX() + radius * Math.cos(lineAngle), centerPoint.getY(), centerPoint.getZ() + radius * Math.sin(lineAngle));
-                Location topPoint = centerPoint.clone().add(0, radius, 0);
-                Vector toTop = topPoint.toVector().subtract(startPoint.toVector());
-                for (int j = 0; j < (int)(domeDensity * progress) ; j++) {
-                    double t = (double) j / domeDensity;
-                    Vector pos = startPoint.toVector().add(toTop.clone().multiply(t));
-                    Vector toCenter = centerPoint.toVector().subtract(pos.clone());
-                    pos.add(toCenter.normalize().multiply(-Math.sin(t * Math.PI) * (radius/2)));
-                    world.spawnParticle(p, pos.getX(), pos.getY(), pos.getZ(), 1, 0, 0, 0, 0);
-                }
+        }
+    }
+
+    private void drawHelix(World world, Location center, Particle particle, double radius, double rotationAngle, Map<?, ?> config) {
+        double height = EffectUtils.getDoubleFromConfig(config, "height", 5.0);
+        int density = EffectUtils.getIntFromConfig(config, "density", 100);
+        int strands = EffectUtils.getIntFromConfig(config, "strands", 2); // Số chuỗi xoắn
+        double yOffset = EffectUtils.getDoubleFromConfig(config, "y-offset", 0.1);
+        double revolutions = EffectUtils.getDoubleFromConfig(config, "revolutions", 2.0); // Số vòng xoắn
+
+        for (int i = 0; i < density; i++) {
+            double y = (height / density) * i;
+            double angle = revolutions * 2 * Math.PI * (y / height); // Góc xoay dựa trên chiều cao
+
+            for (int s = 0; s < strands; s++) {
+                double strandOffset = (2 * Math.PI / strands) * s;
+                double x = center.getX() + radius * Math.cos(angle + rotationAngle + strandOffset);
+                double z = center.getZ() + radius * Math.sin(angle + rotationAngle + strandOffset);
+                world.spawnParticle(particle, x, center.getY() + y + yOffset, z, 1, 0, 0, 0, 0);
             }
-        });
+        }
+    }
+
+    private void drawVortex(World world, Location center, Particle particle, double radius, double rotationAngle, Map<?, ?> config) {
+        double height = EffectUtils.getDoubleFromConfig(config, "height", 5.0);
+        int density = EffectUtils.getIntFromConfig(config, "density", 150);
+        double yOffset = EffectUtils.getDoubleFromConfig(config, "y-offset", 0.1);
+
+        for (int i = 0; i < density; i++) {
+            double progress = (double) i / density;
+            double currentRadius = radius * (1 - progress); // Bán kính nhỏ dần về phía dưới
+            double y = height * (1 - progress);
+            double angle = progress * 4 * Math.PI; // Xoay nhiều vòng
+
+            double x = center.getX() + currentRadius * Math.cos(angle + rotationAngle);
+            double z = center.getZ() + currentRadius * Math.sin(angle + rotationAngle);
+            world.spawnParticle(particle, x, center.getY() + y + yOffset, z, 1, 0, 0, 0, 0);
+        }
+    }
+
+    private void drawRain(World world, Location center, Particle particle, double radius, Map<?, ?> config) {
+        int density = EffectUtils.getIntFromConfig(config, "density", 10); // Mật độ mưa mỗi tick
+        double height = EffectUtils.getDoubleFromConfig(config, "height", 10.0);
+        Random random = new Random();
+
+        for (int i = 0; i < density; i++) {
+            double x = center.getX() + (random.nextDouble() - 0.5) * (radius * 2);
+            double z = center.getZ() + (random.nextDouble() - 0.5) * (radius * 2);
+            // Chỉ spawn bên trong vòng tròn
+            if (center.distanceSquared(new Location(world, x, center.getY(), z)) <= radius * radius) {
+                world.spawnParticle(particle, x, center.getY() + height, z, 1, 0, 0, 0, 0);
+            }
+        }
     }
 }
