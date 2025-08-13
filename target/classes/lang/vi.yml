@@ -26,3 +26,9 @@ formation:
   blueprint:
     build-success: "<green>Đã xây dựng thành công <yellow>%formation_name%</yellow>!</green>"
     build-fail-space: "<red>Không đủ không gian để xây dựng trận pháp tại đây.</red>"
+
+team-integration:
+  betterteams-detected: "Phát hiện BetterTeams! Đang tích hợp hệ thống team."
+  simpleclans-detected: "Phát hiện SimpleClans! Đang tích hợp hệ thống team."
+  mcmmo-detected: "Phát hiện mcMMO! Đang tích hợp hệ thống party."
+  vanilla-scoreboard: "Không phát hiện plugin team nào, sử dụng Scoreboard team mặc định."

@@ -33,7 +33,10 @@ public final class TuTienTranPhap extends JavaPlugin {
         try {
             ConfigUpdater.updateFile(this, "config.yml");
             ConfigUpdater.updateFile(this, "formations.yml");
-            ConfigUpdater.updateFile(this, "messages.yml");
+            // --- CẬP NHẬT ĐƯỜNG DẪN TỆP NGÔN NGỮ ---
+            ConfigUpdater.updateFile(this, "lang/en.yml");
+            ConfigUpdater.updateFile(this, "lang/vi.yml");
+            // --- KẾT THÚC CẬP NHẬT ---
         } catch (IOException e) {
             getLogger().severe("Could not update configuration files!");
             e.printStackTrace();
@@ -41,15 +44,11 @@ public final class TuTienTranPhap extends JavaPlugin {
             return;
         }
 
-        // Khởi tạo các manager. ConfigManager sẽ tự tải config.
         this.configManager = new ConfigManager(this);
         this.effectHandler = new EffectHandler(this);
         this.formationManager = new FormationManager(this);
         this.teamManager = new TeamManager(this);
 
-        // --- SỬA Ở ĐÂY: Xóa dòng này đi ---
-        // reloadPluginConfigs();
-        // Thay vào đó, chúng ta chỉ cần tải các trận pháp
         this.formationManager.loadFormations();
 
         getServer().getPluginManager().registerEvents(new ActivationListener(this), this);
@@ -90,7 +89,6 @@ public final class TuTienTranPhap extends JavaPlugin {
         }
     }
 
-    // Hàm này vẫn được giữ lại để lệnh /ttp reload hoạt động
     public void reloadPluginConfigs() {
         configManager.reloadConfigs();
         formationManager.loadFormations();

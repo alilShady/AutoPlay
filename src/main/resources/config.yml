@@ -3,6 +3,9 @@
 # PHIÊN BẢN CẤU HÌNH (KHÔNG THAY ĐỔI)
 config-version: '${project.version}'
 
+# Ngôn ngữ mặc định của plugin. Hỗ trợ: 'en' (English), 'vi' (Tiếng Việt)
+language: 'en'
+
 # Bật/Tắt các tin nhắn debug trong console (ví dụ: "Loaded formation...")
 # Mặc định: true
 debug-logging: true
