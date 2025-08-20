@@ -1,7 +1,7 @@
 # General settings for the TuTienTranPhap plugin
 
 # CONFIGURATION VERSION (DO NOT CHANGE)
-config-version: '1.0.0'
+config-version: '1.1.0'
 
 # Default language of the plugin. Supported: 'en' (English), 'vi' (Vietnamese)
 language: 'en'

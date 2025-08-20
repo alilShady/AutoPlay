@@ -254,10 +254,10 @@ holy-light-healing-formation:
       - "P   P"
       - " GPG "
   particles:
-    base_effect_id: "ngu-hanh-tran" # <-- Gọi hiệu ứng base Ngũ Hành
+    base_effect_id: "thanh-quang-tran"
     shapes:
       - type: HELIX
-        particle: HAPPY_VILLAGER
+        particle: TOTEM # Đã thay thế HAPPY_VILLAGER
         height: 15
         strands: 2
   effects:
@@ -289,13 +289,12 @@ water-god-wrath-formation:
       - "P   P"
       - " SPS "
   particles:
+    base_effect_id: "thuy-than-no-tran"
     shapes:
       - type: VORTEX
         particle: SQUID_INK
         radius: 10
         height: 15
-      - type: CLIMATE
-        mode: "RAIN"
   effects:
     - type: "VORTEX"
       target: "DAMAGEABLE"
@@ -324,7 +323,7 @@ hellfire-formation:
       - "B X B"
       - " NBN "
   particles:
-    base_effect_id: "dia-nguc-tran" # <-- Gọi hiệu ứng base Địa Ngục
+    base_effect_id: "dia-nguc-hoa-tran"
     shapes:
       - type: PILLAR
         particle: LAVA
@@ -339,7 +338,72 @@ hellfire-formation:
       target: "DAMAGEABLE"
       duration: "5s"
 
-# 4. Theme: Ice & Slowing
+# 4. Theme: Darkness & Debuffs
+dark-seal-formation:
+  display_name: "<dark_purple><bold>Dark Seal Formation</bold></dark_purple>"
+  activation_item: "WITHER_SKELETON_SKULL"
+  duration: "5m"
+  radius: 15
+  pattern:
+    key:
+      X: "CRYING_OBSIDIAN"
+      O: "OBSIDIAN"
+      S: "SOUL_SAND"
+    shape:
+      - " OSO "
+      - "S X S"
+      - " OSO "
+  particles:
+    base_effect_id: "hac-am-phong-an"
+    shapes:
+      - type: DOME
+        particle: SQUID_INK
+  effects:
+    - type: "ROOT"
+      target: "DAMAGEABLE"
+      duration: "5s"
+      value: 5
+    - type: "POTION"
+      target: "DAMAGEABLE"
+      potion_effect: "BLINDNESS"
+      value: 0
+    - type: "POTION"
+      target: "DAMAGEABLE"
+      potion_effect: "WITHER"
+      value: 0
+
+# 5. Theme: Nature & Life
+wood-spirit-formation:
+  display_name: "<green><bold>Wood Spirit Formation</bold></green>"
+  activation_item: "GRASS_BLOCK"
+  duration: "30m"
+  radius: 22
+  pattern:
+    key:
+      X: "MOSS_BLOCK"
+      L: "OAK_LOG"
+      V: "VINE"
+    shape:
+      - " VLV "
+      - "L X L"
+      - " VLV "
+  particles:
+    base_effect_id: "moc-linh-tran"
+    shapes:
+      - type: RAIN
+        particle: SPORE_BLOSSOM_AIR
+        height: 15
+  effects:
+    - type: "GROWTH"
+      value: 3.0
+    - type: "BREED"
+      value: 100
+    - type: "POTION"
+      target: "UNDAMAGEABLE"
+      potion_effect: "SATURATION"
+      value: 0
+
+# 6. Theme: Ice & Slowing
 ice-soul-formation:
   display_name: "<aqua><bold>Ice Soul Formation</bold></aqua>"
   activation_item: "BLUE_ICE"
@@ -355,7 +419,7 @@ ice-soul-formation:
       - "P X P"
       - " IPI "
   particles:
-    base_effect_id: "bang-han-tran" # <-- Gọi hiệu ứng base Băng Hàn
+    base_effect_id: "bang-han-tran"
     shapes:
       - type: DOME
         particle: SNOWFLAKE
@@ -370,39 +434,56 @@ ice-soul-formation:
       target: "DAMAGEABLE"
       value: 3
 
-# 5. Mới: Trận pháp sử dụng hiệu ứng phức tạp từ ảnh
-huyen-ao-phong-an-tran:
-  display_name: "<light_purple><bold>Huyễn Ảo Phong Ấn Trận</bold>"
-  activation_item:
-    material: "NETHER_STAR"
-    name: "<light_purple>Linh Hồn Trận Pháp"
-  duration: "5m"
+# 7. Theme: Time & Stasis
+time-space-formation:
+  display_name: "<light_purple><bold>Time-Space Formation</bold></light_purple>"
+  activation_item: "CLOCK"
+  duration: "1m"
   radius: 15
   pattern:
     key:
-      X: "CRYING_OBSIDIAN"
-      A: "AMETHYST_BLOCK"
-      O: "OBSIDIAN"
+      X: "END_GATEWAY"
+      C: "AMETHYST_BLOCK"
+      E: "END_ROD"
     shape:
-      - " OAO "
-      - "A X A"
-      - " OAO "
+      - " ECE "
+      - "C X C"
+      - " ECE "
   particles:
-    base_effect_id: "huyen-ao-phap-tran" # <-- Gọi hiệu ứng base Huyễn Ảo
-    shapes:
-      - type: PILLAR
-        particle: PORTAL
-        radius: 7.5
-        count: 6
-        height: 10
+    base_effect_id: "thoi-khong-tran"
   effects:
     - type: "STASIS"
+      target: "ALL"
+      value: 5
+
+# 8. Theme: Earth Defense
+earthen-bulwark-formation:
+  display_name: "<saddle_brown><bold>Earthen Bulwark Formation</bold>"
+  activation_item: "EMERALD_BLOCK"
+  duration: "20m"
+  radius: 15
+  pattern:
+    key:
+      X: "EMERALD_BLOCK"
+      S: "STONE_BRICKS"
+      M: "MOSS_BLOCK"
+    shape:
+      - " SMS "
+      - "M X M"
+      - " SMS "
+  particles:
+    base_effect_id: "tho-thanh-tran"
+  effects:
+    - type: "BARRIER"
       target: "DAMAGEABLE"
-      value: 4
-    - type: "ROOT"
+      value: 1.5
+    - type: "POTION"
+      target: "UNDAMAGEABLE"
+      potion_effect: "RESISTANCE"
+      value: 0
+    - type: "REPEL"
       target: "DAMAGEABLE"
-      duration: "3s"
-      value: 8
+      value: 0.4
 
 # 9. Theme: Miner's Boon
 miner-fortune-formation:
@@ -420,9 +501,8 @@ miner-fortune-formation:
       - "I X I"
       - " D D "
   particles:
+    base_effect_id: "khoang-san-tran"
     shapes:
-      - type: RING
-        particle: CRIT
       - type: SPHERE
         particle: ENCHANTMENT_TABLE
         y-offset: 1.5
@@ -453,13 +533,7 @@ demonic-ritual-formation:
       - "G X G"
       - " BGB "
   particles:
-    shapes:
-      - type: HELIX
-        particle: SOUL_FIRE_FLAME
-        strands: 3
-        height: 10
-      - type: RING
-        particle: SMOKE_LARGE
+    base_effect_id: "dia-nguc-hoa-tran" # Tái sử dụng
   effects:
     - type: "POTION"
       target: "DAMAGEABLE"
@@ -493,12 +567,13 @@ celestial-sanctuary-formation:
       - "G   G"
       - "SGSGS"
   particles:
+    base_effect_id: "thien-gioi-thanh-역"
     shapes:
       - type: DOME
         particle: END_ROD
         lines: 16
   effects:
-    - type: "SANCTUARY" # Prevents natural monster spawning
+    - type: "SANCTUARY"
     - type: "HEAL"
       target: "UNDAMAGEABLE"
       value: 0.5
@@ -522,11 +597,7 @@ volcanic-forge-formation:
       - "O X O"
       - " MOM "
   particles:
-    shapes:
-      - type: PILLAR
-        particle: LAVA
-        count: 4
-        height: 5
+    base_effect_id: "hoa-diem-son-tran"
   effects:
     - type: "SMELT"
       value: 3.0
@@ -556,9 +627,7 @@ bountiful-harvest-formation:
       - "D W D"
       - " DDD "
   particles:
-    shapes:
-      - type: RING
-        particle: VILLAGER_HAPPY
+    base_effect_id: "mua-mang-boi-thu"
   effects:
     - type: "GROWTH"
       value: 5.0
@@ -581,6 +650,7 @@ withered-blight-formation:
       - "S X S"
       - " BSB "
   particles:
+    base_effect_id: "kho-tan-chi-dia"
     shapes:
       - type: RAIN
         particle: WHITE_ASH
@@ -610,6 +680,7 @@ raging-tempest-formation:
       - " I I "
       - "  I  "
   particles:
+    base_effect_id: "cuong-phong-tran"
     shapes:
       - type: RING
         particle: CLOUD
@@ -638,6 +709,7 @@ abyssal-grasp-formation:
       - "C X C"
       - " VCV "
   particles:
+    base_effect_id: "vuc-tham-tran"
     shapes:
       - type: VORTEX
         particle: SQUID_INK
@@ -669,9 +741,8 @@ fae-playground-formation:
       - "L   L"
       - "FLFLF"
   particles:
+    base_effect_id: "tien-toc-vu-khuc"
     shapes:
-      - type: RING
-        particle: HEART
       - type: SPHERE
         particle: NOTE
         y-offset: 2
@@ -705,9 +776,7 @@ dragon-roar-formation:
       - "C X C"
       - " OCO "
   particles:
-    shapes:
-      - type: RING
-        particle: DRAGON_BREATH
+    base_effect_id: "long-uy-tran"
   effects:
     - type: "POTION"
       target: "DAMAGEABLE"
@@ -718,7 +787,7 @@ dragon-roar-formation:
       duration: "8s"
     - type: "EXPLOSION"
       target: "DAMAGEABLE"
-      value: 0.5 # Small, frequent explosions
+      value: 0.5
 
 # 19. Theme: Golden Bounty
 golden-bounty-formation:
@@ -735,9 +804,7 @@ golden-bounty-formation:
       - "E X E"
       - " E E "
   particles:
-    shapes:
-      - type: RING
-        particle: TOTEM
+    base_effect_id: "thai-duong-tran"
   effects:
     - type: "COLLECT"
       value: 1.0
@@ -761,6 +828,7 @@ phantom-zone-formation:
       - "E X E"
       - " EEE "
   particles:
+    base_effect_id: "di-gioi-khong-gian"
     shapes:
       - type: DOME
         particle: REVERSE_PORTAL

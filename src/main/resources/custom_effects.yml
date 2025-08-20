@@ -1,24 +1,24 @@
 # =========================================================================================
-#                          THƯ VIỆN HIỆU ỨNG BASE TÙY CHỈNH
+#                          CUSTOM BASE EFFECT LIBRARY
 # =========================================================================================
-# Mỗi ID ở đây có thể được gọi trong formations.yml bằng cách sử dụng "base_effect_id".
+# Each ID defined here can be called in formations.yml using "base_effect_id".
 #
-# CÁC HÌNH DẠNG (shape):
-# - CIRCLE: Vòng tròn
-# - STAR: Ngôi sao. Thêm "connect_adjacent: true" để vẽ Đa Giác.
+# SHAPES:
+# - CIRCLE: A circle shape.
+# - STAR: A star shape. Add "connect_adjacent: true" to draw a Polygon instead.
 #
-# THUỘC TÍNH:
-#   particle: Loại hạt (VD: REDSTONE, FLAME, SOUL_FIRE_FLAME)
-#   color: "#RRGGBB" (Chỉ dùng cho particle REDSTONE)
-#   size: 1.0 (Chỉ dùng cho particle REDSTONE)
-#   radius: Bán kính
-#   points: Số đỉnh (cho STAR/Đa Giác)
-#   rotation_offset: Xoay nhẹ hình (độ)
-#   step_multiplier: (Cho STAR) Bước nhảy để nối đỉnh (VD: 2 là nối cách 1 đỉnh)
+# ATTRIBUTES:
+#   particle: The particle type (e.g., REDSTONE, FLAME, SOUL_FIRE_FLAME).
+#   color: "#RRGGBB" (Used for REDSTONE particles only).
+#   size: 1.0 (Used for REDSTONE particles only).
+#   radius: The radius of the shape.
+#   points: The number of points (for STAR/Polygon).
+#   rotation_offset: Slightly rotates the shape (in degrees).
+#   step_multiplier: (For STAR) The step to connect vertices (e.g., 2 connects every other vertex).
 # =========================================================================================
 
-# 1. Hiệu ứng cho Holy Light Healing Formation
-thanh-quang-tran:
+# 1. Effect for Holy Light Healing Formation
+holy-light-formation:
   type: CUSTOM
   y-offset: 0.2
   steps: 300
@@ -34,14 +34,14 @@ thanh-quang-tran:
       radius: 8.0
       points: 8
       connect_adjacent: true
-      color: "#FFD700" # Vàng Gold
+      color: "#FFD700" # Gold
     - shape: CIRCLE
-      particle: HAPPY_VILLAGER
+      particle: TOTEM # Replaced HAPPY_VILLAGER
       radius: 5.0
       steps: 100
 
-# 2. Hiệu ứng cho Water God's Wrath Formation
-thuy-than-no-tran:
+# 2. Effect for Water God's Wrath Formation
+sea-god-wrath-formation:
   type: CUSTOM
   y-offset: 0.1
   steps: 400
@@ -55,7 +55,7 @@ thuy-than-no-tran:
       radius: 8.0
       points: 3
       connect_adjacent: true
-      color: "#00BFFF" # Xanh biển sâu
+      color: "#00BFFF" # DeepSkyBlue
       size: 1.2
     - shape: STAR
       particle: REDSTONE
@@ -66,8 +66,8 @@ thuy-than-no-tran:
       size: 1.2
       rotation_offset: 180
 
-# 3. Hiệu ứng cho Hellfire Formation
-dia-nguc-hoa-tran:
+# 3. Effect for Hellfire Formation
+hellfire-formation:
   type: CUSTOM
   y-offset: 0.3
   steps: 350
@@ -78,14 +78,14 @@ dia-nguc-hoa-tran:
       radius: 8.0
       points: 7
       step_multiplier: 3
-      color: "#FF0000"
+      color: "#FF0000" # Red
       size: 1.2
     - shape: STAR
       particle: REDSTONE
       radius: 8.0
       points: 7
       step_multiplier: 3
-      color: "#000000"
+      color: "#000000" # Black
       size: 1.2
       rotation_offset: 5
     - shape: CIRCLE
@@ -97,8 +97,8 @@ dia-nguc-hoa-tran:
       radius: 2.5
       steps: 70
 
-# 4. Hiệu ứng cho Dark Seal Formation
-hac-am-phong-an:
+# 4. Effect for Dark Seal Formation
+dark-seal-formation:
   type: CUSTOM
   y-offset: 0.2
   steps: 300
@@ -112,15 +112,15 @@ hac-am-phong-an:
       particle: REDSTONE
       radius: 6.5
       points: 5
-      color: "#480082" # Tím Indigo
+      color: "#480082" # Indigo
     - shape: STAR
       particle: SOUL
       radius: 6.5
       points: 5
       rotation_offset: 36
 
-# 5. Hiệu ứng cho Wood Spirit Formation
-moc-linh-tran:
+# 5. Effect for Wood Spirit Formation
+wood-spirit-formation:
   type: CUSTOM
   y-offset: 0.1
   steps: 250
@@ -129,9 +129,9 @@ moc-linh-tran:
     - shape: CIRCLE
       particle: REDSTONE
       radius: 7.0
-      color: "#00FF00" # Xanh lá
+      color: "#00FF00" # Green
     - shape: STAR
-      particle: HAPPY_VILLAGER
+      particle: COMPOSTER # Replaced HAPPY_VILLAGER
       radius: 6.0
       points: 8
       connect_adjacent: true
@@ -140,8 +140,8 @@ moc-linh-tran:
       radius: 4.0
       steps: 80
 
-# 6. Hiệu ứng cho Ice Soul Formation
-bang-han-tran:
+# 6. Effect for Ice Soul Formation
+frost-soul-formation:
   type: CUSTOM
   y-offset: 0.2
   steps: 300
@@ -156,7 +156,7 @@ bang-han-tran:
       particle: REDSTONE
       radius: 7.5
       points: 6
-      color: "#00FFFF"
+      color: "#00FFFF" # Cyan
       connect_adjacent: true
     - shape: STAR
       particle: REDSTONE
@@ -168,8 +168,8 @@ bang-han-tran:
       radius: 4.0
       steps: 60
 
-# 7. Hiệu ứng cho Time-Space Formation
-thoi-khong-tran:
+# 7. Effect for Time-Space Formation
+time-space-formation:
   type: CUSTOM
   y-offset: 0.3
   steps: 400
@@ -181,16 +181,16 @@ thoi-khong-tran:
     - shape: CIRCLE
       particle: PORTAL
       radius: 7.5
-      rotation_speed: 4.0 # Quay ngược chiều
+      rotation_speed: 4.0 # Rotates in the opposite direction
     - shape: STAR
       particle: REDSTONE
-      color: "#DA70D6" # Tím Orchid
+      color: "#DA70D6" # Orchid
       radius: 5.0
       points: 12
       connect_adjacent: true
 
-# 8. Hiệu ứng cho Earthen Bulwark Formation
-tho-thanh-tran:
+# 8. Effect for Earthen Bulwark Formation
+earthen-bulwark-formation:
   type: CUSTOM
   y-offset: 0.1
   steps: 200
@@ -198,22 +198,22 @@ tho-thanh-tran:
   definitions:
     - shape: STAR
       particle: REDSTONE
-      color: "#8B4513" # Nâu SaddleBrown
+      color: "#8B4513" # SaddleBrown
       radius: 7.0
       points: 4
       connect_adjacent: true
       size: 1.5
     - shape: STAR
       particle: REDSTONE
-      color: "#228B22" # Xanh ForestGreen
+      color: "#228B22" # ForestGreen
       radius: 7.0
       points: 4
       connect_adjacent: true
       size: 1.5
       rotation_offset: 45
 
-# 9. Hiệu ứng cho Huyen Ao Phong An Tran
-huyen-ao-phap-tran:
+# 9. Effect for Huyen Ao Phong An Tran
+mystic-seal-formation:
   type: CUSTOM
   y-offset: 0.2
   steps: 400
@@ -222,7 +222,7 @@ huyen-ao-phap-tran:
     - shape: CIRCLE
       particle: REDSTONE
       radius: 8.0
-      color: "#FF00FF"
+      color: "#FF00FF" # Magenta
       size: 1.3
     - shape: CIRCLE
       particle: ENCHANTMENT_TABLE
@@ -244,8 +244,8 @@ huyen-ao-phap-tran:
       radius: 2.0
       steps: 100
 
-# 10. Hiệu ứng cho Miner's Fortune Formation
-khoang-san-tran:
+# 10. Effect for Miner's Fortune Formation
+miners-fortune-formation:
   type: CUSTOM
   y-offset: 0.4
   steps: 250
@@ -259,11 +259,11 @@ khoang-san-tran:
     - shape: CIRCLE
       particle: REDSTONE
       radius: 4.0
-      color: "#B0C4DE" # Xám bạc
+      color: "#B0C4DE" # LightSteelBlue
       steps: 80
 
-# 11. Hiệu ứng cho Celestial Sanctuary Formation
-thien-gioi-thanh-역:
+# 11. Effect for Celestial Sanctuary Formation
+celestial-sanctuary:
   type: CUSTOM
   y-offset: 0.1
   steps: 500
@@ -278,8 +278,8 @@ thien-gioi-thanh-역:
       color: "#FFFFFF"
       size: 0.7
 
-# 12. Hiệu ứng cho Volcanic Forge Formation
-hoa-diem-son-tran:
+# 12. Effect for Volcanic Forge Formation
+volcanic-forge-formation:
   type: CUSTOM
   y-offset: 0.5
   steps: 300
@@ -294,24 +294,24 @@ hoa-diem-son-tran:
       radius: 7.5
       steps: 150
 
-# 13. Hiệu ứng cho Bountiful Harvest Formation
-mua-mang-boi-thu:
+# 13. Effect for Bountiful Harvest Formation
+bountiful-harvest-formation:
   type: CUSTOM
   y-offset: 0.1
   steps: 200
   rotation_speed: 0
   definitions:
     - shape: CIRCLE
-      particle: VILLAGER_HAPPY
+      particle: COMPOSTER # Replaced VILLAGER_HAPPY
       radius: 8.0
       steps: 150
     - shape: CIRCLE
       particle: REDSTONE
-      color: "#FFD700" # Vàng Gold
+      color: "#FFD700" # Gold
       radius: 7.5
 
-# 14. Hiệu ứng cho Withered Blight Formation
-kho-tan-chi-dia:
+# 14. Effect for Withered Blight Formation
+withering-blight-formation:
   type: CUSTOM
   y-offset: 0.2
   steps: 300
@@ -319,15 +319,15 @@ kho-tan-chi-dia:
   definitions:
     - shape: CIRCLE
       particle: REDSTONE
-      color: "#444444" # Xám đậm
+      color: "#444444" # Dark Gray
       radius: 7.0
     - shape: CIRCLE
       particle: WHITE_ASH
       radius: 6.5
       steps: 100
 
-# 15. Hiệu ứng cho Raging Tempest Formation
-cuong-phong-tran:
+# 15. Effect for Raging Tempest Formation
+raging-tempest-formation:
   type: CUSTOM
   y-offset: 0.5
   steps: 400
@@ -343,8 +343,8 @@ cuong-phong-tran:
       points: 12
       step_multiplier: 5
 
-# 16. Hiệu ứng cho Abyssal Grasp Formation
-vuc-tham-tran:
+# 16. Effect for Abyssal Grasp Formation
+abyssal-grasp-formation:
   type: CUSTOM
   y-offset: 0.2
   steps: 350
@@ -355,13 +355,13 @@ vuc-tham-tran:
       radius: 7.0
     - shape: STAR
       particle: REDSTONE
-      color: "#191970" # Xanh MidnightBlue
+      color: "#191970" # MidnightBlue
       radius: 6.0
       points: 9
       step_multiplier: 4
 
-# 17. Hiệu ứng cho Fae Playground Formation
-tien-toc-vu-khuc:
+# 17. Effect for Fae Playground Formation
+fae-dance-formation:
   type: CUSTOM
   y-offset: 0.1
   steps: 300
@@ -377,11 +377,11 @@ tien-toc-vu-khuc:
       steps: 50
     - shape: CIRCLE
       particle: REDSTONE
-      color: "#FFB6C1" # Hồng nhạt LightPink
+      color: "#FFB6C1" # LightPink
       radius: 5.0
 
-# 18. Hiệu ứng cho Dragon's Roar Formation
-long-uy-tran:
+# 18. Effect for Dragon's Roar Formation
+dragon-might-formation:
   type: CUSTOM
   y-offset: 0.4
   steps: 300
@@ -392,13 +392,13 @@ long-uy-tran:
       radius: 8.0
     - shape: STAR
       particle: REDSTONE
-      color: "#8A2BE2" # Tím BlueViolet
+      color: "#8A2BE2" # BlueViolet
       radius: 7.5
       points: 8
       connect_adjacent: true
 
-# 19. Hiệu ứng cho Golden Bounty Formation
-thai-duong-tran:
+# 19. Effect for Golden Bounty Formation
+solar-flare-formation:
   type: CUSTOM
   y-offset: 0.1
   steps: 300
@@ -412,14 +412,14 @@ thai-duong-tran:
       radius: 6.5
       points: 16
       step_multiplier: 7
-      color: "#FFFF00"
+      color: "#FFFF00" # Yellow
       size: 1.1
     - shape: STAR
       particle: REDSTONE
       radius: 6.5
       points: 16
       step_multiplier: 7
-      color: "#FFA500"
+      color: "#FFA500" # Orange
       size: 1.1
       rotation_offset: 11.25
     - shape: CIRCLE
@@ -427,8 +427,8 @@ thai-duong-tran:
       radius: 3.0
       steps: 150
 
-# 20. Hiệu ứng cho Phantom Zone Formation
-di-gioi-khong-gian:
+# 20. Effect for Phantom Zone Formation
+phantom-zone-formation:
   type: CUSTOM
   y-offset: 0.3
   steps: 500
@@ -439,7 +439,7 @@ di-gioi-khong-gian:
       radius: 8.0
     - shape: STAR
       particle: REDSTONE
-      color: "#00008B" # Xanh DarkBlue
+      color: "#00008B" # DarkBlue
       radius: 7.0
       points: 10
       step_multiplier: 3
