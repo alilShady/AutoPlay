@@ -1,6 +1,6 @@
 package com.alilshady.tutientranphap.utils;
 
-import com.alilshady.tutientranphap.TuTienTranPhap;
+import com.alilshady.tutientranphap.EssenceArrays;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 
@@ -12,7 +12,7 @@ import java.nio.charset.StandardCharsets;
 
 public class ConfigUpdater {
 
-    public static void updateFile(TuTienTranPhap plugin, String fileName) throws IOException {
+    public static void updateFile(EssenceArrays plugin, String fileName) throws IOException {
         File userFile = new File(plugin.getDataFolder(), fileName);
 
         // Nếu file không tồn tại, chỉ cần tạo mới và thoát.

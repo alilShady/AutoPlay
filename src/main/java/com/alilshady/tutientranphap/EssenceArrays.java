@@ -16,9 +16,9 @@ import org.bukkit.plugin.java.JavaPlugin;
 import java.io.IOException;
 import java.util.Objects;
 
-public final class TuTienTranPhap extends JavaPlugin {
+public final class EssenceArrays extends JavaPlugin {
 
-    private static TuTienTranPhap instance;
+    private static EssenceArrays instance;
 
     private ConfigManager configManager;
     private FormationManager formationManager;
@@ -33,10 +33,8 @@ public final class TuTienTranPhap extends JavaPlugin {
         try {
             ConfigUpdater.updateFile(this, "config.yml");
             ConfigUpdater.updateFile(this, "formations.yml");
-            // --- CẬP NHẬT ĐƯỜNG DẪN TỆP NGÔN NGỮ ---
             ConfigUpdater.updateFile(this, "lang/en.yml");
             ConfigUpdater.updateFile(this, "lang/vi.yml");
-            // --- KẾT THÚC CẬP NHẬT ---
         } catch (IOException e) {
             getLogger().severe("Could not update configuration files!");
             e.printStackTrace();
@@ -55,11 +53,11 @@ public final class TuTienTranPhap extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new BlueprintListener(this), this);
         getServer().getPluginManager().registerEvents(new SanctuaryListener(this), this);
 
-        Objects.requireNonNull(getCommand("tutientranphap")).setExecutor(new CommandManager(this));
-        Objects.requireNonNull(getCommand("tutientranphap")).setTabCompleter(new CommandTabCompleter(this));
+        Objects.requireNonNull(getCommand("essencearrays")).setExecutor(new CommandManager(this));
+        Objects.requireNonNull(getCommand("essencearrays")).setTabCompleter(new CommandTabCompleter(this));
 
         if (configManager.isDebugLoggingEnabled()) {
-            getLogger().info("TuTienTranPhap by AlilShady has been enabled!");
+            getLogger().info("EssenceArrays by AlilShady has been enabled!");
         }
 
         UP.checkVersion(getDescription().getVersion());
@@ -68,14 +66,14 @@ public final class TuTienTranPhap extends JavaPlugin {
     private void logAsciiArt() {
         getLogger().info("____________________________________________________________");
         getLogger().info("");
-        getLogger().info("      ████████╗████████╗████████╗██████╗  ");
-        getLogger().info("      ╚══██╔══╝╚══██╔══╝╚══██╔══╝██╔══██╗ ");
-        getLogger().info("         ██║      ██║      ██║   ██████╔╝ ");
-        getLogger().info("         ██║      ██║      ██║   ██╔═══╝  ");
-        getLogger().info("         ██║      ██║      ██║   ██║      ");
-        getLogger().info("         ╚═╝      ╚═╝      ╚═╝   ╚═╝      ");
+        getLogger().info("      ███████╗███████╗███████╗███████╗███╗   ██╗");
+        getLogger().info("      ██╔════╝██╔════╝██╔════╝██╔════╝████╗  ██║");
+        getLogger().info("      █████╗  █████╗  █████╗  █████╗  ██╔██╗ ██║");
+        getLogger().info("      ██╔══╝  ██╔══╝  ██╔══╝  ██╔══╝  ██║╚██╗██║");
+        getLogger().info("      ███████╗███████╗██║     ███████╗██║ ╚████║");
+        getLogger().info("      ╚══════╝╚══════╝╚═╝     ╚══════╝╚═╝  ╚═══╝");
         getLogger().info("");
-        getLogger().info("         TuTienTranPhap plugin by AlilShady");
+        getLogger().info("         EssenceArrays plugin by AlilShady");
         getLogger().info("____________________________________________________________");
     }
 
@@ -85,7 +83,7 @@ public final class TuTienTranPhap extends JavaPlugin {
             effectHandler.stopAllEffects();
         }
         if (configManager != null && configManager.isDebugLoggingEnabled()) {
-            getLogger().info("TuTienTranPhap has been disabled!");
+            getLogger().info("EssenceArrays has been disabled!");
         }
     }
 
@@ -94,7 +92,7 @@ public final class TuTienTranPhap extends JavaPlugin {
         formationManager.loadFormations();
     }
 
-    public static TuTienTranPhap getInstance() {
+    public static EssenceArrays getInstance() {
         return instance;
     }
 

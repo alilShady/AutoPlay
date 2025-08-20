@@ -1,5 +1,5 @@
 config-version: '1.0.0'
-prefix: "<gray>[<yellow>TTTP</yellow>]<gray> "
+prefix: "<gray>[<yellow>EA</yellow>]<gray> "
 
 commands:
   reload:

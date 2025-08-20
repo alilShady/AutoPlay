@@ -1,22 +1,22 @@
 # src/main/resources/plugin.yml
-name: TuTienTranPhap
+name: EssenceArrays
 version: 1.0.0
-main: com.alilshady.tutientranphap.TuTienTranPhap
+main: com.alilshady.tutientranphap.EssenceArrays
 api-version: 1.20
 author: AlilShady
 description: A highly customizable Cultivation Formation system.
 commands:
-  tutientranphap:
-    description: Main command for the TuTienTranPhap plugin.
+  essencearrays:
+    description: Main command for the EssenceArrays plugin.
     usage: /<command> [reload|give|test]
-    aliases: [tranphap, tttp]
+    aliases: [ess]
 permissions:
-  tutientranphap.reload:
+  essencearrays.reload:
     description: Allows the user to reload the plugin's configuration.
     default: op
-  tutientranphap.give:
+  essencearrays.give:
     description: Allows the user to get a Formation Blueprint.
     default: op
-  tutientranphap.test:
+  essencearrays.test:
     description: Allows the user to test activate a formation.
     default: op

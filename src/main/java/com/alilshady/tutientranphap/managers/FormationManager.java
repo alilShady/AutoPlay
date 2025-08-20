@@ -1,6 +1,6 @@
 package com.alilshady.tutientranphap.managers;
 
-import com.alilshady.tutientranphap.TuTienTranPhap;
+import com.alilshady.tutientranphap.EssenceArrays;
 import com.alilshady.tutientranphap.object.Formation;
 import com.alilshady.tutientranphap.utils.ItemFactory;
 import org.bukkit.Bukkit;
@@ -15,7 +15,7 @@ import org.bukkit.persistence.PersistentDataType;
 import java.util.*;
 
 public class FormationManager {
-    private final TuTienTranPhap plugin;
+    private final EssenceArrays plugin;
     private Map<Material, List<Formation>> formationsByCenterBlock;
     private final List<Location> activeFormationCenters;
     private Map<String, Formation> formationsById;
@@ -35,7 +35,7 @@ public class FormationManager {
             Material.MYCELIUM, Material.DIRT_PATH
     ));
 
-    public FormationManager(TuTienTranPhap plugin) {
+    public FormationManager(EssenceArrays plugin) {
         this.plugin = plugin;
         this.formationsByCenterBlock = new HashMap<>();
         this.activeFormationCenters = new ArrayList<>();

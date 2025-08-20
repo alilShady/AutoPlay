@@ -1,6 +1,6 @@
 package com.alilshady.tutientranphap.commands;
 
-import com.alilshady.tutientranphap.TuTienTranPhap;
+import com.alilshady.tutientranphap.EssenceArrays;
 import com.alilshady.tutientranphap.object.Formation;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.bukkit.Bukkit;
@@ -21,10 +21,10 @@ import java.util.Objects;
 
 public class CommandManager implements CommandExecutor {
 
-    private final TuTienTranPhap plugin;
+    private final EssenceArrays plugin;
     private final NamespacedKey formationIdKey;
 
-    public CommandManager(TuTienTranPhap plugin) {
+    public CommandManager(EssenceArrays plugin) {
         this.plugin = plugin;
         this.formationIdKey = new NamespacedKey(plugin, "formation_id");
     }
@@ -53,7 +53,7 @@ public class CommandManager implements CommandExecutor {
     }
 
     private boolean handleReload(CommandSender sender) {
-        if (!sender.hasPermission("tutientranphap.reload")) {
+        if (!sender.hasPermission("essencearrays.reload")) {
             sender.sendMessage(plugin.getConfigManager().getMessage("commands.reload.no-permission"));
             return true;
         }
@@ -64,7 +64,7 @@ public class CommandManager implements CommandExecutor {
     }
 
     private boolean handleGiveBlueprint(CommandSender sender, String[] args, String label) {
-        if (!sender.hasPermission("tutientranphap.give")) {
+        if (!sender.hasPermission("essencearrays.give")) {
             sender.sendMessage(plugin.getConfigManager().getMessage("commands.reload.no-permission"));
             return true;
         }
@@ -111,7 +111,7 @@ public class CommandManager implements CommandExecutor {
     }
 
     private boolean handleGiveItem(CommandSender sender, String[] args, String label) {
-        if (!sender.hasPermission("tutientranphap.giveitem")) {
+        if (!sender.hasPermission("essencearrays.giveitem")) {
             sender.sendMessage(plugin.getConfigManager().getMessage("commands.reload.no-permission"));
             return true;
         }
@@ -168,7 +168,7 @@ public class CommandManager implements CommandExecutor {
         }
         Player player = (Player) sender;
 
-        if (!player.hasPermission("tutientranphap.test")) {
+        if (!player.hasPermission("essencearrays.test")) {
             player.sendMessage(plugin.getConfigManager().getMessage("commands.reload.no-permission"));
             return true;
         }

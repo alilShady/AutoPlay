@@ -1,6 +1,6 @@
 package com.alilshady.tutientranphap.commands;
 
-import com.alilshady.tutientranphap.TuTienTranPhap;
+import com.alilshady.tutientranphap.EssenceArrays;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -18,11 +18,10 @@ import java.util.stream.Collectors;
 
 public class CommandTabCompleter implements TabCompleter {
 
-    private final TuTienTranPhap plugin;
-    // --- SỬA Ở ĐÂY: Thêm "giveitem" vào danh sách lệnh con ---
+    private final EssenceArrays plugin;
     private static final List<String> SUB_COMMANDS = Arrays.asList("reload", "give", "giveitem", "test");
 
-    public CommandTabCompleter(TuTienTranPhap plugin) {
+    public CommandTabCompleter(EssenceArrays plugin) {
         this.plugin = plugin;
     }
 

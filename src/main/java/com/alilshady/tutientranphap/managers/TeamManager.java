@@ -1,6 +1,6 @@
 package com.alilshady.tutientranphap.managers;
 
-import com.alilshady.tutientranphap.TuTienTranPhap;
+import com.alilshady.tutientranphap.EssenceArrays;
 import com.booksaw.betterTeams.Team;
 // import com.gmail.nossr50.api.party.PartyAPI; // TẠM VÔ HIỆU HÓA
 import net.sacredlabyrinth.phaed.simpleclans.SimpleClans;
@@ -11,7 +11,7 @@ import org.bukkit.scoreboard.Scoreboard;
 
 public class TeamManager {
 
-    private final TuTienTranPhap plugin;
+    private final EssenceArrays plugin;
     private TeamPluginProvider activeProvider = TeamPluginProvider.NONE;
     private SimpleClans simpleClansApi;
 
@@ -23,7 +23,7 @@ public class TeamManager {
         NONE
     }
 
-    public TeamManager(TuTienTranPhap plugin) {
+    public TeamManager(EssenceArrays plugin) {
         this.plugin = plugin;
         detectTeamPlugin();
     }

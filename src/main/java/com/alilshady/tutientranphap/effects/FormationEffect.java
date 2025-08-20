@@ -1,7 +1,7 @@
 // src/main/java/com/alilshady/tutientranphap/effects/FormationEffect.java
 package com.alilshady.tutientranphap.effects;
 
-import com.alilshady.tutientranphap.TuTienTranPhap;
+import com.alilshady.tutientranphap.EssenceArrays;
 import com.alilshady.tutientranphap.object.Formation;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
@@ -30,5 +30,5 @@ public interface FormationEffect {
      * @param nearbyBlocks   Danh sách các khối trong bán kính.
      * @param ownerId        UUID của người chơi đã kích hoạt trận pháp (có thể là null).
      */
-    void apply(TuTienTranPhap plugin, Formation formation, Location center, Map<?, ?> config, Collection<LivingEntity> nearbyEntities, List<Block> nearbyBlocks, UUID ownerId);
+    void apply(EssenceArrays plugin, Formation formation, Location center, Map<?, ?> config, Collection<LivingEntity> nearbyEntities, List<Block> nearbyBlocks, UUID ownerId);
 }

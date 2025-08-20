@@ -1,6 +1,7 @@
 com\alilshady\tutientranphap\effects\MobRepulsionEffect.class
 com\alilshady\tutientranphap\effects\ItemRepairEffect.class
 com\alilshady\tutientranphap\managers\ConfigManager.class
+com\alilshady\tutientranphap\EssenceArrays.class
 com\alilshady\tutientranphap\effects\RootEffect.class
 com\alilshady\tutientranphap\utils\ItemFactory.class
 com\alilshady\tutientranphap\effects\ClimateEffect.class
@@ -36,5 +37,4 @@ com\alilshady\tutientranphap\listeners\BlueprintListener.class
 com\alilshady\tutientranphap\effects\CropGrowthEffect.class
 com\alilshady\tutientranphap\effects\CollectEffect.class
 com\alilshady\tutientranphap\effects\EffectUtils.class
-com\alilshady\tutientranphap\TuTienTranPhap.class
 com\alilshady\tutientranphap\effects\FreezeLiquidsEffect.class

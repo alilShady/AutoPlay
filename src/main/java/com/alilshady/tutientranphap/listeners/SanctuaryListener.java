@@ -1,7 +1,7 @@
 // src/main/java/com/alilshady/tutientranphap/listeners/SanctuaryListener.java
 package com.alilshady.tutientranphap.listeners;
 
-import com.alilshady.tutientranphap.TuTienTranPhap;
+import com.alilshady.tutientranphap.EssenceArrays;
 import org.bukkit.Location;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -9,9 +9,9 @@ import org.bukkit.event.entity.CreatureSpawnEvent;
 
 public class SanctuaryListener implements Listener {
 
-    private final TuTienTranPhap plugin;
+    private final EssenceArrays plugin;
 
-    public SanctuaryListener(TuTienTranPhap plugin) {
+    public SanctuaryListener(EssenceArrays plugin) {
         this.plugin = plugin;
     }
 

@@ -1,6 +1,6 @@
 package com.alilshady.tutientranphap.utils;
 
-import com.alilshady.tutientranphap.TuTienTranPhap;
+import com.alilshady.tutientranphap.EssenceArrays;
 import org.bukkit.Bukkit;
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -14,7 +14,7 @@ public class UP {
 
     public static void checkVersion(String currentVersion) {
         // Chạy tác vụ kiểm tra bất đồng bộ để không làm lag server
-        Bukkit.getScheduler().runTaskAsynchronously(TuTienTranPhap.getInstance(), () -> {
+        Bukkit.getScheduler().runTaskAsynchronously(EssenceArrays.getInstance(), () -> {
             try {
                 URL url = new URL(VERSION_URL);
                 HttpURLConnection connection = (HttpURLConnection) url.openConnection();
@@ -25,13 +25,13 @@ public class UP {
 
                     // So sánh phiên bản hiện tại với phiên bản mới nhất
                     if (!currentVersion.equalsIgnoreCase(latestVersion)) {
-                        TuTienTranPhap.getInstance().getLogger().warning("You are using an outdated version! Current: " + currentVersion + ", Latest: " + latestVersion);
+                        EssenceArrays.getInstance().getLogger().warning("You are using an outdated version! Current: " + currentVersion + ", Latest: " + latestVersion);
                     } else {
-                        TuTienTranPhap.getInstance().getLogger().info("You are using the latest version!");
+                        EssenceArrays.getInstance().getLogger().info("You are using the latest version!");
                     }
                 }
             } catch (IOException e) {
-                TuTienTranPhap.getInstance().getLogger().severe("Could not check for updates: " + e.getMessage());
+                EssenceArrays.getInstance().getLogger().severe("Could not check for updates: " + e.getMessage());
             }
         });
     }

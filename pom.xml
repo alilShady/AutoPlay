@@ -10,7 +10,7 @@
     <version>1.0.0</version>
     <packaging>jar</packaging>
 
-    <name>TuTienTranPhap</name>
+    <name>EssenceArrays</name>
     <description>Một hệ thống Trận Pháp (Tu tiên) có khả năng tùy chỉnh cao.</description>
 
     <properties>
@@ -47,7 +47,6 @@
     </repositories>
 
     <dependencies>
-        <!-- Paper API -->
         <dependency>
             <groupId>io.papermc.paper</groupId>
             <artifactId>paper-api</artifactId>
@@ -55,7 +54,6 @@
             <scope>provided</scope>
         </dependency>
 
-        <!-- SimpleClans từ GitHub -->
         <dependency>
             <groupId>net.sacredlabyrinth.phaed.simpleclans</groupId>
             <artifactId>SimpleClans</artifactId>
@@ -63,8 +61,6 @@
             <scope>provided</scope>
         </dependency>
 
-        <!-- mcMMO: Dùng JitPack nếu là bản free -->
-        <!-- Nếu là bản premium, cần cài thủ công vào Maven local -->
         <dependency>
             <groupId>com.gmail.nossr50.mcMMO</groupId>
             <artifactId>mcMMO</artifactId>
@@ -72,7 +68,6 @@
             <scope>provided</scope>
         </dependency>
 
-        <!-- BetterTeams từ GitHub -->
         <dependency>
             <groupId>com.github.booksaw</groupId>
             <artifactId>BetterTeams</artifactId>

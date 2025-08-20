@@ -1,6 +1,6 @@
 package com.alilshady.tutientranphap.managers;
 
-import com.alilshady.tutientranphap.TuTienTranPhap;
+import com.alilshady.tutientranphap.EssenceArrays;
 import com.alilshady.tutientranphap.object.Formation;
 import com.alilshady.tutientranphap.utils.ItemFactory;
 import net.kyori.adventure.text.Component;
@@ -26,7 +26,7 @@ import java.util.concurrent.CompletableFuture;
 
 public class ConfigManager {
 
-    private final TuTienTranPhap plugin;
+    private final EssenceArrays plugin;
     private FileConfiguration formationConfig;
     private FileConfiguration mainConfig;
     private FileConfiguration messagesConfig;
@@ -36,7 +36,7 @@ public class ConfigManager {
 
     private final MiniMessage miniMessage = MiniMessage.miniMessage();
 
-    public ConfigManager(TuTienTranPhap plugin) {
+    public ConfigManager(EssenceArrays plugin) {
         this.plugin = plugin;
         reloadConfigs();
     }

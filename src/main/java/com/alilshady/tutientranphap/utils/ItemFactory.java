@@ -1,6 +1,6 @@
 package com.alilshady.tutientranphap.utils;
 
-import com.alilshady.tutientranphap.TuTienTranPhap;
+import com.alilshady.tutientranphap.EssenceArrays;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.TextDecoration;
 import net.kyori.adventure.text.minimessage.MiniMessage;
@@ -17,7 +17,7 @@ import java.util.List;
 
 public class ItemFactory {
 
-    public static final NamespacedKey ACTIVATION_ITEM_KEY = new NamespacedKey(TuTienTranPhap.getInstance(), "activation_id");
+    public static final NamespacedKey ACTIVATION_ITEM_KEY = new NamespacedKey(EssenceArrays.getInstance(), "activation_id");
 
     public static ItemStack createFromConfig(ConfigurationSection section) {
         if (section == null) return null;
