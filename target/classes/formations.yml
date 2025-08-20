@@ -1,155 +1,244 @@
-# PHIÊN BẢN CẤU HÌNH (KHÔNG THAY ĐỔI)
+# CONFIGURATION VERSION (DO NOT CHANGE)
 config-version: '1.0.0'
 
 # =================================================================================================
 # =================================================================================================
 #
-#                HƯỚNG DẪN CẤU HÌNH TRẬN PHÁP - PLUGIN TUTIENTRANPHAP (BẢN CHI TIẾT)
+#                FORMATION CONFIGURATION GUIDE - TuTienTranPhap PLUGIN (ADVANCED)
 #
-# Chào mừng bạn đến với tệp cấu hình trận pháp! Tại đây, bạn có thể tự do sáng tạo
-# ra những trận pháp độc đáo với hiệu ứng và chức năng riêng. Vui lòng đọc kỹ hướng
-# dẫn dưới đây để hiểu rõ từng tùy chọn.
+# Welcome! This file allows you to create unique formations. Please read carefully.
 #
 # =================================================================================================
-# MỤC 1: CẤU TRÚC CƠ BẢN CỦA MỘT TRẬN PHÁP
+# SECTION 1: BASIC STRUCTURE OF A FORMATION
 # =================================================================================================
 #
-# ten-tran-phap-cua-ban:               # ID định danh duy nhất, không dấu, không khoảng trắng.
-#   display_name: "<red>Tên Trận Pháp" # Tên hiển thị trong game, hỗ trợ MiniMessage.
-#   activation_item: ...                # Vật phẩm dùng để kích hoạt trận pháp (Xem Mục 2).
-#   duration: "15m"                     # Thời gian tồn tại (t: tick, s: giây, m: phút, h: giờ).
-#   radius: 20                          # Bán kính ảnh hưởng của hiệu ứng.
-#   pattern: ...                        # Cấu trúc vật lý của trận pháp (Xem Mục 3).
-#   particles: ...                      # Hiệu ứng hạt trang trí (Xem Mục 4).
-#   effects: ...                        # Các hiệu ứng gameplay (Xem Mục 5).
+# your-unique-formation-id:             # A unique ID, no spaces or special characters.
+#   display_name: "<red>Formation Name"  # Display name in-game, supports MiniMessage color codes.
+#   activation_item: ...                # The item to activate the formation (See Section 2).
+#   duration: "15m"                     # How long the formation lasts (t: tick, s: second, m: minute, h: hour). '0' for infinite.
+#   radius: 20                          # The effect radius in blocks.
+#   pattern: ...                        # The physical block structure (See Section 3).
+#   particles: ...                      # Decorative particle effects (See Section 4).
+#   effects: ...                        # The actual gameplay effects (See Section 5).
 #
 # =================================================================================================
-# MỤC 2: VẬT PHẨM KÍCH HOẠT (activation_item)
+# SECTION 2: ACTIVATION ITEM (activation_item)
 # =================================================================================================
 #
-# CÁCH 1: VẬT PHẨM THƯỜNG (Dựa trên loại vật liệu)
+# METHOD 1: SIMPLE ITEM (By material name)
+# The formation will activate with any item of this material.
 #   activation_item: "DIAMOND"
 #
-# CÁCH 2: VẬT PHẨM ĐẶC BIỆT (Có tên, lore, và tag NBT ẩn để chống làm giả)
+# METHOD 2: UNIQUE ITEM (With custom name, lore, and a hidden tag to prevent fakes)
+# Use /ttp giveitem <player> <formation_id> to get this specific item.
+# It's unique because it has a hidden NBT tag.
 #   activation_item:
 #     material: "NETHER_STAR"
-#     name: "<gold>Linh Hồn Trận Pháp"
+#     name: "<gold>Soul of the Formation"
 #     lore:
-#       - "<gray>Một vật phẩm cổ xưa."
+#       - "<gray>An ancient artifact."
+#       - "<blue>Channel your energy to activate."
+#     enchantments:
+#       - "unbreaking:1"
 #
 # =================================================================================================
-# MỤC 3: CẤU TRÚC TRẬN PHÁP (pattern)
+# SECTION 3: FORMATION STRUCTURE (pattern)
 # =================================================================================================
 #
 #   pattern:
 #     key:
-#       X: "BEACON"                  # 'X' luôn là khối trung tâm.
+#       X: "BEACON"                  # 'X' MUST be the center block. The formation is activated by right-clicking this block.
 #       G: "GOLD_BLOCK"
+#       Q: "QUARTZ_BLOCK"
 #     shape:
-#       - " GGG "
-#       - "G X G"
-#       - " GGG "
+#       - " QGQ "                    # Each string in the list is a row of blocks.
+#       - "G X G"                    # The space character ' ' means no block will be placed there.
+#       - " QGQ "
 #
 # =================================================================================================
-# MỤC 4: HIỆU ỨNG HẠT (particles)
+# SECTION 4: PARTICLE EFFECTS (particles) - VISUALS ONLY
 # =================================================================================================
 #
 #   particles:
 #     shapes:
-#       - type: RING
-#         particle: TOTEM
-#         # ... các tùy chọn khác ...
+#       - type: RING                 # The shape of the particle effect.
+#         particle: TOTEM            # The particle type (Bukkit particle names).
+#         # ... other shape-specific options below ...
 #
-# --- CÁC KIỂU HÌNH DẠNG (TYPE) ---
-# 1. RING, 2. PILLAR, 3. DOME, 4. SPHERE, 5. HELIX, 6. VORTEX, 7. RAIN
+# --- AVAILABLE SHAPE TYPES AND THEIR OPTIONS ---
+# 1. RING: A flat ring on the ground.
+#    - particle: (e.g., TOTEM, FLAME)
+#    - radius: [Optional] Ring radius. Defaults to the formation's main radius.
+#    - density: Number of particles in the ring (e.g., 100).
+#    - y-offset: Height offset from the center block (e.g., 0.1).
+#    - rotation_speed: How fast the ring spins (e.g., 0.8). Can be negative.
+#
+# 2. PILLAR: Vertical pillars rising from the ground.
+#    - particle: (e.g., LAVA, SOUL_FIRE_FLAME)
+#    - radius: Distance of pillars from the center.
+#    - count: Number of pillars (e.g., 6).
+#    - height: How tall the pillars are (e.g., 10).
+#    - density: Number of particles per pillar.
+#    - rotation_speed: How fast the set of pillars rotates around the center.
+#
+# 3. SPHERE: A sphere of particles, usually floating above the center.
+#    - particle: (e.g., END_ROD, PORTAL)
+#    - radius: The sphere's radius (e.g., 1.5).
+#    - y-offset: How high the sphere's center is (e.g., 2.0).
+#    - density: Total number of particles in the sphere.
+#
+# 4. DOME: A dome structure covering the formation.
+#    - particle: (e.g., SQUID_INK, SNOWFLAKE)
+#    - radius: Dome radius. Defaults to the formation's main radius.
+#    - lines: Number of lines forming the dome's skeleton (e.g., 12).
+#    - density: Total number of particles for the whole dome.
+#    - rotation_speed: How fast the dome spins.
+#
+# 5. HELIX: DNA-like strands spiraling upwards.
+#    - particle: (e.g., HAPPY_VILLAGER)
+#    - radius: The helix's radius.
+#    - height: The helix's total height.
+#    - strands: Number of intertwined strands (e.g., 2 for a double helix).
+#    - revolutions: How many full turns the helix makes from bottom to top (e.g., 3).
+#    - density: Total number of particles.
+#    - rotation_speed: How fast the helix spins.
+#
+# 6. VORTEX: A funnel/tornado shape, wide at the top and narrow at the bottom.
+#    - particle: (e.g., SQUID_INK)
+#    - radius: The vortex's radius at its widest point (top).
+#    - height: The vortex's height.
+#    - density: Total number of particles.
+#    - rotation_speed: How fast the vortex spins.
+#
+# 7. RAIN: Particles falling from the sky within the formation area.
+#    - particle: (e.g., WATER_DROP, WHITE_ASH)
+#    - radius: The radius of the rain effect.
+#    - height: The height from which particles start falling.
+#    - density: Number of particles per tick.
 #
 # =================================================================================================
-# MỤC 5: HIỆU ỨNG GAMEPLAY (effects) - GIẢI THÍCH CHI TIẾT
+# SECTION 5: GAMEPLAY EFFECTS (effects) & THE 'TARGET' KEY
 # =================================================================================================
 #
-# effects:
-#   - type: "HEAL"
-#     target: "UNDAMAGEABLE"
-#     value: 1.5
+# --- THE "TARGET" KEY ---
+# Most effects need a 'target' to know who or what to affect.
 #
-# --- KHÓA "TARGET" (MỤC TIÊU) ---
-# Hầu hết các hiệu ứng đều cần khóa này để xác định đối tượng tác động.
+#   target: <VALUE>
 #
-#   target: <GIÁ_TRỊ>
+#   - OWNER:        Affects only the player who placed the formation.
+#   - ALL:          Affects EVERY living entity (players, monsters, animals).
+#   - MOBS:         Affects only hostile monsters (Zombie, Skeleton, Creeper, etc.).
+#   - DAMAGEABLE:   Affects "hostile" targets: monsters AND players who are NOT allies (not in the same team/clan/party).
+#   - UNDAMAGEABLE: Affects "friendly" targets: animals (pigs, cows), and allied players (INCLUDING the owner).
 #
-#   Các giá trị hợp lệ:
-#   - OWNER:        Chỉ tác động lên người đã kích hoạt trận pháp.
-#   - ALL:          Tác động lên TẤT CẢ người chơi và thực thể sống.
-#   - MOBS:         Chỉ tác động lên quái vật (vd: Zombie, Skeleton, Creeper...).
-#   - DAMAGEABLE:   Tác động lên các mục tiêu "thù địch", bao gồm quái vật và những người
-#                   chơi không phải là đồng minh (không cùng team/clan).
-#   - UNDAMAGEABLE: Tác động lên các mục tiêu "thân thiện", bao gồm động vật (heo, bò...)
-#                   và những người chơi là đồng minh (bao gồm cả chủ nhân).
+# --- LIST OF ALL EFFECT TYPES ---
 #
-# --- DANH SÁCH CÁC LOẠI HIỆU ỨNG (TYPE) VÀ TÙY CHỌN RIÊNG ---
+# 1.  DAMAGE: Deals damage to targets.
+#       - type: "DAMAGE"
+#       - target: "DAMAGEABLE"
+#       - value: 1.0       # Damage amount (1.0 = half a heart).
 #
-# 1.  DAMAGE: Gây sát thương.
-#       value: Lượng sát thương (vd: 1.0 tương đương nửa trái tim).
+# 2.  HEAL: Heals targets.
+#       - type: "HEAL"
+#       - target: "UNDAMAGEABLE"
+#       - value: 1.5       # Health restored (1.0 = half a heart).
 #
-# 2.  HEAL: Hồi máu.
-#       value: Lượng máu hồi phục (vd: 1.0 tương đương nửa trái tim).
+# 3.  POTION: Applies a potion effect.
+#       - type: "POTION"
+#       - target: "UNDAMAGEABLE"
+#       - potion_effect: "REGENERATION"  # Bukkit PotionEffectType name.
+#       - value: 1                     # Effect amplifier (0 = Level I, 1 = Level II, ...).
 #
-# 3.  POTION: Thêm hiệu ứng thuốc.
-#       target: Mục tiêu nhận hiệu ứng.
-#       potion_effect: Tên hiệu ứng theo Bukkit (vd: SPEED, REGENERATION, WEAKNESS).
-#       value: Cấp độ hiệu ứng (0 = cấp I, 1 = cấp II, 2 = cấp III...).
+# 4.  REPEL: Pushes targets away from the center.
+#       - type: "REPEL"
+#       - target: "DAMAGEABLE"
+#       - value: 0.8       # Push force (e.g., 0.1 to 2.0).
 #
-# 4.  REPEL: Đẩy lùi các mục tiêu ra xa khỏi tâm.
-#       value: Lực đẩy (số càng lớn đẩy càng mạnh, 1.0 là khá mạnh).
+# 5.  VORTEX: Pulls targets toward the center.
+#       - type: "VORTEX"
+#       - target: "DAMAGEABLE"
+#       - value: 0.3       # Pull force.
 #
-# 5.  VORTEX: Hút các mục tiêu vào tâm.
-#       value: Lực hút (số càng lớn hút càng mạnh, 0.5 là vừa phải).
+# 6.  ROOT: Freezes targets in place with a strong SLOW effect.
+#       - type: "ROOT"
+#       - target: "DAMAGEABLE"
+#       - duration: "5s"   # How long the root lasts each time it's applied.
+#       - value: 7         # SLOW amplifier. Should be high (7+ recommended) to be effective.
 #
-# 6.  ROOT: Trói chân mục tiêu bằng hiệu ứng SLOW cực mạnh.
-#       target: Mục tiêu bị trói.
-#       duration: Thời gian trói (vd: "5s", "100t").
-#       value: Cấp độ trói (nên để từ 5 trở lên để có hiệu quả).
+# 7.  IGNITE: Sets targets on fire.
+#       - type: "IGNITE"
+#       - target: "DAMAGEABLE"
+#       - duration: "5s"   # How long the fire lasts in seconds.
 #
-# 7.  IGNITE: Đốt cháy mục tiêu.
-#       target: Mục tiêu bị đốt.
-#       duration: Thời gian cháy (vd: "3s" là 3 giây).
+# 8.  CLEANSE: Removes negative potion effects (debuffs like SLOW, POISON, WEAKNESS).
+#       - type: "CLEANSE"
+#       - target: "UNDAMAGEABLE" # No other options needed.
 #
-# 8.  CLEANSE: Gột rửa các hiệu ứng xấu (debuff).
-#       target: Mục tiêu được gột rửa. (Không cần 'value').
+# 9.  REPAIR: Repairs durability of equipped armor and held items for players.
+#       - type: "REPAIR"
+#       - target: "UNDAMAGEABLE"
+#       - value: 5         # Durability points restored per cycle.
 #
-# 9.  REPAIR: Sửa chữa độ bền vật phẩm cho người chơi.
-#       target: Người chơi được sửa đồ (chỉ hoạt động với Player).
-#       value: Lượng độ bền được phục hồi mỗi chu kỳ.
+# 10. FREEZE: Freezes liquids in the area. Water becomes frosted ice, Lava becomes obsidian.
+#       - type: "FREEZE" # No target or value needed. Affects blocks.
 #
-# 10. FREEZE: Đóng băng các khối chất lỏng (Nước -> Băng, Lava -> Obsidian).
-#       (Không cần 'target' hay 'value', tác động lên các khối trong bán kính).
+# 11. GROWTH: Speeds up crop growth.
+#       - type: "GROWTH"
+#       - value: 3.0       # Growth chance multiplier. Higher is faster.
 #
-# 11. GROWTH: Thúc đẩy cây trồng lớn nhanh.
-#       value: Hệ số tăng trưởng (vd: 2.0 làm cây lớn nhanh gấp đôi).
+# 12. HARVEST: Automatically harvests fully grown crops and drops them.
+#       - type: "HARVEST"
+#       - replant: true    # Optional (default: true). Set to false to not replant.
 #
-# 12. HARVEST: Tự động thu hoạch cây trồng đã lớn hết cỡ.
-#       replant: true/false (mặc định là true) - Có tự trồng lại cây sau khi thu hoạch không.
+# 13. BREED: Encourages animals to enter love mode.
+#       - type: "BREED"
+#       - value: 100       # Cooldown in ticks (100 ticks = 5 seconds) before it can affect another animal.
 #
-# 13. BREED: Thúc đẩy động vật giao phối.
-#       value: Thời gian chờ (cooldown) giữa các lần thúc đẩy, tính bằng tick (20 ticks = 1 giây).
+# 14. XP: Creates experience orbs near the center.
+#       - type: "XP"
+#       - value: 50        # Total experience points to create per cycle.
 #
-# 14. XP: Tạo ra các quả cầu kinh nghiệm.
-#       value: Tổng số kinh nghiệm sẽ được tạo ra mỗi chu kỳ.
+# 15. STASIS: Slows down entities and projectiles (like arrows).
+#       - type: "STASIS"
+#       - target: "ALL"
+#       - value: 3         # Slowdown amplifier (1-5 recommended). Higher is slower.
 #
-# 15. STASIS: Tạo vùng làm chậm thời gian, ảnh hưởng đến cả thực thể và vật thể bay (tên, mũi tên).
-#       target: Mục tiêu bị làm chậm.
-#       value: Cấp độ làm chậm (từ 1 đến 5, càng cao càng chậm).
+# 16. LIGHTNING: Strikes targets with lightning.
+#       - type: "LIGHTNING"
+#       - target: "DAMAGEABLE"
+#       - visual_only: false # Optional (default: false). If true, strikes lightning for effect but deals no damage.
 #
-# 16. LIGHTNING: Triệu hồi sét.
-#       target: Mục tiêu bị sét đánh.
-#       visual_only: true/false (mặc định là false) - true nếu chỉ muốn hiệu ứng sét mà không gây sát thương.
+# 17. SMELT: Speeds up nearby furnaces.
+#       - type: "SMELT"
+#       - value: 2.0       # Speed multiplier (2.0 = twice as fast).
 #
-# ... (Các hiệu ứng khác sẽ được cập nhật ở đây khi có)
-# =================================================================================================
+# 18. COLLECT: Pulls nearby item drops towards the center.
+#       - type: "COLLECT"
+#       - value: 0.8       # The speed/force of the pull.
+#
+# 19. EXPLOSION: Creates an explosion at the target's location.
+#       - type: "EXPLOSION"
+#       - target: "DAMAGEABLE"
+#       - value: 2.0       # The power of the explosion (4.0 is standard TNT).
+#
+# 20. CLIMATE: Changes the perceived weather and applies related effects within the formation.
+#       - type: "CLIMATE"
+#       - mode: "THUNDER"  # Available modes: RAIN, SNOW, THUNDER, DROUGHT, ACID_RAIN.
+#
+# 21. BARRIER: Pushes entities away if they try to cross the formation's edge.
+#       - type: "BARRIER"
+#       - target: "DAMAGEABLE"
+#       - value: 1.5       # The push-back force.
+#
+# 22. DEVOLVE: Turns adult animals into babies and shrinks slimes. Reverses crop growth.
+#       - type: "DEVOLVE"
+#       - value: 1         # The strength of the effect (how many growth stages to reverse).
+#
+# --- EXAMPLE FORMATIONS ---
 
-# --- TRẬN PHÁP CHỦ ĐỀ "THÁNH QUANG" ---
-thanh-quang-tri-lieu-tran:
-  display_name: "<gold><bold>Thánh Quang Trị Liệu Trận</bold></gold>"
+# 1. Theme: Divine Protection & Healing
+holy-light-healing-formation:
+  display_name: "<gold><bold>Holy Light Healing Formation</bold></gold>"
   activation_item: "BEACON"
   duration: "15m"
   radius: 20
@@ -169,20 +258,10 @@ thanh-quang-tri-lieu-tran:
       - type: RING
         particle: TOTEM
         y-offset: 0.1
-        density: 100
-        rotation_speed: 0.8
       - type: HELIX
         particle: HAPPY_VILLAGER
         height: 15
         strands: 2
-        revolutions: 3
-        density: 250
-        rotation_speed: 1.2
-      - type: SPHERE
-        particle: END_ROD
-        radius: 1.5
-        y-offset: 2.0
-        density: 150
   effects:
     - type: "HEAL"
       target: "UNDAMAGEABLE"
@@ -194,9 +273,9 @@ thanh-quang-tri-lieu-tran:
       potion_effect: "REGENERATION"
       value: 1
 
-# --- TRẬN PHÁP CHỦ ĐỀ "BÃO TỐ" ---
-thuy-than-phan-no-tran:
-  display_name: "<blue><bold>Thủy Thần Phẫn Nộ Trận</bold></blue>"
+# 2. Theme: Storm & Crowd Control
+water-god-wrath-formation:
+  display_name: "<blue><bold>Water God's Wrath Formation</bold></blue>"
   activation_item: "TRIDENT"
   duration: "10m"
   radius: 25
@@ -213,21 +292,12 @@ thuy-than-phan-no-tran:
       - " SPS "
   particles:
     shapes:
-      - type: RING
-        particle: WATER_WAKE
-        y-offset: 0.2
-        density: 80
-        rotation_speed: -2.5 # Quay ngược
-      - type: RAIN
-        particle: WATER_DROP
-        height: 20
-        density: 60
       - type: VORTEX
         particle: SQUID_INK
         radius: 10
         height: 15
-        density: 200
-        rotation_speed: 3.0
+      - type: CLIMATE
+        mode: "RAIN"
   effects:
     - type: "VORTEX"
       target: "DAMAGEABLE"
@@ -240,9 +310,9 @@ thuy-than-phan-no-tran:
       target: "DAMAGEABLE"
       visual_only: false
 
-# --- TRẬN PHÁP CHỦ ĐỀ "HỎA NGỤC" ---
-hoa-nguc-tran:
-  display_name: "<dark_red><bold>Hỏa Ngục Trận</bold></dark_red>"
+# 3. Theme: Fire & Destruction
+hellfire-formation:
+  display_name: "<dark_red><bold>Hellfire Formation</bold></dark_red>"
   activation_item: "BLAZE_ROD"
   duration: "10m"
   radius: 18
@@ -259,18 +329,10 @@ hoa-nguc-tran:
     shapes:
       - type: RING
         particle: FLAME
-        density: 100
-        y-offset: 0.2
       - type: PILLAR
         particle: LAVA
         count: 6
         height: 10
-        density: 30
-        rotation_speed: 1.5
-      - type: RAIN
-        particle: WHITE_ASH
-        height: 15
-        density: 20
   effects:
     - type: "DAMAGE"
       target: "DAMAGEABLE"
@@ -279,9 +341,9 @@ hoa-nguc-tran:
       target: "DAMAGEABLE"
       duration: "5s"
 
-# --- TRẬN PHÁP CHỦ ĐỀ "BÓNG TỐI" ---
-huyen-am-phong-an-tran:
-  display_name: "<dark_purple><bold>Huyền Âm Phong Ấn Trận</bold></dark_purple>"
+# 4. Theme: Darkness & Debuffs
+dark-seal-formation:
+  display_name: "<dark_purple><bold>Dark Seal Formation</bold></dark_purple>"
   activation_item: "WITHER_SKELETON_SKULL"
   duration: "5m"
   radius: 15
@@ -298,19 +360,10 @@ huyen-am-phong-an-tran:
     shapes:
       - type: DOME
         particle: SQUID_INK
-        density: 300
-        lines: 12
-        rotation_speed: -0.5
       - type: PILLAR
         particle: SOUL_FIRE_FLAME
         count: 8
         height: 8
-        density: 15
-      - type: SPHERE
-        particle: PORTAL
-        radius: 2.0
-        y-offset: 2.5
-        density: 150
   effects:
     - type: "ROOT"
       target: "DAMAGEABLE"
@@ -325,9 +378,9 @@ huyen-am-phong-an-tran:
       potion_effect: "WITHER"
       value: 0
 
-# --- TRẬN PHÁP CHỦ ĐỀ "SINH MỆNH" ---
-moc-linh-tran:
-  display_name: "<green><bold>Mộc Linh Trận</bold></green>"
+# 5. Theme: Nature & Life
+wood-spirit-formation:
+  display_name: "<green><bold>Wood Spirit Formation</bold></green>"
   activation_item: "GRASS_BLOCK"
   duration: "30m"
   radius: 22
@@ -342,34 +395,22 @@ moc-linh-tran:
       - " VLV "
   particles:
     shapes:
-      - type: RING
-        particle: HAPPY_VILLAGER
-        y-offset: 0.3
-        density: 60
-      - type: HELIX
-        particle: COMPOSTER
-        height: 12
-        strands: 4
-        revolutions: 2.5
-        rotation_speed: 0.5
-        density: 300
       - type: RAIN
         particle: SPORE_BLOSSOM_AIR
         height: 15
-        density: 15
   effects:
     - type: "GROWTH"
       value: 3.0
     - type: "BREED"
-      value: 100 # Cooldown 5 giây
+      value: 100 # 5-second cooldown
     - type: "POTION"
       target: "UNDAMAGEABLE"
       potion_effect: "SATURATION"
       value: 0
 
-# --- TRẬN PHÁP CHỦ ĐỀ "BĂNG GIÁ" ---
-bang-phach-tran:
-  display_name: "<aqua><bold>Băng Phách Trận</bold></aqua>"
+# 6. Theme: Ice & Slowing
+ice-soul-formation:
+  display_name: "<aqua><bold>Ice Soul Formation</bold></aqua>"
   activation_item: "BLUE_ICE"
   duration: "10m"
   radius: 18
@@ -384,32 +425,21 @@ bang-phach-tran:
       - " IPI "
   particles:
     shapes:
-      - type: RING
-        particle: SNOWFLAKE
-        y-offset: 0.2
-        density: 80
-      - type: PILLAR
-        particle: END_ROD
-        count: 8
-        height: 6
-        density: 20
-        rotation_speed: -1.0
       - type: DOME
         particle: SNOWFLAKE
-        density: 400
-        lines: 10
   effects:
     - type: "FREEZE"
     - type: "POTION"
       target: "DAMAGEABLE"
       potion_effect: "SLOW"
       value: 2
-    - type: "STASIS" # Làm chậm projectile
+    - type: "STASIS" # Slows projectiles
+      target: "DAMAGEABLE"
       value: 3
 
-# --- TRẬN PHÁP CHỦ ĐỀ "THỜI GIAN" ---
-thoi-khong-tran:
-  display_name: "<light_purple><bold>Thời Không Trận</bold></light_purple>"
+# 7. Theme: Time & Stasis
+time-space-formation:
+  display_name: "<light_purple><bold>Time-Space Formation</bold></light_purple>"
   activation_item: "CLOCK"
   duration: "1m"
   radius: 15
@@ -426,23 +456,414 @@ thoi-khong-tran:
     shapes:
       - type: RING
         particle: REVERSE_PORTAL
-        density: 50
         rotation_speed: 2.0
       - type: RING
         particle: PORTAL
         radius: 14
-        density: 50
         rotation_speed: -2.0
-      - type: SPHERE
-        particle: END_ROD
-        y-offset: 2
-        radius: 1
-        density: 50
   effects:
-    - type: "STASIS" # Làm chậm thực thể và projectile
+    - type: "STASIS" # Slows entities and projectiles
       target: "ALL"
       value: 5
+
+# 8. Theme: Earth Defense
+earthen-bulwark-formation:
+  display_name: "<saddle_brown><bold>Earthen Bulwark Formation</bold>"
+  activation_item: "EMERALD_BLOCK"
+  duration: "20m"
+  radius: 15
+  pattern:
+    key:
+      X: "EMERALD_BLOCK"
+      S: "STONE_BRICKS"
+      M: "MOSS_BLOCK"
+    shape:
+      - " SMS "
+      - "M X M"
+      - " SMS "
+  particles:
+    shapes:
+      - type: DOME
+        particle: SPORE_BLOSSOM_AIR
+        lines: 8
+  effects:
+    - type: "BARRIER"
+      target: "DAMAGEABLE"
+      value: 1.5
     - type: "POTION"
+      target: "UNDAMAGEABLE"
+      potion_effect: "RESISTANCE"
+      value: 0
+    - type: "REPEL"
+      target: "DAMAGEABLE"
+      value: 0.4
+
+# 9. Theme: Miner's Boon
+miner-fortune-formation:
+  display_name: "<gray><bold>Miner's Fortune Formation</bold>"
+  activation_item: "DIAMOND_PICKAXE"
+  duration: "30m"
+  radius: 12
+  pattern:
+    key:
+      X: "ANVIL"
+      I: "IRON_BLOCK"
+      D: "DIAMOND_BLOCK"
+    shape:
+      - " D D "
+      - "I X I"
+      - " D D "
+  particles:
+    shapes:
+      - type: RING
+        particle: CRIT
+      - type: SPHERE
+        particle: ENCHANTMENT_TABLE
+        y-offset: 1.5
+  effects:
+    - type: "POTION"
+      target: "OWNER"
+      potion_effect: "HASTE"
+      value: 1
+    - type: "REPAIR"
+      target: "OWNER"
+      value: 10
+    - type: "XP"
+      value: 25
+
+# 10. Theme: Demonic Curse
+demonic-ritual-formation:
+  display_name: "<dark_red><bold>Demonic Ritual Formation</bold>"
+  activation_item: "NETHERITE_SCRAP"
+  duration: "3m"
+  radius: 20
+  pattern:
+    key:
+      X: "LODESTONE"
+      B: "BLACKSTONE"
+      G: "GILDED_BLACKSTONE"
+    shape:
+      - " BGB "
+      - "G X G"
+      - " BGB "
+  particles:
+    shapes:
+      - type: HELIX
+        particle: SOUL_FIRE_FLAME
+        strands: 3
+        height: 10
+      - type: RING
+        particle: SMOKE_LARGE
+  effects:
+    - type: "POTION"
+      target: "DAMAGEABLE"
+      potion_effect: "WITHER"
+      value: 1
+    - type: "POTION"
+      target: "DAMAGEABLE"
+      potion_effect: "WEAKNESS"
+      value: 0
+    - type: "EXPLOSION"
+      target: "DAMAGEABLE"
+      value: 1.0
+
+# 11. Theme: Safe Zone / Sanctuary
+celestial-sanctuary-formation:
+  display_name: "<white><bold>Celestial Sanctuary Formation</bold>"
+  activation_item:
+    material: "NETHER_STAR"
+    name: "<white>Heart of Tranquility"
+  duration: "1h"
+  radius: 30
+  pattern:
+    key:
+      X: "DIAMOND_BLOCK"
+      G: "GLASS"
+      S: "SEA_LANTERN"
+    shape:
+      - "SGSGS"
+      - "G   G"
+      - "S X S"
+      - "G   G"
+      - "SGSGS"
+  particles:
+    shapes:
+      - type: DOME
+        particle: END_ROD
+        lines: 16
+  effects:
+    - type: "SANCTUARY" # Prevents natural monster spawning
+    - type: "HEAL"
+      target: "UNDAMAGEABLE"
+      value: 0.5
+    - type: "REPEL"
+      target: "MOBS"
+      value: 1.0
+
+# 12. Theme: Volcanic Forge
+volcanic-forge-formation:
+  display_name: "<gold><bold>Volcanic Forge Formation</bold>"
+  activation_item: "LAVA_BUCKET"
+  duration: "20m"
+  radius: 10
+  pattern:
+    key:
+      X: "BLAST_FURNACE"
+      O: "OBSIDIAN"
+      M: "MAGMA_BLOCK"
+    shape:
+      - " MOM "
+      - "O X O"
+      - " MOM "
+  particles:
+    shapes:
+      - type: PILLAR
+        particle: LAVA
+        count: 4
+        height: 5
+  effects:
+    - type: "SMELT"
+      value: 3.0
+    - type: "POTION"
+      target: "OWNER"
+      potion_effect: "FIRE_RESISTANCE"
+      value: 0
+    - type: "REPAIR"
+      target: "OWNER"
+      value: 2
+
+# 13. Theme: Bountiful Harvest
+bountiful-harvest-formation:
+  display_name: "<yellow><bold>Bountiful Harvest Formation</bold>"
+  activation_item: "HAY_BLOCK"
+  duration: "45m"
+  radius: 25
+  pattern:
+    key:
+      X: "COMPOSTER"
+      W: "WATER"
+      D: "DIRT"
+    shape:
+      - " DDD "
+      - "D W D"
+      - "D W X"
+      - "D W D"
+      - " DDD "
+  particles:
+    shapes:
+      - type: RING
+        particle: VILLAGER_HAPPY
+  effects:
+    - type: "GROWTH"
+      value: 5.0
+    - type: "HARVEST"
+      replant: true
+
+# 14. Theme: Withered Blight
+withered-blight-formation:
+  display_name: "<dark_gray><bold>Withered Blight Formation</bold>"
+  activation_item: "WITHER_ROSE"
+  duration: "5m"
+  radius: 20
+  pattern:
+    key:
+      X: "SOUL_SOIL"
+      S: "SOUL_SAND"
+      B: "BONE_BLOCK"
+    shape:
+      - " BSB "
+      - "S X S"
+      - " BSB "
+  particles:
+    shapes:
+      - type: RAIN
+        particle: WHITE_ASH
+        height: 10
+  effects:
+    - type: "POTION"
+      target: "DAMAGEABLE"
+      potion_effect: "WITHER"
+      value: 1
+    - type: "DEVOLVE"
+      value: 2
+
+# 15. Theme: Raging Tempest
+raging-tempest-formation:
+  display_name: "<aqua><bold>Raging Tempest Formation</bold>"
+  activation_item: "FEATHER"
+  duration: "10m"
+  radius: 30
+  pattern:
+    key:
+      X: "LIGHTNING_ROD"
+      I: "IRON_BARS"
+    shape:
+      - "  I  "
+      - " I I "
+      - "I X I"
+      - " I I "
+      - "  I  "
+  particles:
+    shapes:
+      - type: RING
+        particle: CLOUD
+        radius: 30
+        density: 200
+  effects:
+    - type: "CLIMATE"
+      mode: "THUNDER"
+    - type: "REPEL"
       target: "ALL"
-      potion_effect: "SLOW"
+      value: 0.5
+
+# 16. Theme: Abyssal Grasp
+abyssal-grasp-formation:
+  display_name: "<dark_purple><bold>Abyssal Grasp Formation</bold>"
+  activation_item: "HEART_OF_THE_SEA"
+  duration: "2m"
+  radius: 18
+  pattern:
+    key:
+      X: "SCULK_SHRIEKER"
+      V: "SCULK_VEIN"
+      C: "SCULK_CATALYST"
+    shape:
+      - " VCV "
+      - "C X C"
+      - " VCV "
+  particles:
+    shapes:
+      - type: VORTEX
+        particle: SQUID_INK
+        height: 10
+  effects:
+    - type: "VORTEX"
+      target: "DAMAGEABLE"
+      value: 0.7
+    - type: "ROOT"
+      target: "DAMAGEABLE"
+      duration: "3s"
+      value: 10
+
+# 17. Theme: Fae Playground
+fae-playground-formation:
+  display_name: "<light_purple><bold>Fae Playground</bold>"
+  activation_item: "POPPY"
+  duration: "10m"
+  radius: 20
+  pattern:
+    key:
+      X: "NOTE_BLOCK"
+      F: "PINK_WOOL"
+      L: "LIME_WOOL"
+    shape:
+      - "FLFLF"
+      - "L   L"
+      - "F X F"
+      - "L   L"
+      - "FLFLF"
+  particles:
+    shapes:
+      - type: RING
+        particle: HEART
+      - type: SPHERE
+        particle: NOTE
+        y-offset: 2
+  effects:
+    - type: "POTION"
+      target: "UNDAMAGEABLE"
+      potion_effect: "JUMP"
+      value: 1
+    - type: "POTION"
+      target: "UNDAMAGEABLE"
+      potion_effect: "SPEED"
+      value: 0
+    - type: "POTION"
+      target: "DAMAGEABLE"
+      potion_effect: "CONFUSION"
+      value: 0
+
+# 18. Theme: Dragon's Breath
+dragon-roar-formation:
+  display_name: "<red><bold>Dragon's Roar Formation</bold>"
+  activation_item: "DRAGON_HEAD"
+  duration: "5m"
+  radius: 25
+  pattern:
+    key:
+      X: "DRAGON_EGG"
+      O: "OBSIDIAN"
+      C: "COAL_BLOCK"
+    shape:
+      - " OCO "
+      - "C X C"
+      - " OCO "
+  particles:
+    shapes:
+      - type: RING
+        particle: DRAGON_BREATH
+  effects:
+    - type: "POTION"
+      target: "DAMAGEABLE"
+      potion_effect: "WEAKNESS"
+      value: 1
+    - type: "IGNITE"
+      target: "DAMAGEABLE"
+      duration: "8s"
+    - type: "EXPLOSION"
+      target: "DAMAGEABLE"
+      value: 0.5 # Small, frequent explosions
+
+# 19. Theme: Golden Bounty
+golden-bounty-formation:
+  display_name: "<gold><bold>Golden Bounty Formation</bold>"
+  activation_item: "GOLD_INGOT"
+  duration: "20m"
+  radius: 15
+  pattern:
+    key:
+      X: "GOLD_BLOCK"
+      E: "EMERALD_BLOCK"
+    shape:
+      - " E E "
+      - "E X E"
+      - " E E "
+  particles:
+    shapes:
+      - type: RING
+        particle: TOTEM
+  effects:
+    - type: "COLLECT"
+      value: 1.0
+    - type: "POTION"
+      target: "OWNER"
+      potion_effect: "LUCK"
+      value: 0
+
+# 20. Theme: Phantom Zone
+phantom-zone-formation:
+  display_name: "<blue><bold>Phantom Zone Formation</bold>"
+  activation_item: "PHANTOM_MEMBRANE"
+  duration: "3m"
+  radius: 22
+  pattern:
+    key:
+      X: "END_PORTAL_FRAME"
+      E: "END_STONE_BRICKS"
+    shape:
+      - " EEE "
+      - "E X E"
+      - " EEE "
+  particles:
+    shapes:
+      - type: DOME
+        particle: REVERSE_PORTAL
+        density: 400
+  effects:
+    - type: "STASIS"
+      target: "DAMAGEABLE"
       value: 4
+    - type: "POTION"
+      target: "DAMAGEABLE"
+      potion_effect: "BLINDNESS"
+      value: 0

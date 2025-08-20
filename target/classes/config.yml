@@ -1,17 +1,17 @@
-# Cài đặt chung cho plugin TuTienTranPhap
+# General settings for the TuTienTranPhap plugin
 
-# PHIÊN BẢN CẤU HÌNH (KHÔNG THAY ĐỔI)
+# CONFIGURATION VERSION (DO NOT CHANGE)
 config-version: '1.0.0'
 
-# Ngôn ngữ mặc định của plugin. Hỗ trợ: 'en' (English), 'vi' (Tiếng Việt)
+# Default language of the plugin. Supported: 'en' (English), 'vi' (Vietnamese)
 language: 'en'
 
-# Bật/Tắt các tin nhắn debug trong console (ví dụ: "Loaded formation...")
-# Mặc định: true
+# Enable/Disable debug messages in the console (e.g., "Loaded formation...")
+# Default: true
 debug-logging: true
 
-# Tần suất áp dụng hiệu ứng cho người chơi và quái vật trong trận pháp.
-# Đơn vị: tick (20 ticks = 1 giây)
-# Giá trị càng thấp, hiệu ứng càng mượt nhưng càng tốn tài nguyên.
-# Mặc định: 20 (áp dụng hiệu ứng mỗi giây)
+# How often to apply effects to players and mobs in the formation.
+# Unit: ticks (20 ticks = 1 second)
+# A lower value makes the effects smoother but uses more resources.
+# Default: 20 (apply effects every second)
 effect-check-interval-ticks: 20
