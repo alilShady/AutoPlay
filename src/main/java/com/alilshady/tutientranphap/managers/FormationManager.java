@@ -69,8 +69,10 @@ public class FormationManager {
         return formationsById.keySet();
     }
 
-    public boolean buildFormation(Formation formation, Location startLocation, Player player) {
-        List<String> shape = formation.getShape();
+    public boolean buildFormation(Formation formation, Location startLocation, Player player, int rotation) {
+        // Lấy hình dạng đã xoay
+        List<String> shape = rotateShape(formation.getShape(), rotation);
+
         if (shape.isEmpty() || shape.get(0).isEmpty()) return false;
 
         int patternHeight = shape.size();
@@ -87,7 +89,6 @@ public class FormationManager {
                 char blockChar = row.charAt(x);
                 if (blockChar == ' ') continue;
 
-                // Kiểm tra không gian
                 Block relativeBlock = startLocation.getBlock().getRelative(x - centerXOffset, 0, z - centerZOffset);
                 if (!REPLACEABLE_BLOCKS.contains(relativeBlock.getType())) {
                     if (plugin.getConfigManager().isDebugLoggingEnabled()) {
@@ -97,7 +98,6 @@ public class FormationManager {
                     return false;
                 }
 
-                // Đếm nguyên liệu
                 Material material = formation.getPatternKey().get(blockChar);
                 if (material != null) {
                     requiredMaterials.put(material, requiredMaterials.getOrDefault(material, 0) + 1);
@@ -109,7 +109,6 @@ public class FormationManager {
         if (plugin.getConfigManager().isBlueprintRequiresMaterials()) {
             Map<Material, Integer> missingMaterials = new HashMap<>();
 
-            // Kiểm tra xem người chơi có đủ nguyên liệu không
             for (Map.Entry<Material, Integer> entry : requiredMaterials.entrySet()) {
                 if (!player.getInventory().containsAtLeast(new ItemStack(entry.getKey()), entry.getValue())) {
                     int amountInInventory = 0;
@@ -122,7 +121,6 @@ public class FormationManager {
                 }
             }
 
-            // Nếu thiếu, gửi tin nhắn và hủy xây dựng
             if (!missingMaterials.isEmpty()) {
                 String missingMaterialsString = missingMaterials.entrySet().stream()
                         .map(entry -> entry.getValue() + "x " + entry.getKey().name().replace("_", " ").toLowerCase())
@@ -131,7 +129,6 @@ public class FormationManager {
                 return false;
             }
 
-            // Nếu đủ, trừ vật phẩm
             for (Map.Entry<Material, Integer> entry : requiredMaterials.entrySet()) {
                 player.getInventory().removeItem(new ItemStack(entry.getKey(), entry.getValue()));
             }
@@ -153,6 +150,39 @@ public class FormationManager {
 
         player.sendMessage(plugin.getConfigManager().getMessage("formation.blueprint.build-success", "%formation_name%", formation.getDisplayName()));
         return true;
+    }
+
+    /**
+     * Xoay cấu trúc của trận pháp theo góc 90, 180, 270 độ.
+     * @param shape Cấu trúc gốc.
+     * @param degrees Góc xoay (phải là bội số của 90).
+     * @return Cấu trúc mới đã được xoay.
+     */
+    public static List<String> rotateShape(List<String> shape, int degrees) {
+        if (shape.isEmpty() || degrees % 90 != 0) return shape;
+
+        int rotations = (degrees / 90) % 4;
+        if (rotations == 0) return shape;
+
+        List<String> currentShape = new ArrayList<>(shape);
+        for (int r = 0; r < rotations; r++) {
+            int height = currentShape.size();
+            int width = currentShape.get(0).length();
+            char[][] newGrid = new char[width][height];
+
+            for (int i = 0; i < height; i++) {
+                for (int j = 0; j < width; j++) {
+                    newGrid[j][height - 1 - i] = currentShape.get(i).charAt(j);
+                }
+            }
+
+            List<String> rotated = new ArrayList<>();
+            for (int i = 0; i < width; i++) {
+                rotated.add(new String(newGrid[i]));
+            }
+            currentShape = rotated;
+        }
+        return currentShape;
     }
 
     public void attemptToActivate(Player player, Block centerBlock, ItemStack activationItemInHand) {

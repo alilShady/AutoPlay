@@ -27,6 +27,7 @@ formation:
     build-success: "<green>Đã xây dựng thành công <yellow>%formation_name%</yellow>!</green>"
     build-fail-space: "<red>Không đủ không gian để xây dựng trận pháp tại đây.</red>"
     build-fail-materials: "<red>Bạn không có đủ nguyên liệu! Còn thiếu: %materials%</red>"
+    rotated: "<gray>Đã xoay trận đồ: <white>%degrees% độ</white>"
 
 team-integration:
   betterteams-detected: "Phát hiện BetterTeams! Đang tích hợp hệ thống team."

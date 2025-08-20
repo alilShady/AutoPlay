@@ -6,7 +6,7 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.block.Block;
-import org.bukkit.block.data.BlockData; // <-- SỬA LỖI: Thêm import chính xác
+import org.bukkit.block.data.BlockData;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -16,6 +16,7 @@ import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -24,9 +25,8 @@ public class PreviewManager {
     private final EssenceArrays plugin;
     private final NamespacedKey formationIdKey;
     private BukkitTask previewTask;
-
-    // SỬA LỖI: Thay đổi "Block.BlockData" thành "BlockData"
     private final Map<UUID, Map<Location, BlockData>> playerPreviews = new HashMap<>();
+    private final Map<UUID, Integer> playerRotations = new HashMap<>(); // <-- BIẾN MỚI
 
     public PreviewManager(EssenceArrays plugin) {
         this.plugin = plugin;
@@ -56,6 +56,22 @@ public class PreviewManager {
             clearPreview(player);
         }
         playerPreviews.clear();
+        playerRotations.clear(); // <-- Dọn dẹp
+    }
+
+    // --- HÀM MỚI ---
+    public int getRotation(Player player) {
+        return playerRotations.getOrDefault(player.getUniqueId(), 0);
+    }
+
+    // --- HÀM MỚI ---
+    public void rotatePreview(Player player) {
+        int currentRotation = getRotation(player);
+        int nextRotation = (currentRotation + 90) % 360;
+        playerRotations.put(player.getUniqueId(), nextRotation);
+        player.sendMessage(plugin.getConfigManager().getMessage("formation.blueprint.rotated", "%degrees%", String.valueOf(nextRotation)));
+        // Cập nhật lại preview ngay lập tức
+        updatePreviewForPlayer(player);
     }
 
     private void updatePreviewForPlayer(Player player) {
@@ -63,7 +79,7 @@ public class PreviewManager {
 
         if (itemInHand.getType() == Material.PAPER && itemInHand.hasItemMeta()) {
             ItemMeta meta = itemInHand.getItemMeta();
-            if (meta != null) { // Thêm kiểm tra null an toàn
+            if (meta != null) {
                 PersistentDataContainer container = meta.getPersistentDataContainer();
                 if (container.has(formationIdKey, PersistentDataType.STRING)) {
                     String formationId = container.get(formationIdKey, PersistentDataType.STRING);
@@ -83,17 +99,19 @@ public class PreviewManager {
     public void showPreview(Player player, Formation formation, Location center) {
         clearPreview(player);
 
-        // SỬA LỖI: Thay đổi "Block.BlockData" thành "BlockData"
         Map<Location, BlockData> currentPreview = new HashMap<>();
         playerPreviews.put(player.getUniqueId(), currentPreview);
 
-        int patternHeight = formation.getShape().size();
-        int patternWidth = formation.getShape().get(0).length();
+        // Lấy hình dạng đã xoay
+        List<String> rotatedShape = FormationManager.rotateShape(formation.getShape(), getRotation(player));
+
+        int patternHeight = rotatedShape.size();
+        int patternWidth = rotatedShape.get(0).length();
         int centerXOffset = patternWidth / 2;
         int centerZOffset = patternHeight / 2;
 
         for (int z = 0; z < patternHeight; z++) {
-            String row = formation.getShape().get(z);
+            String row = rotatedShape.get(z);
             for (int x = 0; x < patternWidth; x++) {
                 char blockChar = row.charAt(x);
                 if (blockChar == ' ') continue;
@@ -102,11 +120,9 @@ public class PreviewManager {
                 if (material != null) {
                     Block relativeBlock = center.getBlock().getRelative(x - centerXOffset, 0, z - centerZOffset);
 
-                    // SỬA LỖI: Dùng đúng phương thức getBlockData()
                     currentPreview.put(relativeBlock.getLocation(), relativeBlock.getBlockData());
 
                     boolean canBuild = FormationManager.REPLACEABLE_BLOCKS.contains(relativeBlock.getType());
-
                     Material previewMaterial = canBuild ? Material.GREEN_STAINED_GLASS : Material.RED_STAINED_GLASS;
                     player.sendBlockChange(relativeBlock.getLocation(), previewMaterial.createBlockData());
                 }
@@ -115,13 +131,12 @@ public class PreviewManager {
     }
 
     public void clearPreview(Player player) {
-        // SỬA LỖI: Thay đổi "Block.BlockData" thành "BlockData"
         Map<Location, BlockData> preview = playerPreviews.remove(player.getUniqueId());
         if (preview != null) {
-            // SỬA LỖI: Thay đổi "Block.BlockData" thành "BlockData"
             for (Map.Entry<Location, BlockData> entry : preview.entrySet()) {
                 player.sendBlockChange(entry.getKey(), entry.getValue());
             }
         }
+        // Không xóa rotation ở đây, để người chơi giữ hướng xoay
     }
 }
