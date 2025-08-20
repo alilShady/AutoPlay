@@ -13,6 +13,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataType;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class FormationManager {
     private final EssenceArrays plugin;
@@ -22,7 +23,6 @@ public class FormationManager {
     private final Map<Location, Formation> activeFormations = new HashMap<>();
     private final Map<Location, UUID> formationOwners = new HashMap<>();
 
-    // Danh sách các khối có thể bị thay thế khi xây dựng trận đồ
     public static final Set<Material> REPLACEABLE_BLOCKS = new HashSet<>(Arrays.asList(
             Material.AIR, Material.GRASS, Material.TALL_GRASS, Material.FERN,
             Material.LARGE_FERN, Material.DEAD_BUSH, Material.VINE, Material.POPPY,
@@ -78,26 +78,66 @@ public class FormationManager {
         int centerXOffset = patternWidth / 2;
         int centerZOffset = patternHeight / 2;
 
-        // Vòng lặp đầu tiên: Kiểm tra không gian trước khi xây
+        Map<Material, Integer> requiredMaterials = new HashMap<>();
+
+        // Vòng lặp 1: Kiểm tra không gian VÀ đếm nguyên liệu
         for (int z = 0; z < patternHeight; z++) {
             String row = shape.get(z);
             for (int x = 0; x < patternWidth; x++) {
                 char blockChar = row.charAt(x);
                 if (blockChar == ' ') continue;
 
+                // Kiểm tra không gian
                 Block relativeBlock = startLocation.getBlock().getRelative(x - centerXOffset, 0, z - centerZOffset);
-
                 if (!REPLACEABLE_BLOCKS.contains(relativeBlock.getType())) {
                     if (plugin.getConfigManager().isDebugLoggingEnabled()) {
                         plugin.getLogger().warning("[DEBUG][BUILD] Build failed. Block " + relativeBlock.getType() + " at " + relativeBlock.getLocation() + " is not replaceable.");
                     }
                     player.sendMessage(plugin.getConfigManager().getMessage("formation.blueprint.build-fail-space"));
-                    return false; // Trả về false, ngăn việc trừ vật phẩm
+                    return false;
+                }
+
+                // Đếm nguyên liệu
+                Material material = formation.getPatternKey().get(blockChar);
+                if (material != null) {
+                    requiredMaterials.put(material, requiredMaterials.getOrDefault(material, 0) + 1);
                 }
             }
         }
 
-        // Vòng lặp thứ hai: Thực hiện xây dựng sau khi đã kiểm tra
+        // Vòng lặp 2: Kiểm tra và trừ nguyên liệu nếu được bật trong config
+        if (plugin.getConfigManager().isBlueprintRequiresMaterials()) {
+            Map<Material, Integer> missingMaterials = new HashMap<>();
+
+            // Kiểm tra xem người chơi có đủ nguyên liệu không
+            for (Map.Entry<Material, Integer> entry : requiredMaterials.entrySet()) {
+                if (!player.getInventory().containsAtLeast(new ItemStack(entry.getKey()), entry.getValue())) {
+                    int amountInInventory = 0;
+                    for (ItemStack item : player.getInventory().getContents()) {
+                        if (item != null && item.getType() == entry.getKey()) {
+                            amountInInventory += item.getAmount();
+                        }
+                    }
+                    missingMaterials.put(entry.getKey(), entry.getValue() - amountInInventory);
+                }
+            }
+
+            // Nếu thiếu, gửi tin nhắn và hủy xây dựng
+            if (!missingMaterials.isEmpty()) {
+                String missingMaterialsString = missingMaterials.entrySet().stream()
+                        .map(entry -> entry.getValue() + "x " + entry.getKey().name().replace("_", " ").toLowerCase())
+                        .collect(Collectors.joining(", "));
+                player.sendMessage(plugin.getConfigManager().getMessage("formation.blueprint.build-fail-materials", "%materials%", missingMaterialsString));
+                return false;
+            }
+
+            // Nếu đủ, trừ vật phẩm
+            for (Map.Entry<Material, Integer> entry : requiredMaterials.entrySet()) {
+                player.getInventory().removeItem(new ItemStack(entry.getKey(), entry.getValue()));
+            }
+        }
+
+        // Vòng lặp 3: Thực hiện xây dựng
         for (int z = 0; z < patternHeight; z++) {
             String row = shape.get(z);
             for (int x = 0; x < patternWidth; x++) {
@@ -111,9 +151,8 @@ public class FormationManager {
             }
         }
 
-        // Gửi tin nhắn thành công. `formation.getDisplayName()` lúc này là chuỗi MiniMessage gốc.
         player.sendMessage(plugin.getConfigManager().getMessage("formation.blueprint.build-success", "%formation_name%", formation.getDisplayName()));
-        return true; // Trả về true để xác nhận xây dựng thành công
+        return true;
     }
 
     public void attemptToActivate(Player player, Block centerBlock, ItemStack activationItemInHand) {

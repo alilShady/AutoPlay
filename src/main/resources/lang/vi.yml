@@ -26,6 +26,7 @@ formation:
   blueprint:
     build-success: "<green>Đã xây dựng thành công <yellow>%formation_name%</yellow>!</green>"
     build-fail-space: "<red>Không đủ không gian để xây dựng trận pháp tại đây.</red>"
+    build-fail-materials: "<red>Bạn không có đủ nguyên liệu! Còn thiếu: %materials%</red>"
 
 team-integration:
   betterteams-detected: "Phát hiện BetterTeams! Đang tích hợp hệ thống team."

@@ -30,13 +30,14 @@ public class ConfigManager {
     private FileConfiguration formationConfig;
     private FileConfiguration mainConfig;
     private FileConfiguration messagesConfig;
-    private FileConfiguration customEffectsConfig; // <-- THÊM BIẾN MỚI
+    private FileConfiguration customEffectsConfig;
 
     private boolean debugLogging;
     private int effectCheckInterval;
+    private boolean blueprintRequiresMaterials; // <-- BIẾN MỚI
 
     private final MiniMessage miniMessage = MiniMessage.miniMessage();
-    private final Map<String, Map<String, Object>> customEffects = new HashMap<>(); // <-- THÊM BIẾN MỚI
+    private final Map<String, Map<String, Object>> customEffects = new HashMap<>();
 
     public ConfigManager(EssenceArrays plugin) {
         this.plugin = plugin;
@@ -49,6 +50,7 @@ public class ConfigManager {
         mainConfig = plugin.getConfig();
         debugLogging = mainConfig.getBoolean("debug-logging", true);
         effectCheckInterval = mainConfig.getInt("effect-check-interval-ticks", 20);
+        blueprintRequiresMaterials = mainConfig.getBoolean("blueprint.require-materials", true); // <-- DÒNG MỚI
 
         File formationFile = new File(plugin.getDataFolder(), "formations.yml");
         if (!formationFile.exists()) {
@@ -56,7 +58,6 @@ public class ConfigManager {
         }
         formationConfig = YamlConfiguration.loadConfiguration(formationFile);
 
-        // --- Tải file ngôn ngữ ---
         String lang = mainConfig.getString("language", "en").toLowerCase();
         String langFileName = lang + ".yml";
         File langDir = new File(plugin.getDataFolder(), "lang");
@@ -79,7 +80,6 @@ public class ConfigManager {
             messagesConfig.setDefaults(defMessages);
         }
 
-        // --- THÊM LOGIC TẢI custom_effects.yml ---
         File customEffectsFile = new File(plugin.getDataFolder(), "custom_effects.yml");
         if (!customEffectsFile.exists()) {
             plugin.saveResource("custom_effects.yml", false);
@@ -88,7 +88,6 @@ public class ConfigManager {
         loadCustomEffects();
     }
 
-    // --- THÊM HÀM MỚI ---
     private void loadCustomEffects() {
         customEffects.clear();
         if (customEffectsConfig == null) return;
@@ -105,7 +104,6 @@ public class ConfigManager {
         }
     }
 
-    // --- THÊM HÀM MỚI ---
     public Map<String, Object> getCustomEffect(String id) {
         return customEffects.get(id);
     }
@@ -201,6 +199,11 @@ public class ConfigManager {
 
     public boolean isDebugLoggingEnabled() {
         return debugLogging;
+    }
+
+    // --- HÀM GETTER MỚI ---
+    public boolean isBlueprintRequiresMaterials() {
+        return blueprintRequiresMaterials;
     }
 
     public int getEffectCheckInterval() {

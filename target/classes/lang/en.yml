@@ -26,6 +26,7 @@ formation:
   blueprint:
     build-success: "<green>Successfully built <yellow>%formation_name%</yellow>!</green>"
     build-fail-space: "<red>Not enough space to build the formation here.</red>"
+    build-fail-materials: "<red>You don't have enough materials! Missing: %materials%</red>"
 
 team-integration:
   betterteams-detected: "Detected BetterTeams! Integrating team system."

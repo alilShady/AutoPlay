@@ -15,3 +15,9 @@ debug-logging: true
 # A lower value makes the effects smoother but uses more resources.
 # Default: 20 (apply effects every second)
 effect-check-interval-ticks: 20
+
+blueprint:
+  # If true, players will need the required blocks in their inventory to build a formation.
+  # The blueprint item itself will still be consumed.
+  # Default: true
+  require-materials: true
