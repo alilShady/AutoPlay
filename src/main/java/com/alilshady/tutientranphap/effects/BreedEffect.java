@@ -1,3 +1,4 @@
+// src/main/java/com/alilshady/tutientranphap/effects/BreedEffect.java
 package com.alilshady.tutientranphap.effects;
 
 import com.alilshady.tutientranphap.EssenceArrays;
@@ -11,7 +12,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID; // Thêm import
+import java.util.UUID;
 
 public class BreedEffect implements FormationEffect {
 
@@ -22,7 +23,6 @@ public class BreedEffect implements FormationEffect {
         return "BREED";
     }
 
-    // SỬA Ở ĐÂY: Thêm UUID ownerId
     @Override
     public void apply(EssenceArrays plugin, Formation formation, Location center, Map<?, ?> config, Collection<LivingEntity> nearbyEntities, List<Block> nearbyBlocks, UUID ownerId) {
         if (nearbyEntities == null) return;
@@ -45,5 +45,13 @@ public class BreedEffect implements FormationEffect {
                 }
             }
         }
+    }
+
+    /**
+     * Dọn dẹp cooldown của trận pháp đã bị hủy khỏi map.
+     */
+    @Override
+    public void clearState(Location center) {
+        cooldowns.remove(center);
     }
 }

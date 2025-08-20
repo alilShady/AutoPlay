@@ -10,7 +10,7 @@ import org.bukkit.entity.LivingEntity;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID; // Thêm import này
+import java.util.UUID;
 
 public interface FormationEffect {
 
@@ -31,4 +31,12 @@ public interface FormationEffect {
      * @param ownerId        UUID của người chơi đã kích hoạt trận pháp (có thể là null).
      */
     void apply(EssenceArrays plugin, Formation formation, Location center, Map<?, ?> config, Collection<LivingEntity> nearbyEntities, List<Block> nearbyBlocks, UUID ownerId);
+
+    /**
+     * Được gọi khi một trận pháp bị dừng để dọn dẹp trạng thái nội bộ của hiệu ứng.
+     * @param center Vị trí trung tâm của trận pháp đã dừng.
+     */
+    default void clearState(Location center) {
+        // Mặc định không làm gì cả. Chỉ các effect có trạng thái mới cần override.
+    }
 }

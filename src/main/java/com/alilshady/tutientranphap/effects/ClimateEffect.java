@@ -20,7 +20,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
-import java.util.UUID; // Thêm import
+import java.util.UUID;
 
 public class ClimateEffect implements FormationEffect {
 
@@ -33,7 +33,6 @@ public class ClimateEffect implements FormationEffect {
         return "CLIMATE";
     }
 
-    // SỬA Ở ĐÂY: Thêm UUID ownerId
     @Override
     public void apply(EssenceArrays plugin, Formation formation, Location center, Map<?, ?> config, Collection<LivingEntity> nearbyEntities, List<Block> nearbyBlocks, UUID ownerId) {
         if (nearbyEntities != null) {
@@ -47,30 +46,31 @@ public class ClimateEffect implements FormationEffect {
     private void applyVisualEffects(Collection<LivingEntity> nearbyEntities, Map<?, ?> config) {
         String mode = EffectUtils.getStringFromConfig(config, "mode", "RAIN").toUpperCase();
 
-        for (LivingEntity entity : nearbyEntities) {
-            if (entity instanceof Player) {
-                Player player = (Player) entity;
-                switch (mode) {
-                    case "RAIN":
-                        spawnParticlesAroundPlayer(player, Particle.WATER_DROP, VISUAL_DENSITY, 15);
-                        break;
-                    case "SNOW":
-                        spawnParticlesAroundPlayer(player, Particle.SNOWFLAKE, VISUAL_DENSITY, 15);
-                        break;
-                    case "ACID_RAIN":
-                        spawnParticlesAroundPlayer(player, Particle.DRIPPING_OBSIDIAN_TEAR, VISUAL_DENSITY, 15);
-                        break;
-                    case "DROUGHT":
-                        spawnParticlesAroundPlayer(player, Particle.WHITE_ASH, 10, 15);
-                        break;
-                    case "THUNDER":
-                        spawnParticlesAroundPlayer(player, Particle.WATER_DROP, VISUAL_DENSITY, 15);
-                        if (random.nextDouble() < 0.01) strikeLightningEffectNearPlayer(player);
-                        if (random.nextDouble() < 0.02) applyWindGust(nearbyEntities);
-                        break;
-                }
-            }
-        }
+        // TỐI ƯU: Sử dụng stream để lọc và chỉ xử lý các thực thể là Player
+        nearbyEntities.stream()
+                .filter(entity -> entity instanceof Player) // Chỉ giữ lại các thực thể là Player
+                .map(entity -> (Player) entity)             // Chuyển đổi (cast) stream thành Stream<Player>
+                .forEach(player -> {                        // Lặp qua từng Player đã được lọc
+                    switch (mode) {
+                        case "RAIN":
+                            spawnParticlesAroundPlayer(player, Particle.WATER_DROP, VISUAL_DENSITY, 15);
+                            break;
+                        case "SNOW":
+                            spawnParticlesAroundPlayer(player, Particle.SNOWFLAKE, VISUAL_DENSITY, 15);
+                            break;
+                        case "ACID_RAIN":
+                            spawnParticlesAroundPlayer(player, Particle.DRIPPING_OBSIDIAN_TEAR, VISUAL_DENSITY, 15);
+                            break;
+                        case "DROUGHT":
+                            spawnParticlesAroundPlayer(player, Particle.WHITE_ASH, 10, 15);
+                            break;
+                        case "THUNDER":
+                            spawnParticlesAroundPlayer(player, Particle.WATER_DROP, VISUAL_DENSITY, 15);
+                            if (random.nextDouble() < 0.01) strikeLightningEffectNearPlayer(player);
+                            if (random.nextDouble() < 0.02) applyWindGust(nearbyEntities);
+                            break;
+                    }
+                });
     }
 
     private void applyPhysicalEffects(Collection<LivingEntity> nearbyEntities, List<Block> nearbyBlocks, Map<?, ?> config) {

@@ -1,3 +1,4 @@
+// src/main/java/com/alilshady/tutientranphap/managers/EffectHandler.java
 package com.alilshady.tutientranphap.managers;
 
 import com.alilshady.tutientranphap.EssenceArrays;
@@ -146,6 +147,12 @@ public class EffectHandler {
         if (task != null && !task.isCancelled()) {
             task.cancel();
         }
+
+        // Lặp qua tất cả các loại effect đã đăng ký và gọi hàm dọn dẹp của chúng.
+        for (FormationEffect effect : effectStrategies.values()) {
+            effect.clearState(center);
+        }
+
         affectedEntitiesByFormation.remove(center);
         animationTickMap.remove(center);
         plugin.getFormationManager().deactivateFormation(center);
@@ -269,7 +276,6 @@ public class EffectHandler {
 
         List<?> definitions = (List<?>) definitionsObject;
         int steps = EffectUtils.getIntFromConfig(config, "steps", 100);
-        // Loại bỏ logic đọc y-offset toàn cục. Vị trí cơ bản giờ chỉ cách khối trung tâm 0.1 block theo trục Y.
         Location baseCenter = center.clone().add(0, 0.1, 0);
 
         for (Object defObj : definitions) {
