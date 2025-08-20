@@ -1,6 +1,6 @@
 package com.alilshady.tutientranphap.effects;
 
-import com.alilshady.tutientranphap.TuTienTranPhap;
+import com.alilshady.tutientranphap.EssenceArrays;
 import com.alilshady.tutientranphap.object.Formation;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
@@ -21,7 +21,7 @@ public class FurnaceBoostEffect implements FormationEffect {
 
     // SỬA Ở ĐÂY: Thêm UUID ownerId
     @Override
-    public void apply(TuTienTranPhap plugin, Formation formation, Location center, Map<?, ?> config, Collection<LivingEntity> nearbyEntities, List<Block> nearbyBlocks, UUID ownerId) {
+    public void apply(EssenceArrays plugin, Formation formation, Location center, Map<?, ?> config, Collection<LivingEntity> nearbyEntities, List<Block> nearbyBlocks, UUID ownerId) {
         if (nearbyBlocks == null) return;
 
         float multiplier = (float) EffectUtils.getDoubleFromConfig(config, "value", 2.0);

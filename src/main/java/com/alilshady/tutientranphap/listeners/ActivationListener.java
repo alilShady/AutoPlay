@@ -1,6 +1,6 @@
 package com.alilshady.tutientranphap.listeners;
 
-import com.alilshady.tutientranphap.TuTienTranPhap;
+import com.alilshady.tutientranphap.EssenceArrays;
 import org.bukkit.Material;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -11,9 +11,9 @@ import org.bukkit.inventory.ItemStack;
 
 public class ActivationListener implements Listener {
 
-    private final TuTienTranPhap plugin;
+    private final EssenceArrays plugin;
 
-    public ActivationListener(TuTienTranPhap plugin) {
+    public ActivationListener(EssenceArrays plugin) {
         this.plugin = plugin;
     }
 

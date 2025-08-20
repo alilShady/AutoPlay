@@ -1,0 +1,34 @@
+config-version: '1.0.0'
+prefix: "<gray>[<yellow>EA</yellow>]<gray> "
+
+commands:
+  reload:
+    success: "<green>Plugin reloaded successfully!</green>"
+    no-permission: "<red>You do not have permission to use this command.</red>"
+  give:
+    success: "<green>Gave <white>%amount% x <yellow>%item_name% </yellow>to player <white>%player%</white>.</green>"
+    player-not-found: "<red>Player <white>%player%</white> not found.</red>"
+    formation-not-found: "<red>Formation with ID: <white>%id%</white> not found.</red>"
+    usage: "<yellow>Usage: <white>/%command% give <player_name> <formation_id> [amount]</white>"
+    invalid-amount: "<red>Invalid amount.</red>"
+  giveitem:
+    usage: "<yellow>Usage: <white>/%command% giveitem <player_name> <formation_id> [amount]</white>"
+  test:
+    player-only: "<red>This command can only be used by players.</red>"
+    usage: "<yellow>Usage: <white>/%command% test <formation_id></white>"
+    success: "<green>Test formation activated: %formation_name%</green>"
+  usage: "<yellow>Usage: <white>/%command% [reload|give|giveitem|test]</white>"
+
+formation:
+  activate:
+    success: "<green>%formation_name%<green> has been activated!</green>"
+    already-active: "<red>A formation is already active at this location.</red>"
+  blueprint:
+    build-success: "<green>Successfully built <yellow>%formation_name%</yellow>!</green>"
+    build-fail-space: "<red>Not enough space to build the formation here.</red>"
+
+team-integration:
+  betterteams-detected: "Detected BetterTeams! Integrating team system."
+  simpleclans-detected: "Detected SimpleClans! Integrating team system."
+  mcmmo-detected: "Detected mcMMO! Integrating party system."
+  vanilla-scoreboard: "No team plugin detected, using default Scoreboard teams."

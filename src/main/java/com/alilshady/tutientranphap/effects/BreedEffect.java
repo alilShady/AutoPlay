@@ -1,6 +1,6 @@
 package com.alilshady.tutientranphap.effects;
 
-import com.alilshady.tutientranphap.TuTienTranPhap;
+import com.alilshady.tutientranphap.EssenceArrays;
 import com.alilshady.tutientranphap.object.Formation;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
@@ -24,7 +24,7 @@ public class BreedEffect implements FormationEffect {
 
     // SỬA Ở ĐÂY: Thêm UUID ownerId
     @Override
-    public void apply(TuTienTranPhap plugin, Formation formation, Location center, Map<?, ?> config, Collection<LivingEntity> nearbyEntities, List<Block> nearbyBlocks, UUID ownerId) {
+    public void apply(EssenceArrays plugin, Formation formation, Location center, Map<?, ?> config, Collection<LivingEntity> nearbyEntities, List<Block> nearbyBlocks, UUID ownerId) {
         if (nearbyEntities == null) return;
 
         long cooldownTicks = EffectUtils.getIntFromConfig(config, "value", 200);

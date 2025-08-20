@@ -1,6 +1,6 @@
 package com.alilshady.tutientranphap.listeners;
 
-import com.alilshady.tutientranphap.TuTienTranPhap;
+import com.alilshady.tutientranphap.EssenceArrays;
 import com.alilshady.tutientranphap.object.Formation;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -19,10 +19,10 @@ import java.util.Objects;
 
 public class BlueprintListener implements Listener {
 
-    private final TuTienTranPhap plugin;
+    private final EssenceArrays plugin;
     private final NamespacedKey formationIdKey;
 
-    public BlueprintListener(TuTienTranPhap plugin) {
+    public BlueprintListener(EssenceArrays plugin) {
         this.plugin = plugin;
         this.formationIdKey = new NamespacedKey(plugin, "formation_id");
     }

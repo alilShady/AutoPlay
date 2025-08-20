@@ -1,6 +1,6 @@
 package com.alilshady.tutientranphap.effects;
 
-import com.alilshady.tutientranphap.TuTienTranPhap;
+import com.alilshady.tutientranphap.EssenceArrays;
 import com.alilshady.tutientranphap.object.Formation;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -25,12 +25,12 @@ public class BarrierEffect implements FormationEffect {
     }
 
     @Override
-    public void apply(TuTienTranPhap plugin, Formation formation, Location center, Map<?, ?> config, Collection<LivingEntity> nearbyEntities, List<Block> nearbyBlocks, UUID ownerId) {
+    public void apply(EssenceArrays plugin, Formation formation, Location center, Map<?, ?> config, Collection<LivingEntity> nearbyEntities, List<Block> nearbyBlocks, UUID ownerId) {
         // Logic được gọi mỗi tick trong applyBarrierPush, không cần code ở đây
     }
 
-    // SỬA Ở ĐÂY: Thêm TuTienTranPhap plugin vào tham số
-    public void applyBarrierPush(TuTienTranPhap plugin, Formation formation, Location center, Map<?, ?> config, Collection<LivingEntity> nearbyEntities, UUID ownerId) {
+    // SỬA Ở ĐÂY: Thêm EssenceArrays plugin vào tham số
+    public void applyBarrierPush(EssenceArrays plugin, Formation formation, Location center, Map<?, ?> config, Collection<LivingEntity> nearbyEntities, UUID ownerId) {
         if (nearbyEntities == null) return;
 
         double radius = formation.getRadius();

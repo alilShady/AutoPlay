@@ -1,22 +1,22 @@
 # src/main/resources/plugin.yml
-name: TuTienTranPhap
+name: EssenceArrays
 version: 1.0.0
-main: com.alilshady.tutientranphap.TuTienTranPhap
+main: com.alilshady.tutientranphap.EssenceArrays
 api-version: 1.20
 author: AlilShady
-description: Một hệ thống Trận Pháp (Tu tiên) có khả năng tùy chỉnh cao.
+description: A highly customizable Cultivation Formation system.
 commands:
-  tutientranphap:
-    description: Lệnh chính của plugin TuTienTranPhap.
+  essencearrays:
+    description: Main command for the EssenceArrays plugin.
     usage: /<command> [reload|give|test]
-    aliases: [tranphap, tttp]
+    aliases: [ess]
 permissions:
-  tutientranphap.reload:
-    description: Cho phép người dùng tải lại cấu hình của plugin.
+  essencearrays.reload:
+    description: Allows the user to reload the plugin's configuration.
     default: op
-  tutientranphap.give:
-    description: Cho phép người dùng lấy Trận Đồ.
+  essencearrays.give:
+    description: Allows the user to get a Formation Blueprint.
     default: op
-  tutientranphap.test:
-    description: Cho phép người dùng kích hoạt thử nghiệm trận pháp.
+  essencearrays.test:
+    description: Allows the user to test activate a formation.
     default: op

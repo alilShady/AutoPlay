@@ -1,6 +1,6 @@
 package com.alilshady.tutientranphap.managers;
 
-import com.alilshady.tutientranphap.TuTienTranPhap;
+import com.alilshady.tutientranphap.EssenceArrays;
 import com.alilshady.tutientranphap.object.Formation;
 import com.alilshady.tutientranphap.utils.ItemFactory;
 import net.kyori.adventure.text.Component;
@@ -14,6 +14,7 @@ import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.inventory.ItemStack;
 
 import java.io.File;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.nio.charset.StandardCharsets;
@@ -25,7 +26,7 @@ import java.util.concurrent.CompletableFuture;
 
 public class ConfigManager {
 
-    private final TuTienTranPhap plugin;
+    private final EssenceArrays plugin;
     private FileConfiguration formationConfig;
     private FileConfiguration mainConfig;
     private FileConfiguration messagesConfig;
@@ -35,7 +36,7 @@ public class ConfigManager {
 
     private final MiniMessage miniMessage = MiniMessage.miniMessage();
 
-    public ConfigManager(TuTienTranPhap plugin) {
+    public ConfigManager(EssenceArrays plugin) {
         this.plugin = plugin;
         reloadConfigs();
     }
@@ -53,23 +54,41 @@ public class ConfigManager {
         }
         formationConfig = YamlConfiguration.loadConfiguration(formationFile);
 
-        File messagesFile = new File(plugin.getDataFolder(), "messages.yml");
-        if (!messagesFile.exists()) {
-            plugin.saveResource("messages.yml", false);
+        // --- CẬP NHẬT LOGIC TẢI NGÔN NGỮ VỚI TÊN TỆP MỚI ---
+        String lang = mainConfig.getString("language", "en").toLowerCase();
+        String langFileName = lang + ".yml"; // Sử dụng tên tệp đơn giản
+        File langDir = new File(plugin.getDataFolder(), "lang");
+        if (!langDir.exists()) {
+            langDir.mkdirs();
         }
+
+        File messagesFile = new File(langDir, langFileName);
+
+        plugin.saveResource("lang/" + langFileName, false);
+
+        if (!messagesFile.exists()) {
+            plugin.getLogger().warning("Language file '" + langFileName + "' not found. Defaulting to 'en'.");
+            lang = "en";
+            langFileName = "en.yml";
+            messagesFile = new File(langDir, langFileName);
+            plugin.saveResource("lang/en.yml", false);
+        }
+
         messagesConfig = YamlConfiguration.loadConfiguration(messagesFile);
 
-        Reader defMessagesStream = new InputStreamReader(plugin.getResource("messages.yml"), StandardCharsets.UTF_8);
+        InputStream defMessagesStream = plugin.getResource("lang/" + langFileName);
         if (defMessagesStream != null) {
-            YamlConfiguration defMessages = YamlConfiguration.loadConfiguration(defMessagesStream);
+            Reader defMessagesReader = new InputStreamReader(defMessagesStream, StandardCharsets.UTF_8);
+            YamlConfiguration defMessages = YamlConfiguration.loadConfiguration(defMessagesReader);
             messagesConfig.setDefaults(defMessages);
         }
+        // --- KẾT THÚC CẬP NHẬT ---
     }
 
     public String getMessage(String path, String... replacements) {
         String messageTemplate = messagesConfig.getString(path, "<red>Missing message: " + path);
 
-        if (!messageTemplate.isEmpty()) {
+        if (messageTemplate != null && !messageTemplate.isEmpty()) {
             String prefix = messagesConfig.getString("prefix", "");
             messageTemplate = prefix + messageTemplate;
         }
@@ -99,7 +118,6 @@ public class ConfigManager {
 
                 try {
                     String path = id + ".";
-                    // Giữ nguyên displayName dưới dạng chuỗi MiniMessage gốc
                     String displayName = formationConfig.getString(path + "display_name", id);
 
                     ItemStack activationItem;
@@ -138,7 +156,6 @@ public class ConfigManager {
                         }
                     }
 
-                    // Truyền trực tiếp chuỗi MiniMessage vào constructor, không chuyển đổi sang legacy
                     formations.add(new Formation(id, displayName, activationItem, duration, radius, keyMap, shape, effects, particleConfig));
 
                     if (debugLogging) {

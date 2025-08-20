@@ -1,7 +1,7 @@
 // src/main/java/com/alilshady/tutientranphap/managers/EffectHandler.java
 package com.alilshady.tutientranphap.managers;
 
-import com.alilshady.tutientranphap.TuTienTranPhap;
+import com.alilshady.tutientranphap.EssenceArrays;
 import com.alilshady.tutientranphap.effects.*;
 import com.alilshady.tutientranphap.object.Formation;
 import org.bukkit.*;
@@ -19,7 +19,7 @@ import java.util.stream.Stream;
 
 public class EffectHandler {
 
-    private final TuTienTranPhap plugin;
+    private final EssenceArrays plugin;
     private final Map<Location, BukkitTask> activeEffectTasks = new ConcurrentHashMap<>();
     private final Map<Location, Set<UUID>> affectedEntitiesByFormation = new ConcurrentHashMap<>();
     private final Map<Location, Long> animationTickMap = new ConcurrentHashMap<>();
@@ -32,7 +32,7 @@ public class EffectHandler {
             PotionEffectType.BLINDNESS, PotionEffectType.HUNGER, PotionEffectType.LEVITATION
     ));
 
-    public EffectHandler(TuTienTranPhap plugin) {
+    public EffectHandler(EssenceArrays plugin) {
         this.plugin = plugin;
         registerEffectStrategies();
     }
