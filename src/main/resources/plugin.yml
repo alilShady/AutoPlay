@@ -1,6 +1,6 @@
 # src/main/resources/plugin.yml
 name: EssenceArrays
-version: 1.0.0
+version: ${project.version}
 main: com.alilshady.tutientranphap.EssenceArrays
 api-version: 1.20
 author: AlilShady

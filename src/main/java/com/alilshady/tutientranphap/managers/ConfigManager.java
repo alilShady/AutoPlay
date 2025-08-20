@@ -18,11 +18,9 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
+import java.util.stream.Collectors;
 
 public class ConfigManager {
 
@@ -34,7 +32,8 @@ public class ConfigManager {
 
     private boolean debugLogging;
     private int effectCheckInterval;
-    private boolean blueprintRequiresMaterials; // <-- BIẾN MỚI
+    private boolean blueprintRequiresMaterials;
+    private Set<Material> replaceableBlocks; // <-- BIẾN MỚI
 
     private final MiniMessage miniMessage = MiniMessage.miniMessage();
     private final Map<String, Map<String, Object>> customEffects = new HashMap<>();
@@ -50,7 +49,22 @@ public class ConfigManager {
         mainConfig = plugin.getConfig();
         debugLogging = mainConfig.getBoolean("debug-logging", true);
         effectCheckInterval = mainConfig.getInt("effect-check-interval-ticks", 20);
-        blueprintRequiresMaterials = mainConfig.getBoolean("blueprint.require-materials", true); // <-- DÒNG MỚI
+        blueprintRequiresMaterials = mainConfig.getBoolean("blueprint.require-materials", true);
+
+        // --- LOGIC MỚI ĐỂ TẢI DANH SÁCH KHỐI ---
+        List<String> replaceableBlockNames = mainConfig.getStringList("blueprint.replaceable-blocks");
+        this.replaceableBlocks = replaceableBlockNames.stream()
+                .map(name -> {
+                    try {
+                        return Material.valueOf(name.toUpperCase());
+                    } catch (IllegalArgumentException e) {
+                        plugin.getLogger().warning("Invalid material name in replaceable-blocks list: '" + name + "'");
+                        return null;
+                    }
+                })
+                .filter(Objects::nonNull)
+                .collect(Collectors.toSet());
+        // --- KẾT THÚC LOGIC MỚI ---
 
         File formationFile = new File(plugin.getDataFolder(), "formations.yml");
         if (!formationFile.exists()) {
@@ -201,9 +215,13 @@ public class ConfigManager {
         return debugLogging;
     }
 
-    // --- HÀM GETTER MỚI ---
     public boolean isBlueprintRequiresMaterials() {
         return blueprintRequiresMaterials;
+    }
+
+    // --- GETTER MỚI ---
+    public Set<Material> getReplaceableBlocks() {
+        return replaceableBlocks;
     }
 
     public int getEffectCheckInterval() {

@@ -18,6 +18,7 @@ import org.bukkit.scheduler.BukkitTask;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set; // Thêm import này
 import java.util.UUID;
 
 public class PreviewManager {
@@ -26,7 +27,7 @@ public class PreviewManager {
     private final NamespacedKey formationIdKey;
     private BukkitTask previewTask;
     private final Map<UUID, Map<Location, BlockData>> playerPreviews = new HashMap<>();
-    private final Map<UUID, Integer> playerRotations = new HashMap<>(); // <-- BIẾN MỚI
+    private final Map<UUID, Integer> playerRotations = new HashMap<>();
 
     public PreviewManager(EssenceArrays plugin) {
         this.plugin = plugin;
@@ -56,21 +57,18 @@ public class PreviewManager {
             clearPreview(player);
         }
         playerPreviews.clear();
-        playerRotations.clear(); // <-- Dọn dẹp
+        playerRotations.clear();
     }
 
-    // --- HÀM MỚI ---
     public int getRotation(Player player) {
         return playerRotations.getOrDefault(player.getUniqueId(), 0);
     }
 
-    // --- HÀM MỚI ---
     public void rotatePreview(Player player) {
         int currentRotation = getRotation(player);
         int nextRotation = (currentRotation + 90) % 360;
         playerRotations.put(player.getUniqueId(), nextRotation);
         player.sendMessage(plugin.getConfigManager().getMessage("formation.blueprint.rotated", "%degrees%", String.valueOf(nextRotation)));
-        // Cập nhật lại preview ngay lập tức
         updatePreviewForPlayer(player);
     }
 
@@ -102,10 +100,13 @@ public class PreviewManager {
         Map<Location, BlockData> currentPreview = new HashMap<>();
         playerPreviews.put(player.getUniqueId(), currentPreview);
 
-        // Lấy hình dạng đã xoay
         List<String> rotatedShape = FormationManager.rotateShape(formation.getShape(), getRotation(player));
 
+        // --- SỬA LỖI Ở ĐÂY: Lấy danh sách từ ConfigManager ---
+        Set<Material> replaceableBlocks = plugin.getConfigManager().getReplaceableBlocks();
+
         int patternHeight = rotatedShape.size();
+        if (patternHeight == 0) return;
         int patternWidth = rotatedShape.get(0).length();
         int centerXOffset = patternWidth / 2;
         int centerZOffset = patternHeight / 2;
@@ -119,10 +120,10 @@ public class PreviewManager {
                 Material material = formation.getPatternKey().get(blockChar);
                 if (material != null) {
                     Block relativeBlock = center.getBlock().getRelative(x - centerXOffset, 0, z - centerZOffset);
-
                     currentPreview.put(relativeBlock.getLocation(), relativeBlock.getBlockData());
 
-                    boolean canBuild = FormationManager.REPLACEABLE_BLOCKS.contains(relativeBlock.getType());
+                    // --- SỬA LỖI Ở ĐÂY: Sử dụng biến `replaceableBlocks` đã lấy ở trên ---
+                    boolean canBuild = replaceableBlocks.contains(relativeBlock.getType());
                     Material previewMaterial = canBuild ? Material.GREEN_STAINED_GLASS : Material.RED_STAINED_GLASS;
                     player.sendBlockChange(relativeBlock.getLocation(), previewMaterial.createBlockData());
                 }
@@ -137,6 +138,5 @@ public class PreviewManager {
                 player.sendBlockChange(entry.getKey(), entry.getValue());
             }
         }
-        // Không xóa rotation ở đây, để người chơi giữ hướng xoay
     }
 }

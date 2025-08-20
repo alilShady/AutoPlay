@@ -23,17 +23,7 @@ public class FormationManager {
     private final Map<Location, Formation> activeFormations = new HashMap<>();
     private final Map<Location, UUID> formationOwners = new HashMap<>();
 
-    public static final Set<Material> REPLACEABLE_BLOCKS = new HashSet<>(Arrays.asList(
-            Material.AIR, Material.GRASS, Material.TALL_GRASS, Material.FERN,
-            Material.LARGE_FERN, Material.DEAD_BUSH, Material.VINE, Material.POPPY,
-            Material.DANDELION, Material.BLUE_ORCHID, Material.ALLIUM, Material.AZURE_BLUET,
-            Material.RED_TULIP, Material.ORANGE_TULIP, Material.WHITE_TULIP, Material.PINK_TULIP,
-            Material.OXEYE_DAISY, Material.CORNFLOWER, Material.LILY_OF_THE_VALLEY,
-            Material.WITHER_ROSE, Material.SUNFLOWER, Material.LILAC, Material.ROSE_BUSH,
-            Material.PEONY, Material.BROWN_MUSHROOM, Material.RED_MUSHROOM, Material.SNOW,
-            Material.GRASS_BLOCK, Material.DIRT, Material.PODZOL, Material.COARSE_DIRT,
-            Material.MYCELIUM, Material.DIRT_PATH
-    ));
+    // --- KHỐI STATIC NÀY ĐÃ BỊ XÓA ---
 
     public FormationManager(EssenceArrays plugin) {
         this.plugin = plugin;
@@ -70,10 +60,11 @@ public class FormationManager {
     }
 
     public boolean buildFormation(Formation formation, Location startLocation, Player player, int rotation) {
-        // Lấy hình dạng đã xoay
         List<String> shape = rotateShape(formation.getShape(), rotation);
-
         if (shape.isEmpty() || shape.get(0).isEmpty()) return false;
+
+        // --- LẤY DANH SÁCH TỪ CONFIG ---
+        Set<Material> replaceableBlocks = plugin.getConfigManager().getReplaceableBlocks();
 
         int patternHeight = shape.size();
         int patternWidth = shape.get(0).length();
@@ -82,7 +73,6 @@ public class FormationManager {
 
         Map<Material, Integer> requiredMaterials = new HashMap<>();
 
-        // Vòng lặp 1: Kiểm tra không gian VÀ đếm nguyên liệu
         for (int z = 0; z < patternHeight; z++) {
             String row = shape.get(z);
             for (int x = 0; x < patternWidth; x++) {
@@ -90,7 +80,8 @@ public class FormationManager {
                 if (blockChar == ' ') continue;
 
                 Block relativeBlock = startLocation.getBlock().getRelative(x - centerXOffset, 0, z - centerZOffset);
-                if (!REPLACEABLE_BLOCKS.contains(relativeBlock.getType())) {
+                // --- SỬA DÒNG KIỂM TRA NÀY ---
+                if (!replaceableBlocks.contains(relativeBlock.getType())) {
                     if (plugin.getConfigManager().isDebugLoggingEnabled()) {
                         plugin.getLogger().warning("[DEBUG][BUILD] Build failed. Block " + relativeBlock.getType() + " at " + relativeBlock.getLocation() + " is not replaceable.");
                     }
@@ -105,7 +96,6 @@ public class FormationManager {
             }
         }
 
-        // Vòng lặp 2: Kiểm tra và trừ nguyên liệu nếu được bật trong config
         if (plugin.getConfigManager().isBlueprintRequiresMaterials()) {
             Map<Material, Integer> missingMaterials = new HashMap<>();
 
@@ -134,7 +124,6 @@ public class FormationManager {
             }
         }
 
-        // Vòng lặp 3: Thực hiện xây dựng
         for (int z = 0; z < patternHeight; z++) {
             String row = shape.get(z);
             for (int x = 0; x < patternWidth; x++) {
@@ -152,12 +141,6 @@ public class FormationManager {
         return true;
     }
 
-    /**
-     * Xoay cấu trúc của trận pháp theo góc 90, 180, 270 độ.
-     * @param shape Cấu trúc gốc.
-     * @param degrees Góc xoay (phải là bội số của 90).
-     * @return Cấu trúc mới đã được xoay.
-     */
     public static List<String> rotateShape(List<String> shape, int degrees) {
         if (shape.isEmpty() || degrees % 90 != 0) return shape;
 
