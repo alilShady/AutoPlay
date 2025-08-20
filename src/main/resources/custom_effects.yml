@@ -5,441 +5,158 @@
 #
 # SHAPES:
 # - CIRCLE: A circle shape.
-# - STAR: A star shape. Add "connect_adjacent: true" to draw a Polygon instead.
+# - STAR: A star shape.
+# - TRIANGLE, SQUARE, PENTAGON, HEXAGON, HEPTAGON, OCTAGON, NONAGON:
+#   The corresponding polygon shapes (3-sided, 4-sided, 5-sided, etc.).
 #
-# ATTRIBUTES:
-#   particle: The particle type (e.g., REDSTONE, FLAME, SOUL_FIRE_FLAME).
-#   color: "#RRGGBB" (Used for REDSTONE particles only).
-#   size: 1.0 (Used for REDSTONE particles only).
-#   radius: The radius of the shape.
-#   points: The number of points (for STAR/Polygon).
-#   rotation_offset: Slightly rotates the shape (in degrees).
-#   step_multiplier: (For STAR) The step to connect vertices (e.g., 2 connects every other vertex).
+# GLOBAL ATTRIBUTES (Apply to the entire effect):
+#   rotation_speed: The rotation speed of the entire effect. Can be negative.
+#   steps: The default number of particles for each shape. Higher is smoother.
+#   definitions: A list that contains one or more shape definitions.
+#
+# SHAPE ATTRIBUTES (Inside each definition):
+#   shape: (Required) The name of the shape (e.g., CIRCLE, STAR, PENTAGON).
+#   particle: (Required) The name of the particle (e.g., REDSTONE, FLAME).
+#   radius: The radius or size of the shape.
+#   points: (Required for shape: STAR) The number of points/wings for the star.
+#   color: (For REDSTONE particle only) The color using a Hex code (e.g., "#RRGGBB").
+#   size: (For REDSTONE particle only) The size of the particle.
+#   rotation_offset: Rotates this specific shape by a fixed angle (in degrees).
+#   offset: Moves this shape away from the formation's center.
+#     x: [number]
+#     y: [number]
+#     z: [number]
 # =========================================================================================
 
-# 1. Effect for Holy Light Healing Formation
-holy-light-formation:
-  type: CUSTOM
-  y-offset: 0.2
-  steps: 300
-  rotation_speed: 0.5
-  definitions:
-    - shape: STAR
-      particle: TOTEM
-      radius: 8.0
-      points: 8
-      connect_adjacent: true
-    - shape: STAR
-      particle: REDSTONE
-      radius: 8.0
-      points: 8
-      connect_adjacent: true
-      color: "#FFD700" # Gold
-    - shape: CIRCLE
-      particle: TOTEM # Replaced HAPPY_VILLAGER
-      radius: 5.0
-      steps: 100
-
-# 2. Effect for Water God's Wrath Formation
-sea-god-wrath-formation:
-  type: CUSTOM
-  y-offset: 0.1
-  steps: 400
-  rotation_speed: -1.0
-  definitions:
-    - shape: CIRCLE
-      particle: WATER_SPLASH
-      radius: 8.5
-    - shape: STAR
-      particle: REDSTONE
-      radius: 8.0
-      points: 3
-      connect_adjacent: true
-      color: "#00BFFF" # DeepSkyBlue
-      size: 1.2
-    - shape: STAR
-      particle: REDSTONE
-      radius: 8.0
-      points: 3
-      connect_adjacent: true
-      color: "#FFFFFF"
-      size: 1.2
-      rotation_offset: 180
-
-# 3. Effect for Hellfire Formation
-hellfire-formation:
-  type: CUSTOM
-  y-offset: 0.3
-  steps: 350
-  rotation_speed: 1.2
-  definitions:
-    - shape: STAR
-      particle: REDSTONE
-      radius: 8.0
-      points: 7
-      step_multiplier: 3
-      color: "#FF0000" # Red
-      size: 1.2
-    - shape: STAR
-      particle: REDSTONE
-      radius: 8.0
-      points: 7
-      step_multiplier: 3
-      color: "#000000" # Black
-      size: 1.2
-      rotation_offset: 5
-    - shape: CIRCLE
-      particle: SMOKE_LARGE
-      radius: 5.0
-      steps: 50
-    - shape: CIRCLE
-      particle: LAVA
-      radius: 2.5
-      steps: 70
-
-# 4. Effect for Dark Seal Formation
-dark-seal-formation:
-  type: CUSTOM
-  y-offset: 0.2
-  steps: 300
-  rotation_speed: 0.4
-  definitions:
-    - shape: CIRCLE
-      particle: SQUID_INK
-      radius: 7.0
-      steps: 100
-    - shape: STAR
-      particle: REDSTONE
-      radius: 6.5
-      points: 5
-      color: "#480082" # Indigo
-    - shape: STAR
-      particle: SOUL
-      radius: 6.5
-      points: 5
-      rotation_offset: 36
-
-# 5. Effect for Wood Spirit Formation
-wood-spirit-formation:
-  type: CUSTOM
-  y-offset: 0.1
-  steps: 250
-  rotation_speed: 0.6
-  definitions:
-    - shape: CIRCLE
-      particle: REDSTONE
-      radius: 7.0
-      color: "#00FF00" # Green
-    - shape: STAR
-      particle: COMPOSTER # Replaced HAPPY_VILLAGER
-      radius: 6.0
-      points: 8
-      connect_adjacent: true
-    - shape: CIRCLE
-      particle: SPORE_BLOSSOM_AIR
-      radius: 4.0
-      steps: 80
-
-# 6. Effect for Ice Soul Formation
-frost-soul-formation:
-  type: CUSTOM
-  y-offset: 0.2
-  steps: 300
-  rotation_speed: -0.5
-  definitions:
-    - shape: STAR
-      particle: SNOWFLAKE
-      radius: 7.5
-      points: 6
-      connect_adjacent: true
-    - shape: STAR
-      particle: REDSTONE
-      radius: 7.5
-      points: 6
-      color: "#00FFFF" # Cyan
-      connect_adjacent: true
-    - shape: STAR
-      particle: REDSTONE
-      radius: 7.0
-      points: 6
-      color: "#FFFFFF"
-    - shape: CIRCLE
-      particle: SOUL
-      radius: 4.0
-      steps: 60
-
-# 7. Effect for Time-Space Formation
-time-space-formation:
-  type: CUSTOM
-  y-offset: 0.3
-  steps: 400
-  rotation_speed: -2.0
-  definitions:
-    - shape: CIRCLE
-      particle: REVERSE_PORTAL
-      radius: 8.0
-    - shape: CIRCLE
-      particle: PORTAL
-      radius: 7.5
-      rotation_speed: 4.0 # Rotates in the opposite direction
-    - shape: STAR
-      particle: REDSTONE
-      color: "#DA70D6" # Orchid
-      radius: 5.0
-      points: 12
-      connect_adjacent: true
-
-# 8. Effect for Earthen Bulwark Formation
-earthen-bulwark-formation:
-  type: CUSTOM
-  y-offset: 0.1
-  steps: 200
+# 1. Ancient Sealing Circle
+ancient-sealing-circle:
   rotation_speed: 0.3
   definitions:
-    - shape: STAR
-      particle: REDSTONE
-      color: "#8B4513" # SaddleBrown
-      radius: 7.0
-      points: 4
-      connect_adjacent: true
-      size: 1.5
-    - shape: STAR
-      particle: REDSTONE
-      color: "#228B22" # ForestGreen
-      radius: 7.0
-      points: 4
-      connect_adjacent: true
-      size: 1.5
-      rotation_offset: 45
-
-# 9. Effect for Huyen Ao Phong An Tran
-mystic-seal-formation:
-  type: CUSTOM
-  y-offset: 0.2
-  steps: 400
-  rotation_speed: 0.8
-  definitions:
+    # --- Outer Circles ---
     - shape: CIRCLE
       particle: REDSTONE
       radius: 8.0
-      color: "#FF00FF" # Magenta
-      size: 1.3
+      color: "#FF0000"
+      size: 1.2
+      steps: 300
     - shape: CIRCLE
-      particle: ENCHANTMENT_TABLE
-      radius: 7.2
+      particle: REDSTONE
+      radius: 7.8
+      color: "#FF0000"
+      size: 1.2
+      steps: 300
+
+    # --- Large Central Pentagram ---
+    - shape: STAR
+      particle: REDSTONE
+      radius: 7.9
+      points: 5
+      color: "#FF0000"
+      size: 1.1
+      rotation_offset: 90
+
+    # --- 5 Small Pentagrams at the vertices ---
+    - shape: STAR # Top vertex
+      particle: REDSTONE
+      radius: 1.5
+      points: 5
+      color: "#FF0000"
+      rotation_offset: 90
+      offset:
+        y: 0.1
+        z: 7.0
+    - shape: STAR # Top-right vertex
+      particle: REDSTONE
+      radius: 1.5
+      points: 5
+      color: "#FF0000"
+      rotation_offset: 90
+      offset:
+        y: 0.1
+        x: 6.66
+        z: 2.16
+    - shape: STAR # Bottom-right vertex
+      particle: REDSTONE
+      radius: 1.5
+      points: 5
+      color: "#FF0000"
+      rotation_offset: 90
+      offset:
+        y: 0.1
+        x: 4.11
+        z: -5.66
+    - shape: STAR # Bottom-left vertex
+      particle: REDSTONE
+      radius: 1.5
+      points: 5
+      color: "#FF0000"
+      rotation_offset: 90
+      offset:
+        y: 0.1
+        x: -4.11
+        z: -5.66
+    - shape: STAR # Top-left vertex
+      particle: REDSTONE
+      radius: 1.5
+      points: 5
+      color: "#FF0000"
+      rotation_offset: 90
+      offset:
+        y: 0.1
+        x: -6.66
+        z: 2.16
+
+# 2. Arcane Convergence Circle
+arcane-convergence-circle:
+  rotation_speed: 0.6
+  definitions:
+    # --- Outer Dotted Circle (Pink) ---
+    - shape: CIRCLE
+      particle: REDSTONE
+      radius: 8.0
+      color: "#FF1493" # Deep Pink
+      size: 1.2
       steps: 80
+
+    # --- Middle Polygon Layer (Purple) ---
+    - shape: OCTAGON
+      particle: REDSTONE
+      radius: 7.0
+      color: "#9400D3" # Dark Violet
+
+    # --- Main Geometric Layer (White/Light Pink) ---
     - shape: STAR
       particle: REDSTONE
       radius: 6.5
-      points: 6
-      color: "#FFFFFF"
-      connect_adjacent: true
-    - shape: STAR
-      particle: SOUL_FIRE_FLAME
-      radius: 5.5
-      points: 12
-      step_multiplier: 5
-    - shape: CIRCLE
-      particle: PORTAL
-      radius: 2.0
-      steps: 100
-
-# 10. Effect for Miner's Fortune Formation
-miners-fortune-formation:
-  type: CUSTOM
-  y-offset: 0.4
-  steps: 250
-  rotation_speed: 1.5
-  definitions:
-    - shape: STAR
-      particle: CRIT
-      radius: 7.0
       points: 8
-      connect_adjacent: true
+      color: "#FFB6C1" # Light Pink
+    - shape: OCTAGON
+      particle: REDSTONE
+      radius: 6.5
+      color: "#FFFFFF"
+      rotation_offset: 22.5
+
+    # --- Inner Circle (White/Light Pink) ---
     - shape: CIRCLE
       particle: REDSTONE
       radius: 4.0
-      color: "#B0C4DE" # LightSteelBlue
-      steps: 80
-
-# 11. Effect for Celestial Sanctuary Formation
-celestial-sanctuary:
-  type: CUSTOM
-  y-offset: 0.1
-  steps: 500
-  rotation_speed: 0.2
-  definitions:
-    - shape: CIRCLE
-      particle: END_ROD
-      radius: 9.0
-    - shape: CIRCLE
-      particle: REDSTONE
-      radius: 8.8
       color: "#FFFFFF"
-      size: 0.7
-
-# 12. Effect for Volcanic Forge Formation
-volcanic-forge-formation:
-  type: CUSTOM
-  y-offset: 0.5
-  steps: 300
-  rotation_speed: 0
-  definitions:
-    - shape: CIRCLE
-      particle: LAVA
-      radius: 7.0
-      steps: 100
-    - shape: CIRCLE
-      particle: FLAME
-      radius: 7.5
-      steps: 150
-
-# 13. Effect for Bountiful Harvest Formation
-bountiful-harvest-formation:
-  type: CUSTOM
-  y-offset: 0.1
-  steps: 200
-  rotation_speed: 0
-  definitions:
-    - shape: CIRCLE
-      particle: COMPOSTER # Replaced VILLAGER_HAPPY
-      radius: 8.0
-      steps: 150
-    - shape: CIRCLE
-      particle: REDSTONE
-      color: "#FFD700" # Gold
-      radius: 7.5
-
-# 14. Effect for Withered Blight Formation
-withering-blight-formation:
-  type: CUSTOM
-  y-offset: 0.2
-  steps: 300
-  rotation_speed: 0.9
-  definitions:
-    - shape: CIRCLE
-      particle: REDSTONE
-      color: "#444444" # Dark Gray
-      radius: 7.0
-    - shape: CIRCLE
-      particle: WHITE_ASH
-      radius: 6.5
-      steps: 100
-
-# 15. Effect for Raging Tempest Formation
-raging-tempest-formation:
-  type: CUSTOM
-  y-offset: 0.5
-  steps: 400
-  rotation_speed: -2.5
-  definitions:
-    - shape: CIRCLE
-      particle: CLOUD
-      radius: 8.5
-    - shape: STAR
-      particle: REDSTONE
-      color: "#FFFFFF"
-      radius: 8.0
-      points: 12
-      step_multiplier: 5
-
-# 16. Effect for Abyssal Grasp Formation
-abyssal-grasp-formation:
-  type: CUSTOM
-  y-offset: 0.2
-  steps: 350
-  rotation_speed: 1.8
-  definitions:
-    - shape: CIRCLE
-      particle: SQUID_INK
-      radius: 7.0
-    - shape: STAR
-      particle: REDSTONE
-      color: "#191970" # MidnightBlue
-      radius: 6.0
-      points: 9
-      step_multiplier: 4
-
-# 17. Effect for Fae Playground Formation
-fae-dance-formation:
-  type: CUSTOM
-  y-offset: 0.1
-  steps: 300
-  rotation_speed: 1.0
-  definitions:
-    - shape: CIRCLE
-      particle: HEART
-      radius: 7.0
-      steps: 50
-    - shape: CIRCLE
-      particle: NOTE
-      radius: 6.0
-      steps: 50
-    - shape: CIRCLE
-      particle: REDSTONE
-      color: "#FFB6C1" # LightPink
-      radius: 5.0
-
-# 18. Effect for Dragon's Roar Formation
-dragon-might-formation:
-  type: CUSTOM
-  y-offset: 0.4
-  steps: 300
-  rotation_speed: 0
-  definitions:
-    - shape: CIRCLE
-      particle: DRAGON_BREATH
-      radius: 8.0
-    - shape: STAR
-      particle: REDSTONE
-      color: "#8A2BE2" # BlueViolet
-      radius: 7.5
-      points: 8
-      connect_adjacent: true
-
-# 19. Effect for Golden Bounty Formation
-solar-flare-formation:
-  type: CUSTOM
-  y-offset: 0.1
-  steps: 300
-  rotation_speed: 0.7
-  definitions:
-    - shape: CIRCLE
-      particle: FLAME
-      radius: 7.0
-    - shape: STAR
-      particle: REDSTONE
-      radius: 6.5
-      points: 16
-      step_multiplier: 7
-      color: "#FFFF00" # Yellow
       size: 1.1
-    - shape: STAR
+
+    # --- Central Triangle (Purple & Blue) ---
+    - shape: TRIANGLE
       particle: REDSTONE
-      radius: 6.5
-      points: 16
-      step_multiplier: 7
-      color: "#FFA500" # Orange
+      radius: 3.8
+      color: "#9400D3"
       size: 1.1
-      rotation_offset: 11.25
-    - shape: CIRCLE
+    - shape: SQUARE
+      particle: REDSTONE
+      radius: 1.0
+      color: "#0000FF" # Blue
+
+    # --- Sparkles ---
+    - shape: STAR
       particle: TOTEM
-      radius: 3.0
-      steps: 150
-
-# 20. Effect for Phantom Zone Formation
-phantom-zone-formation:
-  type: CUSTOM
-  y-offset: 0.3
-  steps: 500
-  rotation_speed: -1.5
-  definitions:
-    - shape: CIRCLE
-      particle: REVERSE_PORTAL
-      radius: 8.0
-    - shape: STAR
-      particle: REDSTONE
-      color: "#00008B" # DarkBlue
-      radius: 7.0
-      points: 10
-      step_multiplier: 3
+      radius: 7.5
+      points: 16
+      steps: 16

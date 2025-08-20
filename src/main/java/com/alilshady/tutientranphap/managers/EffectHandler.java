@@ -269,12 +269,24 @@ public class EffectHandler {
 
         List<?> definitions = (List<?>) definitionsObject;
         int steps = EffectUtils.getIntFromConfig(config, "steps", 100);
-        double yOffset = EffectUtils.getDoubleFromConfig(config, "y-offset", 0.5);
-        Location shapeCenter = center.clone().add(0, yOffset, 0);
+        // Loại bỏ logic đọc y-offset toàn cục. Vị trí cơ bản giờ chỉ cách khối trung tâm 0.1 block theo trục Y.
+        Location baseCenter = center.clone().add(0, 0.1, 0);
 
         for (Object defObj : definitions) {
             if (!(defObj instanceof Map)) continue;
             Map<?, ?> definition = (Map<?, ?>) defObj;
+
+            Location shapeCenter = baseCenter.clone();
+            if (definition.containsKey("offset")) {
+                Object offsetObj = definition.get("offset");
+                if (offsetObj instanceof Map) {
+                    Map<?, ?> offsetMap = (Map<?, ?>) offsetObj;
+                    double offsetX = EffectUtils.getDoubleFromConfig(offsetMap, "x", 0.0);
+                    double offsetY = EffectUtils.getDoubleFromConfig(offsetMap, "y", 0.0);
+                    double offsetZ = EffectUtils.getDoubleFromConfig(offsetMap, "z", 0.0);
+                    shapeCenter.add(offsetX, offsetY, offsetZ);
+                }
+            }
 
             String shapeType = EffectUtils.getStringFromConfig(definition, "shape", "").toUpperCase();
             int shapeSteps = EffectUtils.getIntFromConfig(definition, "steps", steps);
@@ -296,16 +308,49 @@ public class EffectHandler {
                 } catch (NumberFormatException ignored) {}
             }
 
+            int points = 0;
+            boolean isPolygon = false;
+
             switch (shapeType) {
+                case "TRIANGLE":
+                    points = 3;
+                    isPolygon = true;
+                    break;
+                case "SQUARE":
+                    points = 4;
+                    isPolygon = true;
+                    break;
+                case "PENTAGON":
+                    points = 5;
+                    isPolygon = true;
+                    break;
+                case "HEXAGON":
+                    points = 6;
+                    isPolygon = true;
+                    break;
+                case "HEPTAGON":
+                    points = 7;
+                    isPolygon = true;
+                    break;
+                case "OCTAGON":
+                    points = 8;
+                    isPolygon = true;
+                    break;
+                case "NONAGON":
+                    points = 9;
+                    isPolygon = true;
+                    break;
                 case "CIRCLE":
                     drawParticleCircle(world, shapeCenter, particle, radius, shapeSteps, rotationAngle, dustOptions);
                     break;
                 case "STAR":
-                    int points = EffectUtils.getIntFromConfig(definition, "points", 5);
-                    boolean connectAdjacent = EffectUtils.getBooleanFromConfig(definition, "connect_adjacent", false);
-                    int stepMultiplier = EffectUtils.getIntFromConfig(definition, "step_multiplier", 2);
-                    drawParticleStarOrPolygon(world, shapeCenter, particle, radius, points, shapeSteps, rotationAngle + rotationOffset, connectAdjacent, stepMultiplier, dustOptions);
+                    points = EffectUtils.getIntFromConfig(definition, "points", 5);
+                    drawParticleStarOrPolygon(world, shapeCenter, particle, radius, points, shapeSteps, rotationAngle + rotationOffset, false, dustOptions);
                     break;
+            }
+
+            if (isPolygon) {
+                drawParticleStarOrPolygon(world, shapeCenter, particle, radius, points, shapeSteps, rotationAngle + rotationOffset, true, dustOptions);
             }
         }
     }
@@ -319,7 +364,7 @@ public class EffectHandler {
         }
     }
 
-    private void drawParticleStarOrPolygon(World world, Location center, Particle particle, double radius, int points, int steps, double rotationAngle, boolean connectAdjacent, int stepMultiplier, Object particleData) {
+    private void drawParticleStarOrPolygon(World world, Location center, Particle particle, double radius, int points, int steps, double rotationAngle, boolean connectAdjacent, Object particleData) {
         if (points < 2) return;
 
         List<Vector> vertices = new ArrayList<>();
@@ -327,6 +372,8 @@ public class EffectHandler {
             double angle = (2 * Math.PI * i / points) + rotationAngle;
             vertices.add(new Vector(center.getX() + radius * Math.cos(angle), center.getY(), center.getZ() + radius * Math.sin(angle)));
         }
+
+        int stepMultiplier = points / 2;
 
         int stepsPerLine = Math.max(1, steps / points);
         for (int i = 0; i < points; i++) {

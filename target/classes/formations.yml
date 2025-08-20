@@ -254,10 +254,10 @@ holy-light-healing-formation:
       - "P   P"
       - " GPG "
   particles:
-    base_effect_id: "thanh-quang-tran"
+    base_effect_id: "ancient-sealing-circle"
     shapes:
       - type: HELIX
-        particle: TOTEM # Đã thay thế HAPPY_VILLAGER
+        particle: TOTEM
         height: 15
         strands: 2
   effects:
@@ -289,7 +289,7 @@ water-god-wrath-formation:
       - "P   P"
       - " SPS "
   particles:
-    base_effect_id: "thuy-than-no-tran"
+    base_effect_id: "arcane-convergence-circle"
     shapes:
       - type: VORTEX
         particle: SQUID_INK
@@ -323,7 +323,6 @@ hellfire-formation:
       - "B X B"
       - " NBN "
   particles:
-    base_effect_id: "dia-nguc-hoa-tran"
     shapes:
       - type: PILLAR
         particle: LAVA
@@ -354,7 +353,6 @@ dark-seal-formation:
       - "S X S"
       - " OSO "
   particles:
-    base_effect_id: "hac-am-phong-an"
     shapes:
       - type: DOME
         particle: SQUID_INK
@@ -388,7 +386,6 @@ wood-spirit-formation:
       - "L X L"
       - " VLV "
   particles:
-    base_effect_id: "moc-linh-tran"
     shapes:
       - type: RAIN
         particle: SPORE_BLOSSOM_AIR
@@ -419,7 +416,6 @@ ice-soul-formation:
       - "P X P"
       - " IPI "
   particles:
-    base_effect_id: "bang-han-tran"
     shapes:
       - type: DOME
         particle: SNOWFLAKE
@@ -449,8 +445,7 @@ time-space-formation:
       - " ECE "
       - "C X C"
       - " ECE "
-  particles:
-    base_effect_id: "thoi-khong-tran"
+  particles: {}
   effects:
     - type: "STASIS"
       target: "ALL"
@@ -471,8 +466,7 @@ earthen-bulwark-formation:
       - " SMS "
       - "M X M"
       - " SMS "
-  particles:
-    base_effect_id: "tho-thanh-tran"
+  particles: {}
   effects:
     - type: "BARRIER"
       target: "DAMAGEABLE"
@@ -501,7 +495,6 @@ miner-fortune-formation:
       - "I X I"
       - " D D "
   particles:
-    base_effect_id: "khoang-san-tran"
     shapes:
       - type: SPHERE
         particle: ENCHANTMENT_TABLE
@@ -532,8 +525,7 @@ demonic-ritual-formation:
       - " BGB "
       - "G X G"
       - " BGB "
-  particles:
-    base_effect_id: "dia-nguc-hoa-tran" # Tái sử dụng
+  particles: {}
   effects:
     - type: "POTION"
       target: "DAMAGEABLE"
@@ -567,7 +559,6 @@ celestial-sanctuary-formation:
       - "G   G"
       - "SGSGS"
   particles:
-    base_effect_id: "thien-gioi-thanh-역"
     shapes:
       - type: DOME
         particle: END_ROD
@@ -596,8 +587,7 @@ volcanic-forge-formation:
       - " MOM "
       - "O X O"
       - " MOM "
-  particles:
-    base_effect_id: "hoa-diem-son-tran"
+  particles: {}
   effects:
     - type: "SMELT"
       value: 3.0
@@ -626,8 +616,7 @@ bountiful-harvest-formation:
       - "D W X"
       - "D W D"
       - " DDD "
-  particles:
-    base_effect_id: "mua-mang-boi-thu"
+  particles: {}
   effects:
     - type: "GROWTH"
       value: 5.0
@@ -650,7 +639,6 @@ withered-blight-formation:
       - "S X S"
       - " BSB "
   particles:
-    base_effect_id: "kho-tan-chi-dia"
     shapes:
       - type: RAIN
         particle: WHITE_ASH
@@ -680,7 +668,6 @@ raging-tempest-formation:
       - " I I "
       - "  I  "
   particles:
-    base_effect_id: "cuong-phong-tran"
     shapes:
       - type: RING
         particle: CLOUD
@@ -709,7 +696,6 @@ abyssal-grasp-formation:
       - "C X C"
       - " VCV "
   particles:
-    base_effect_id: "vuc-tham-tran"
     shapes:
       - type: VORTEX
         particle: SQUID_INK
@@ -741,7 +727,6 @@ fae-playground-formation:
       - "L   L"
       - "FLFLF"
   particles:
-    base_effect_id: "tien-toc-vu-khuc"
     shapes:
       - type: SPHERE
         particle: NOTE
@@ -775,8 +760,7 @@ dragon-roar-formation:
       - " OCO "
       - "C X C"
       - " OCO "
-  particles:
-    base_effect_id: "long-uy-tran"
+  particles: {}
   effects:
     - type: "POTION"
       target: "DAMAGEABLE"
@@ -803,8 +787,7 @@ golden-bounty-formation:
       - " E E "
       - "E X E"
       - " E E "
-  particles:
-    base_effect_id: "thai-duong-tran"
+  particles: {}
   effects:
     - type: "COLLECT"
       value: 1.0
@@ -828,7 +811,6 @@ phantom-zone-formation:
       - "E X E"
       - " EEE "
   particles:
-    base_effect_id: "di-gioi-khong-gian"
     shapes:
       - type: DOME
         particle: REVERSE_PORTAL
