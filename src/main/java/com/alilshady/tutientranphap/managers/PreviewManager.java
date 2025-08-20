@@ -18,7 +18,7 @@ import org.bukkit.scheduler.BukkitTask;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set; // Thêm import này
+import java.util.Set;
 import java.util.UUID;
 
 public class PreviewManager {
@@ -82,7 +82,8 @@ public class PreviewManager {
                 if (container.has(formationIdKey, PersistentDataType.STRING)) {
                     String formationId = container.get(formationIdKey, PersistentDataType.STRING);
                     Formation formation = plugin.getFormationManager().getFormationById(formationId);
-                    Block targetBlock = player.getTargetBlockExact(10);
+                    // Giảm khoảng cách quét khối xuống một chút để trải nghiệm mượt hơn
+                    Block targetBlock = player.getTargetBlockExact(5);
 
                     if (formation != null && targetBlock != null) {
                         showPreview(player, formation, targetBlock.getLocation());
@@ -101,8 +102,6 @@ public class PreviewManager {
         playerPreviews.put(player.getUniqueId(), currentPreview);
 
         List<String> rotatedShape = FormationManager.rotateShape(formation.getShape(), getRotation(player));
-
-        // --- SỬA LỖI Ở ĐÂY: Lấy danh sách từ ConfigManager ---
         Set<Material> replaceableBlocks = plugin.getConfigManager().getReplaceableBlocks();
 
         int patternHeight = rotatedShape.size();
@@ -122,9 +121,12 @@ public class PreviewManager {
                     Block relativeBlock = center.getBlock().getRelative(x - centerXOffset, 0, z - centerZOffset);
                     currentPreview.put(relativeBlock.getLocation(), relativeBlock.getBlockData());
 
-                    // --- SỬA LỖI Ở ĐÂY: Sử dụng biến `replaceableBlocks` đã lấy ở trên ---
+                    // --- THAY ĐỔI CHÍNH Ở ĐÂY ---
+                    // Kiểm tra xem vị trí có thể xây dựng hay không
                     boolean canBuild = replaceableBlocks.contains(relativeBlock.getType());
-                    Material previewMaterial = canBuild ? Material.GREEN_STAINED_GLASS : Material.RED_STAINED_GLASS;
+                    // Nếu có thể xây, hiển thị khối thật. Nếu không, hiển thị kính đỏ.
+                    Material previewMaterial = canBuild ? material : Material.RED_STAINED_GLASS;
+
                     player.sendBlockChange(relativeBlock.getLocation(), previewMaterial.createBlockData());
                 }
             }

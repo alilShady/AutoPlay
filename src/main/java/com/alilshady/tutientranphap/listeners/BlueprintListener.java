@@ -6,7 +6,7 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.event.EventHandler;
-import org.bukkit.event.EventPriority; // <-- THÊM IMPORT MỚI
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
@@ -33,9 +33,10 @@ public class BlueprintListener implements Listener {
      * Lắng nghe sự kiện người chơi nhấn phím F (tráo đổi vật phẩm) để xoay Trận Đồ.
      * Đặt ở mức ưu tiên HIGHEST để đảm bảo event.setCancelled(true) hoạt động chính xác.
      */
-    @EventHandler(priority = EventPriority.HIGHEST) // <-- SỬA Ở ĐÂY
+    @EventHandler(priority = EventPriority.HIGHEST)
     public void onPlayerSwapHand(PlayerSwapHandItemsEvent event) {
-        ItemStack mainHandItem = event.getMainHandItem();
+        // SỬA Ở ĐÂY: Lấy vật phẩm hiện đang ở tay chính TRƯỚC KHI sự kiện hoán đổi xảy ra.
+        ItemStack mainHandItem = event.getPlayer().getInventory().getItemInMainHand();
 
         if (isBlueprint(mainHandItem)) {
             // Hủy sự kiện để ngăn vật phẩm bị tráo đổi sang tay phụ.
