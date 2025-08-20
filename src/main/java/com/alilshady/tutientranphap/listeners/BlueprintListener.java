@@ -48,6 +48,9 @@ public class BlueprintListener implements Listener {
         if (data.has(formationIdKey, PersistentDataType.STRING)) {
             event.setCancelled(true);
 
+            // Xóa hình ảnh xem trước ngay lập tức để tránh hiển thị sai sau khi xây
+            plugin.getPreviewManager().clearPreview(event.getPlayer());
+
             String formationId = data.get(formationIdKey, PersistentDataType.STRING);
             Formation formation = plugin.getFormationManager().getFormationById(formationId);
 
@@ -58,7 +61,6 @@ public class BlueprintListener implements Listener {
                     item.setAmount(item.getAmount() - 1);
                 }
             } else {
-                // --- PHẦN THÊM MỚI ---
                 // Gửi tin nhắn cho người chơi nếu Trận Đồ bị lỗi hoặc không hợp lệ
                 event.getPlayer().sendMessage(plugin.getConfigManager().getMessage("commands.give.formation-not-found", "%id%", formationId));
             }

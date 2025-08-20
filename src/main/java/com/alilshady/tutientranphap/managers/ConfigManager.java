@@ -30,11 +30,13 @@ public class ConfigManager {
     private FileConfiguration formationConfig;
     private FileConfiguration mainConfig;
     private FileConfiguration messagesConfig;
+    private FileConfiguration customEffectsConfig; // <-- THÊM BIẾN MỚI
 
     private boolean debugLogging;
     private int effectCheckInterval;
 
     private final MiniMessage miniMessage = MiniMessage.miniMessage();
+    private final Map<String, Map<String, Object>> customEffects = new HashMap<>(); // <-- THÊM BIẾN MỚI
 
     public ConfigManager(EssenceArrays plugin) {
         this.plugin = plugin;
@@ -54,35 +56,58 @@ public class ConfigManager {
         }
         formationConfig = YamlConfiguration.loadConfiguration(formationFile);
 
-        // --- CẬP NHẬT LOGIC TẢI NGÔN NGỮ VỚI TÊN TỆP MỚI ---
+        // --- Tải file ngôn ngữ ---
         String lang = mainConfig.getString("language", "en").toLowerCase();
-        String langFileName = lang + ".yml"; // Sử dụng tên tệp đơn giản
+        String langFileName = lang + ".yml";
         File langDir = new File(plugin.getDataFolder(), "lang");
         if (!langDir.exists()) {
             langDir.mkdirs();
         }
-
         File messagesFile = new File(langDir, langFileName);
-
         plugin.saveResource("lang/" + langFileName, false);
-
         if (!messagesFile.exists()) {
             plugin.getLogger().warning("Language file '" + langFileName + "' not found. Defaulting to 'en'.");
-            lang = "en";
             langFileName = "en.yml";
             messagesFile = new File(langDir, langFileName);
             plugin.saveResource("lang/en.yml", false);
         }
-
         messagesConfig = YamlConfiguration.loadConfiguration(messagesFile);
-
         InputStream defMessagesStream = plugin.getResource("lang/" + langFileName);
         if (defMessagesStream != null) {
             Reader defMessagesReader = new InputStreamReader(defMessagesStream, StandardCharsets.UTF_8);
             YamlConfiguration defMessages = YamlConfiguration.loadConfiguration(defMessagesReader);
             messagesConfig.setDefaults(defMessages);
         }
-        // --- KẾT THÚC CẬP NHẬT ---
+
+        // --- THÊM LOGIC TẢI custom_effects.yml ---
+        File customEffectsFile = new File(plugin.getDataFolder(), "custom_effects.yml");
+        if (!customEffectsFile.exists()) {
+            plugin.saveResource("custom_effects.yml", false);
+        }
+        customEffectsConfig = YamlConfiguration.loadConfiguration(customEffectsFile);
+        loadCustomEffects();
+    }
+
+    // --- THÊM HÀM MỚI ---
+    private void loadCustomEffects() {
+        customEffects.clear();
+        if (customEffectsConfig == null) return;
+
+        ConfigurationSection section = customEffectsConfig.getConfigurationSection("");
+        if (section != null) {
+            for (String id : section.getKeys(false)) {
+                Map<String, Object> effectData = section.getConfigurationSection(id).getValues(true);
+                customEffects.put(id, effectData);
+            }
+        }
+        if (debugLogging) {
+            plugin.getLogger().info("Loaded " + customEffects.size() + " custom base effects.");
+        }
+    }
+
+    // --- THÊM HÀM MỚI ---
+    public Map<String, Object> getCustomEffect(String id) {
+        return customEffects.get(id);
     }
 
     public String getMessage(String path, String... replacements) {

@@ -5,10 +5,7 @@ import com.alilshady.tutientranphap.commands.CommandTabCompleter;
 import com.alilshady.tutientranphap.listeners.ActivationListener;
 import com.alilshady.tutientranphap.listeners.BlueprintListener;
 import com.alilshady.tutientranphap.listeners.SanctuaryListener;
-import com.alilshady.tutientranphap.managers.ConfigManager;
-import com.alilshady.tutientranphap.managers.EffectHandler;
-import com.alilshady.tutientranphap.managers.FormationManager;
-import com.alilshady.tutientranphap.managers.TeamManager;
+import com.alilshady.tutientranphap.managers.*;
 import com.alilshady.tutientranphap.utils.ConfigUpdater;
 import com.alilshady.tutientranphap.utils.UP;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -24,6 +21,7 @@ public final class EssenceArrays extends JavaPlugin {
     private FormationManager formationManager;
     private EffectHandler effectHandler;
     private TeamManager teamManager;
+    private PreviewManager previewManager;
 
     @Override
     public void onEnable() {
@@ -33,6 +31,7 @@ public final class EssenceArrays extends JavaPlugin {
         try {
             ConfigUpdater.updateFile(this, "config.yml");
             ConfigUpdater.updateFile(this, "formations.yml");
+            ConfigUpdater.updateFile(this, "custom_effects.yml"); // <-- THÊM DÒNG NÀY
             ConfigUpdater.updateFile(this, "lang/en.yml");
             ConfigUpdater.updateFile(this, "lang/vi.yml");
         } catch (IOException e) {
@@ -46,8 +45,10 @@ public final class EssenceArrays extends JavaPlugin {
         this.effectHandler = new EffectHandler(this);
         this.formationManager = new FormationManager(this);
         this.teamManager = new TeamManager(this);
+        this.previewManager = new PreviewManager(this);
 
         this.formationManager.loadFormations();
+        this.previewManager.startPreviewTask();
 
         getServer().getPluginManager().registerEvents(new ActivationListener(this), this);
         getServer().getPluginManager().registerEvents(new BlueprintListener(this), this);
@@ -66,19 +67,22 @@ public final class EssenceArrays extends JavaPlugin {
     private void logAsciiArt() {
         getLogger().info("____________________________________________________________");
         getLogger().info("");
-        getLogger().info("      ███████╗███████╗███████╗███████╗███╗   ██╗");
-        getLogger().info("      ██╔════╝██╔════╝██╔════╝██╔════╝████╗  ██║");
-        getLogger().info("      █████╗  █████╗  █████╗  █████╗  ██╔██╗ ██║");
-        getLogger().info("      ██╔══╝  ██╔══╝  ██╔══╝  ██╔══╝  ██║╚██╗██║");
-        getLogger().info("      ███████╗███████╗██║     ███████╗██║ ╚████║");
-        getLogger().info("      ╚══════╝╚══════╝╚═╝     ╚══════╝╚═╝  ╚═══╝");
+        getLogger().info("                   ███████╗   █████╗   ");
+        getLogger().info("                   ██╔════╝  ██╔══██╗  ");
+        getLogger().info("                   █████╗    ███████║  ");
+        getLogger().info("                   ██╔══╝    ██╔══██║  ");
+        getLogger().info("                   ███████╗  ██║  ██║  ");
+        getLogger().info("                   ╚══════╝  ╚═╝  ╚═╝  ");
         getLogger().info("");
-        getLogger().info("         EssenceArrays plugin by AlilShady");
+        getLogger().info("            EssenceArrays plugin by AlilShady");
         getLogger().info("____________________________________________________________");
     }
 
     @Override
     public void onDisable() {
+        if (previewManager != null) {
+            previewManager.stopPreviewTask();
+        }
         if (effectHandler != null) {
             effectHandler.stopAllEffects();
         }
@@ -110,5 +114,9 @@ public final class EssenceArrays extends JavaPlugin {
 
     public TeamManager getTeamManager() {
         return teamManager;
+    }
+
+    public PreviewManager getPreviewManager() {
+        return previewManager;
     }
 }

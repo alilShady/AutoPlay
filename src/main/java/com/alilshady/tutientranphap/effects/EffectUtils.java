@@ -1,4 +1,3 @@
-// src/main/java/com/alilshady/tutientranphap/effects/EffectUtils.java
 package com.alilshady.tutientranphap.effects;
 
 import java.util.Map;
@@ -48,7 +47,6 @@ public final class EffectUtils {
             }
             return Long.parseLong(durationStr);
         } catch (NumberFormatException e) {
-            // It's better to log this in the calling context if needed
             return 0;
         }
     }

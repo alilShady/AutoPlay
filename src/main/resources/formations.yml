@@ -254,12 +254,10 @@ holy-light-healing-formation:
       - "P   P"
       - " GPG "
   particles:
+    base_effect_id: "ancient-sealing-circle"
     shapes:
-      - type: RING
-        particle: TOTEM
-        y-offset: 0.1
       - type: HELIX
-        particle: HAPPY_VILLAGER
+        particle: TOTEM
         height: 15
         strands: 2
   effects:
@@ -291,13 +289,12 @@ water-god-wrath-formation:
       - "P   P"
       - " SPS "
   particles:
+    base_effect_id: "arcane-convergence-circle"
     shapes:
       - type: VORTEX
         particle: SQUID_INK
         radius: 10
         height: 15
-      - type: CLIMATE
-        mode: "RAIN"
   effects:
     - type: "VORTEX"
       target: "DAMAGEABLE"
@@ -327,12 +324,11 @@ hellfire-formation:
       - " NBN "
   particles:
     shapes:
-      - type: RING
-        particle: FLAME
       - type: PILLAR
         particle: LAVA
-        count: 6
+        count: 7
         height: 10
+        radius: 7.5
   effects:
     - type: "DAMAGE"
       target: "DAMAGEABLE"
@@ -360,10 +356,6 @@ dark-seal-formation:
     shapes:
       - type: DOME
         particle: SQUID_INK
-      - type: PILLAR
-        particle: SOUL_FIRE_FLAME
-        count: 8
-        height: 8
   effects:
     - type: "ROOT"
       target: "DAMAGEABLE"
@@ -402,7 +394,7 @@ wood-spirit-formation:
     - type: "GROWTH"
       value: 3.0
     - type: "BREED"
-      value: 100 # 5-second cooldown
+      value: 100
     - type: "POTION"
       target: "UNDAMAGEABLE"
       potion_effect: "SATURATION"
@@ -427,13 +419,14 @@ ice-soul-formation:
     shapes:
       - type: DOME
         particle: SNOWFLAKE
+        radius: 18
   effects:
     - type: "FREEZE"
     - type: "POTION"
       target: "DAMAGEABLE"
       potion_effect: "SLOW"
       value: 2
-    - type: "STASIS" # Slows projectiles
+    - type: "STASIS"
       target: "DAMAGEABLE"
       value: 3
 
@@ -452,17 +445,9 @@ time-space-formation:
       - " ECE "
       - "C X C"
       - " ECE "
-  particles:
-    shapes:
-      - type: RING
-        particle: REVERSE_PORTAL
-        rotation_speed: 2.0
-      - type: RING
-        particle: PORTAL
-        radius: 14
-        rotation_speed: -2.0
+  particles: {}
   effects:
-    - type: "STASIS" # Slows entities and projectiles
+    - type: "STASIS"
       target: "ALL"
       value: 5
 
@@ -481,11 +466,7 @@ earthen-bulwark-formation:
       - " SMS "
       - "M X M"
       - " SMS "
-  particles:
-    shapes:
-      - type: DOME
-        particle: SPORE_BLOSSOM_AIR
-        lines: 8
+  particles: {}
   effects:
     - type: "BARRIER"
       target: "DAMAGEABLE"
@@ -515,8 +496,6 @@ miner-fortune-formation:
       - " D D "
   particles:
     shapes:
-      - type: RING
-        particle: CRIT
       - type: SPHERE
         particle: ENCHANTMENT_TABLE
         y-offset: 1.5
@@ -546,14 +525,7 @@ demonic-ritual-formation:
       - " BGB "
       - "G X G"
       - " BGB "
-  particles:
-    shapes:
-      - type: HELIX
-        particle: SOUL_FIRE_FLAME
-        strands: 3
-        height: 10
-      - type: RING
-        particle: SMOKE_LARGE
+  particles: {}
   effects:
     - type: "POTION"
       target: "DAMAGEABLE"
@@ -592,7 +564,7 @@ celestial-sanctuary-formation:
         particle: END_ROD
         lines: 16
   effects:
-    - type: "SANCTUARY" # Prevents natural monster spawning
+    - type: "SANCTUARY"
     - type: "HEAL"
       target: "UNDAMAGEABLE"
       value: 0.5
@@ -615,12 +587,7 @@ volcanic-forge-formation:
       - " MOM "
       - "O X O"
       - " MOM "
-  particles:
-    shapes:
-      - type: PILLAR
-        particle: LAVA
-        count: 4
-        height: 5
+  particles: {}
   effects:
     - type: "SMELT"
       value: 3.0
@@ -649,10 +616,7 @@ bountiful-harvest-formation:
       - "D W X"
       - "D W D"
       - " DDD "
-  particles:
-    shapes:
-      - type: RING
-        particle: VILLAGER_HAPPY
+  particles: {}
   effects:
     - type: "GROWTH"
       value: 5.0
@@ -764,8 +728,6 @@ fae-playground-formation:
       - "FLFLF"
   particles:
     shapes:
-      - type: RING
-        particle: HEART
       - type: SPHERE
         particle: NOTE
         y-offset: 2
@@ -798,10 +760,7 @@ dragon-roar-formation:
       - " OCO "
       - "C X C"
       - " OCO "
-  particles:
-    shapes:
-      - type: RING
-        particle: DRAGON_BREATH
+  particles: {}
   effects:
     - type: "POTION"
       target: "DAMAGEABLE"
@@ -812,7 +771,7 @@ dragon-roar-formation:
       duration: "8s"
     - type: "EXPLOSION"
       target: "DAMAGEABLE"
-      value: 0.5 # Small, frequent explosions
+      value: 0.5
 
 # 19. Theme: Golden Bounty
 golden-bounty-formation:
@@ -828,10 +787,7 @@ golden-bounty-formation:
       - " E E "
       - "E X E"
       - " E E "
-  particles:
-    shapes:
-      - type: RING
-        particle: TOTEM
+  particles: {}
   effects:
     - type: "COLLECT"
       value: 1.0

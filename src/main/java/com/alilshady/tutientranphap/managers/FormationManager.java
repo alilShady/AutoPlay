@@ -23,7 +23,7 @@ public class FormationManager {
     private final Map<Location, UUID> formationOwners = new HashMap<>();
 
     // Danh sách các khối có thể bị thay thế khi xây dựng trận đồ
-    private static final Set<Material> REPLACEABLE_BLOCKS = new HashSet<>(Arrays.asList(
+    public static final Set<Material> REPLACEABLE_BLOCKS = new HashSet<>(Arrays.asList(
             Material.AIR, Material.GRASS, Material.TALL_GRASS, Material.FERN,
             Material.LARGE_FERN, Material.DEAD_BUSH, Material.VINE, Material.POPPY,
             Material.DANDELION, Material.BLUE_ORCHID, Material.ALLIUM, Material.AZURE_BLUET,

@@ -1,4 +1,3 @@
-// src/main/java/com/alilshady/tutientranphap/managers/EffectHandler.java
 package com.alilshady.tutientranphap.managers;
 
 import com.alilshady.tutientranphap.EssenceArrays;
@@ -203,6 +202,17 @@ public class EffectHandler {
         if (world == null) return;
         Location centerPoint = center.clone().add(0.5, 0.1, 0.5);
 
+        if (config.containsKey("base_effect_id")) {
+            String baseEffectId = (String) config.get("base_effect_id");
+            Map<String, Object> baseEffectConfig = plugin.getConfigManager().getCustomEffect(baseEffectId);
+
+            if (baseEffectConfig != null) {
+                double rotationSpeed = EffectUtils.getDoubleFromConfig(baseEffectConfig, "rotation_speed", 0.0);
+                double rotationAngle = Math.toRadians(tick * rotationSpeed);
+                drawCustomShapes(world, centerPoint, rotationAngle, baseEffectConfig);
+            }
+        }
+
         Object shapesObject = config.get("shapes");
         if (!(shapesObject instanceof List)) {
             return;
@@ -217,11 +227,8 @@ public class EffectHandler {
             String type = EffectUtils.getStringFromConfig(shapeConfig, "type", "").toUpperCase();
             Particle particle = Optional.ofNullable(EffectUtils.getStringFromConfig(shapeConfig, "particle", null))
                     .map(s -> {
-                        try {
-                            return Particle.valueOf(s.toUpperCase());
-                        } catch (IllegalArgumentException e) {
-                            return null;
-                        }
+                        try { return Particle.valueOf(s.toUpperCase()); }
+                        catch (IllegalArgumentException e) { return null; }
                     }).orElse(null);
 
             if (particle == null) continue;
@@ -252,6 +259,136 @@ public class EffectHandler {
                 case "RAIN":
                     drawRain(world, centerPoint, particle, radius, shapeConfig);
                     break;
+            }
+        }
+    }
+
+    private void drawCustomShapes(World world, Location center, double rotationAngle, Map<?, ?> config) {
+        Object definitionsObject = config.get("definitions");
+        if (!(definitionsObject instanceof List)) return;
+
+        List<?> definitions = (List<?>) definitionsObject;
+        int steps = EffectUtils.getIntFromConfig(config, "steps", 100);
+        // Loại bỏ logic đọc y-offset toàn cục. Vị trí cơ bản giờ chỉ cách khối trung tâm 0.1 block theo trục Y.
+        Location baseCenter = center.clone().add(0, 0.1, 0);
+
+        for (Object defObj : definitions) {
+            if (!(defObj instanceof Map)) continue;
+            Map<?, ?> definition = (Map<?, ?>) defObj;
+
+            Location shapeCenter = baseCenter.clone();
+            if (definition.containsKey("offset")) {
+                Object offsetObj = definition.get("offset");
+                if (offsetObj instanceof Map) {
+                    Map<?, ?> offsetMap = (Map<?, ?>) offsetObj;
+                    double offsetX = EffectUtils.getDoubleFromConfig(offsetMap, "x", 0.0);
+                    double offsetY = EffectUtils.getDoubleFromConfig(offsetMap, "y", 0.0);
+                    double offsetZ = EffectUtils.getDoubleFromConfig(offsetMap, "z", 0.0);
+                    shapeCenter.add(offsetX, offsetY, offsetZ);
+                }
+            }
+
+            String shapeType = EffectUtils.getStringFromConfig(definition, "shape", "").toUpperCase();
+            int shapeSteps = EffectUtils.getIntFromConfig(definition, "steps", steps);
+            Particle particle = Optional.ofNullable(EffectUtils.getStringFromConfig(definition, "particle", null))
+                    .map(s -> {
+                        try { return Particle.valueOf(s.toUpperCase()); }
+                        catch (IllegalArgumentException e) { return null; }
+                    }).orElse(Particle.REDSTONE);
+
+            double radius = EffectUtils.getDoubleFromConfig(definition, "radius", 5.0);
+            double rotationOffset = Math.toRadians(EffectUtils.getDoubleFromConfig(definition, "rotation_offset", 0.0));
+
+            Particle.DustOptions dustOptions = null;
+            if (particle == Particle.REDSTONE && definition.containsKey("color")) {
+                try {
+                    java.awt.Color color = java.awt.Color.decode(EffectUtils.getStringFromConfig(definition, "color", "#FFFFFF"));
+                    float size = (float) EffectUtils.getDoubleFromConfig(definition, "size", 1.0);
+                    dustOptions = new Particle.DustOptions(Color.fromRGB(color.getRed(), color.getGreen(), color.getBlue()), size);
+                } catch (NumberFormatException ignored) {}
+            }
+
+            int points = 0;
+            boolean isPolygon = false;
+
+            switch (shapeType) {
+                case "TRIANGLE":
+                    points = 3;
+                    isPolygon = true;
+                    break;
+                case "SQUARE":
+                    points = 4;
+                    isPolygon = true;
+                    break;
+                case "PENTAGON":
+                    points = 5;
+                    isPolygon = true;
+                    break;
+                case "HEXAGON":
+                    points = 6;
+                    isPolygon = true;
+                    break;
+                case "HEPTAGON":
+                    points = 7;
+                    isPolygon = true;
+                    break;
+                case "OCTAGON":
+                    points = 8;
+                    isPolygon = true;
+                    break;
+                case "NONAGON":
+                    points = 9;
+                    isPolygon = true;
+                    break;
+                case "CIRCLE":
+                    drawParticleCircle(world, shapeCenter, particle, radius, shapeSteps, rotationAngle, dustOptions);
+                    break;
+                case "STAR":
+                    points = EffectUtils.getIntFromConfig(definition, "points", 5);
+                    drawParticleStarOrPolygon(world, shapeCenter, particle, radius, points, shapeSteps, rotationAngle + rotationOffset, false, dustOptions);
+                    break;
+            }
+
+            if (isPolygon) {
+                drawParticleStarOrPolygon(world, shapeCenter, particle, radius, points, shapeSteps, rotationAngle + rotationOffset, true, dustOptions);
+            }
+        }
+    }
+
+    private void drawParticleCircle(World world, Location center, Particle particle, double radius, int steps, double rotationAngle, Object particleData) {
+        for (int i = 0; i < steps; i++) {
+            double angle = (2 * Math.PI * i / steps) + rotationAngle;
+            double x = center.getX() + radius * Math.cos(angle);
+            double z = center.getZ() + radius * Math.sin(angle);
+            world.spawnParticle(particle, x, center.getY(), z, 1, 0, 0, 0, 0, particleData);
+        }
+    }
+
+    private void drawParticleStarOrPolygon(World world, Location center, Particle particle, double radius, int points, int steps, double rotationAngle, boolean connectAdjacent, Object particleData) {
+        if (points < 2) return;
+
+        List<Vector> vertices = new ArrayList<>();
+        for (int i = 0; i < points; i++) {
+            double angle = (2 * Math.PI * i / points) + rotationAngle;
+            vertices.add(new Vector(center.getX() + radius * Math.cos(angle), center.getY(), center.getZ() + radius * Math.sin(angle)));
+        }
+
+        int stepMultiplier = points / 2;
+
+        int stepsPerLine = Math.max(1, steps / points);
+        for (int i = 0; i < points; i++) {
+            Vector p1 = vertices.get(i);
+            Vector p2;
+            if (connectAdjacent) {
+                p2 = vertices.get((i + 1) % points);
+            } else {
+                p2 = vertices.get((i + stepMultiplier) % points);
+            }
+
+            Vector direction = p2.clone().subtract(p1);
+            for (int j = 0; j < stepsPerLine; j++) {
+                Vector currentPos = p1.clone().add(direction.clone().multiply((double) j / stepsPerLine));
+                world.spawnParticle(particle, currentPos.getX(), currentPos.getY(), currentPos.getZ(), 1, 0, 0, 0, 0, particleData);
             }
         }
     }
@@ -316,13 +453,13 @@ public class EffectHandler {
     private void drawHelix(World world, Location center, Particle particle, double radius, double rotationAngle, Map<?, ?> config) {
         double height = EffectUtils.getDoubleFromConfig(config, "height", 5.0);
         int density = EffectUtils.getIntFromConfig(config, "density", 100);
-        int strands = EffectUtils.getIntFromConfig(config, "strands", 2); // Số chuỗi xoắn
+        int strands = EffectUtils.getIntFromConfig(config, "strands", 2);
         double yOffset = EffectUtils.getDoubleFromConfig(config, "y-offset", 0.1);
-        double revolutions = EffectUtils.getDoubleFromConfig(config, "revolutions", 2.0); // Số vòng xoắn
+        double revolutions = EffectUtils.getDoubleFromConfig(config, "revolutions", 2.0);
 
         for (int i = 0; i < density; i++) {
             double y = (height / density) * i;
-            double angle = revolutions * 2 * Math.PI * (y / height); // Góc xoay dựa trên chiều cao
+            double angle = revolutions * 2 * Math.PI * (y / height);
 
             for (int s = 0; s < strands; s++) {
                 double strandOffset = (2 * Math.PI / strands) * s;
@@ -340,9 +477,9 @@ public class EffectHandler {
 
         for (int i = 0; i < density; i++) {
             double progress = (double) i / density;
-            double currentRadius = radius * (1 - progress); // Bán kính nhỏ dần về phía dưới
+            double currentRadius = radius * (1 - progress);
             double y = height * (1 - progress);
-            double angle = progress * 4 * Math.PI; // Xoay nhiều vòng
+            double angle = progress * 4 * Math.PI;
 
             double x = center.getX() + currentRadius * Math.cos(angle + rotationAngle);
             double z = center.getZ() + currentRadius * Math.sin(angle + rotationAngle);
@@ -351,14 +488,13 @@ public class EffectHandler {
     }
 
     private void drawRain(World world, Location center, Particle particle, double radius, Map<?, ?> config) {
-        int density = EffectUtils.getIntFromConfig(config, "density", 10); // Mật độ mưa mỗi tick
+        int density = EffectUtils.getIntFromConfig(config, "density", 10);
         double height = EffectUtils.getDoubleFromConfig(config, "height", 10.0);
         Random random = new Random();
 
         for (int i = 0; i < density; i++) {
             double x = center.getX() + (random.nextDouble() - 0.5) * (radius * 2);
             double z = center.getZ() + (random.nextDouble() - 0.5) * (radius * 2);
-            // Chỉ spawn bên trong vòng tròn
             if (center.distanceSquared(new Location(world, x, center.getY(), z)) <= radius * radius) {
                 world.spawnParticle(particle, x, center.getY() + height, z, 1, 0, 0, 0, 0);
             }

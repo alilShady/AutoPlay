@@ -1,0 +1,162 @@
+# =========================================================================================
+#                          CUSTOM BASE EFFECT LIBRARY
+# =========================================================================================
+# Each ID defined here can be called in formations.yml using "base_effect_id".
+#
+# SHAPES:
+# - CIRCLE: A circle shape.
+# - STAR: A star shape.
+# - TRIANGLE, SQUARE, PENTAGON, HEXAGON, HEPTAGON, OCTAGON, NONAGON:
+#   The corresponding polygon shapes (3-sided, 4-sided, 5-sided, etc.).
+#
+# GLOBAL ATTRIBUTES (Apply to the entire effect):
+#   rotation_speed: The rotation speed of the entire effect. Can be negative.
+#   steps: The default number of particles for each shape. Higher is smoother.
+#   definitions: A list that contains one or more shape definitions.
+#
+# SHAPE ATTRIBUTES (Inside each definition):
+#   shape: (Required) The name of the shape (e.g., CIRCLE, STAR, PENTAGON).
+#   particle: (Required) The name of the particle (e.g., REDSTONE, FLAME).
+#   radius: The radius or size of the shape.
+#   points: (Required for shape: STAR) The number of points/wings for the star.
+#   color: (For REDSTONE particle only) The color using a Hex code (e.g., "#RRGGBB").
+#   size: (For REDSTONE particle only) The size of the particle.
+#   rotation_offset: Rotates this specific shape by a fixed angle (in degrees).
+#   offset: Moves this shape away from the formation's center.
+#     x: [number]
+#     y: [number]
+#     z: [number]
+# =========================================================================================
+
+# 1. Ancient Sealing Circle
+ancient-sealing-circle:
+  rotation_speed: 0.3
+  definitions:
+    # --- Outer Circles ---
+    - shape: CIRCLE
+      particle: REDSTONE
+      radius: 8.0
+      color: "#FF0000"
+      size: 1.2
+      steps: 300
+    - shape: CIRCLE
+      particle: REDSTONE
+      radius: 7.8
+      color: "#FF0000"
+      size: 1.2
+      steps: 300
+
+    # --- Large Central Pentagram ---
+    - shape: STAR
+      particle: REDSTONE
+      radius: 7.9
+      points: 5
+      color: "#FF0000"
+      size: 1.1
+      rotation_offset: 90
+
+    # --- 5 Small Pentagrams at the vertices ---
+    - shape: STAR # Top vertex
+      particle: REDSTONE
+      radius: 1.5
+      points: 5
+      color: "#FF0000"
+      rotation_offset: 90
+      offset:
+        y: 0.1
+        z: 7.0
+    - shape: STAR # Top-right vertex
+      particle: REDSTONE
+      radius: 1.5
+      points: 5
+      color: "#FF0000"
+      rotation_offset: 90
+      offset:
+        y: 0.1
+        x: 6.66
+        z: 2.16
+    - shape: STAR # Bottom-right vertex
+      particle: REDSTONE
+      radius: 1.5
+      points: 5
+      color: "#FF0000"
+      rotation_offset: 90
+      offset:
+        y: 0.1
+        x: 4.11
+        z: -5.66
+    - shape: STAR # Bottom-left vertex
+      particle: REDSTONE
+      radius: 1.5
+      points: 5
+      color: "#FF0000"
+      rotation_offset: 90
+      offset:
+        y: 0.1
+        x: -4.11
+        z: -5.66
+    - shape: STAR # Top-left vertex
+      particle: REDSTONE
+      radius: 1.5
+      points: 5
+      color: "#FF0000"
+      rotation_offset: 90
+      offset:
+        y: 0.1
+        x: -6.66
+        z: 2.16
+
+# 2. Arcane Convergence Circle
+arcane-convergence-circle:
+  rotation_speed: 0.6
+  definitions:
+    # --- Outer Dotted Circle (Pink) ---
+    - shape: CIRCLE
+      particle: REDSTONE
+      radius: 8.0
+      color: "#FF1493" # Deep Pink
+      size: 1.2
+      steps: 80
+
+    # --- Middle Polygon Layer (Purple) ---
+    - shape: OCTAGON
+      particle: REDSTONE
+      radius: 7.0
+      color: "#9400D3" # Dark Violet
+
+    # --- Main Geometric Layer (White/Light Pink) ---
+    - shape: STAR
+      particle: REDSTONE
+      radius: 6.5
+      points: 8
+      color: "#FFB6C1" # Light Pink
+    - shape: OCTAGON
+      particle: REDSTONE
+      radius: 6.5
+      color: "#FFFFFF"
+      rotation_offset: 22.5
+
+    # --- Inner Circle (White/Light Pink) ---
+    - shape: CIRCLE
+      particle: REDSTONE
+      radius: 4.0
+      color: "#FFFFFF"
+      size: 1.1
+
+    # --- Central Triangle (Purple & Blue) ---
+    - shape: TRIANGLE
+      particle: REDSTONE
+      radius: 3.8
+      color: "#9400D3"
+      size: 1.1
+    - shape: SQUARE
+      particle: REDSTONE
+      radius: 1.0
+      color: "#0000FF" # Blue
+
+    # --- Sparkles ---
+    - shape: STAR
+      particle: TOTEM
+      radius: 7.5
+      points: 16
+      steps: 16
