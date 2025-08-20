@@ -2,13 +2,9 @@ package com.alilshady.tutientranphap.effects;
 
 import com.alilshady.tutientranphap.EssenceArrays;
 import com.alilshady.tutientranphap.object.Formation;
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
-import org.bukkit.entity.Animals;
 import org.bukkit.entity.LivingEntity;
-import org.bukkit.entity.Monster;
-import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
 
 import java.util.Collection;
@@ -30,39 +26,11 @@ public class MobRepulsionEffect implements FormationEffect {
         double force = EffectUtils.getDoubleFromConfig(config, "value", 0.8);
         String targetType = EffectUtils.getStringFromConfig(config, "target", "DAMAGEABLE").toUpperCase();
         Vector centerVector = center.toVector();
-        Player owner = (ownerId != null) ? Bukkit.getPlayer(ownerId) : null;
 
         for (LivingEntity entity : nearbyEntities) {
-            boolean shouldRepel = false;
-            switch (targetType) {
-                case "OWNER":
-                    if (owner != null && entity.getUniqueId().equals(owner.getUniqueId())) {
-                        shouldRepel = true;
-                    }
-                    break;
-                case "ALL":
-                    shouldRepel = true;
-                    break;
-                case "MOBS":
-                    if (entity instanceof Monster) {
-                        shouldRepel = true;
-                    }
-                    break;
-                case "DAMAGEABLE":
-                    if (entity instanceof Monster || (entity instanceof Player && owner != null && !plugin.getTeamManager().isAlly(owner, (Player) entity))) {
-                        shouldRepel = true;
-                    }
-                    break;
-                case "UNDAMAGEABLE":
-                    if (entity instanceof Animals || (entity instanceof Player && owner != null && plugin.getTeamManager().isAlly(owner, (Player) entity))) {
-                        shouldRepel = true;
-                    }
-                    break;
-            }
-
-            if (shouldRepel) {
+            if (EffectUtils.shouldApplyToEntity(plugin, entity, targetType, ownerId)) {
                 Vector awayVector = entity.getLocation().toVector().subtract(centerVector).normalize().multiply(force);
-                awayVector.setY(0.1); // Đẩy nhẹ lên để tránh kẹt đất
+                awayVector.setY(0.1);
                 entity.setVelocity(awayVector);
             }
         }

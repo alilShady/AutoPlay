@@ -2,12 +2,9 @@ package com.alilshady.tutientranphap.effects;
 
 import com.alilshady.tutientranphap.EssenceArrays;
 import com.alilshady.tutientranphap.object.Formation;
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
-import org.bukkit.entity.Animals;
 import org.bukkit.entity.LivingEntity;
-import org.bukkit.entity.Monster;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.Damageable;
@@ -31,37 +28,9 @@ public class ItemRepairEffect implements FormationEffect {
 
         int amount = EffectUtils.getIntFromConfig(config, "value", 5);
         String targetType = EffectUtils.getStringFromConfig(config, "target", "UNDAMAGEABLE").toUpperCase();
-        Player owner = (ownerId != null) ? Bukkit.getPlayer(ownerId) : null;
 
         for (LivingEntity entity : nearbyEntities) {
-            boolean shouldRepair = false;
-            switch (targetType) {
-                case "OWNER":
-                    if (owner != null && entity.getUniqueId().equals(owner.getUniqueId())) {
-                        shouldRepair = true;
-                    }
-                    break;
-                case "ALL":
-                    shouldRepair = true;
-                    break;
-                case "MOBS":
-                    if (entity instanceof Monster) {
-                        shouldRepair = true;
-                    }
-                    break;
-                case "DAMAGEABLE":
-                    if (entity instanceof Monster || (entity instanceof Player && owner != null && !plugin.getTeamManager().isAlly(owner, (Player) entity))) {
-                        shouldRepair = true;
-                    }
-                    break;
-                case "UNDAMAGEABLE":
-                    if (entity instanceof Animals || (entity instanceof Player && owner != null && plugin.getTeamManager().isAlly(owner, (Player) entity))) {
-                        shouldRepair = true;
-                    }
-                    break;
-            }
-
-            if (shouldRepair && entity instanceof Player) {
+            if (EffectUtils.shouldApplyToEntity(plugin, entity, targetType, ownerId) && entity instanceof Player) {
                 Player player = (Player) entity;
                 repairItemInSlot(player.getInventory().getItemInMainHand(), amount);
                 repairItemInSlot(player.getInventory().getItemInOffHand(), amount);

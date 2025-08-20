@@ -2,14 +2,10 @@ package com.alilshady.tutientranphap.effects;
 
 import com.alilshady.tutientranphap.EssenceArrays;
 import com.alilshady.tutientranphap.object.Formation;
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Particle;
 import org.bukkit.block.Block;
-import org.bukkit.entity.Animals;
 import org.bukkit.entity.LivingEntity;
-import org.bukkit.entity.Monster;
-import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
 
 import java.util.Collection;
@@ -29,7 +25,6 @@ public class BarrierEffect implements FormationEffect {
         // Logic được gọi mỗi tick trong applyBarrierPush, không cần code ở đây
     }
 
-    // SỬA Ở ĐÂY: Thêm EssenceArrays plugin vào tham số
     public void applyBarrierPush(EssenceArrays plugin, Formation formation, Location center, Map<?, ?> config, Collection<LivingEntity> nearbyEntities, UUID ownerId) {
         if (nearbyEntities == null) return;
 
@@ -37,39 +32,12 @@ public class BarrierEffect implements FormationEffect {
         double radiusSquared = radius * radius;
         double force = EffectUtils.getDoubleFromConfig(config, "value", 1.5);
         String targetType = EffectUtils.getStringFromConfig(config, "target", "ALL").toUpperCase();
-        Player owner = (ownerId != null) ? Bukkit.getPlayer(ownerId) : null;
 
         for (LivingEntity entity : nearbyEntities) {
-            boolean shouldApply = false;
-            switch (targetType) {
-                case "OWNER":
-                    if (owner != null && entity.getUniqueId().equals(owner.getUniqueId())) {
-                        shouldApply = true;
-                    }
-                    break;
-                case "ALL":
-                    shouldApply = true;
-                    break;
-                case "MOBS":
-                    if (entity instanceof Monster) {
-                        shouldApply = true;
-                    }
-                    break;
-                case "DAMAGEABLE":
-                    // SỬA Ở ĐÂY: Dùng biến plugin đã được truyền vào
-                    if (entity instanceof Monster || (entity instanceof Player && owner != null && !plugin.getTeamManager().isAlly(owner, (Player) entity))) {
-                        shouldApply = true;
-                    }
-                    break;
-                case "UNDAMAGEABLE":
-                    // SỬA Ở ĐÂY: Dùng biến plugin đã được truyền vào
-                    if (entity instanceof Animals || (entity instanceof Player && owner != null && plugin.getTeamManager().isAlly(owner, (Player) entity))) {
-                        shouldApply = true;
-                    }
-                    break;
+            // Thay thế khối switch bằng một lời gọi phương thức duy nhất.
+            if (!EffectUtils.shouldApplyToEntity(plugin, entity, targetType, ownerId)) {
+                continue;
             }
-
-            if (!shouldApply) continue;
 
             Location entityLoc = entity.getLocation();
             double distanceSquared = center.distanceSquared(entityLoc);
