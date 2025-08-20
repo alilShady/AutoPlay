@@ -6,6 +6,7 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority; // <-- THÊM IMPORT MỚI
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
@@ -30,12 +31,12 @@ public class BlueprintListener implements Listener {
 
     /**
      * Lắng nghe sự kiện người chơi nhấn phím F (tráo đổi vật phẩm) để xoay Trận Đồ.
+     * Đặt ở mức ưu tiên HIGHEST để đảm bảo event.setCancelled(true) hoạt động chính xác.
      */
-    @EventHandler
+    @EventHandler(priority = EventPriority.HIGHEST) // <-- SỬA Ở ĐÂY
     public void onPlayerSwapHand(PlayerSwapHandItemsEvent event) {
         ItemStack mainHandItem = event.getMainHandItem();
 
-        // Kiểm tra xem vật phẩm trên tay có phải là Trận Đồ không.
         if (isBlueprint(mainHandItem)) {
             // Hủy sự kiện để ngăn vật phẩm bị tráo đổi sang tay phụ.
             event.setCancelled(true);
@@ -58,12 +59,11 @@ public class BlueprintListener implements Listener {
             return;
         }
 
-        // Nếu là Trận Đồ, hủy sự kiện để tránh các tương tác khác.
         event.setCancelled(true);
         plugin.getPreviewManager().clearPreview(event.getPlayer());
 
         ItemMeta meta = item.getItemMeta();
-        if (meta == null) return; // Kiểm tra an toàn
+        if (meta == null) return;
 
         PersistentDataContainer data = meta.getPersistentDataContainer();
         String formationId = data.get(formationIdKey, PersistentDataType.STRING);
@@ -84,8 +84,6 @@ public class BlueprintListener implements Listener {
 
     /**
      * Hàm tiện ích để kiểm tra một vật phẩm có phải là Trận Đồ hợp lệ hay không.
-     * @param item Vật phẩm cần kiểm tra.
-     * @return true nếu là Trận Đồ, ngược lại false.
      */
     private boolean isBlueprint(ItemStack item) {
         if (item == null || item.getType() != Material.PAPER || !item.hasItemMeta()) {

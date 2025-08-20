@@ -23,8 +23,6 @@ public class FormationManager {
     private final Map<Location, Formation> activeFormations = new HashMap<>();
     private final Map<Location, UUID> formationOwners = new HashMap<>();
 
-    // --- KHỐI STATIC NÀY ĐÃ BỊ XÓA ---
-
     public FormationManager(EssenceArrays plugin) {
         this.plugin = plugin;
         this.formationsByCenterBlock = new HashMap<>();
@@ -63,7 +61,6 @@ public class FormationManager {
         List<String> shape = rotateShape(formation.getShape(), rotation);
         if (shape.isEmpty() || shape.get(0).isEmpty()) return false;
 
-        // --- LẤY DANH SÁCH TỪ CONFIG ---
         Set<Material> replaceableBlocks = plugin.getConfigManager().getReplaceableBlocks();
 
         int patternHeight = shape.size();
@@ -80,13 +77,17 @@ public class FormationManager {
                 if (blockChar == ' ') continue;
 
                 Block relativeBlock = startLocation.getBlock().getRelative(x - centerXOffset, 0, z - centerZOffset);
-                // --- SỬA DÒNG KIỂM TRA NÀY ---
                 if (!replaceableBlocks.contains(relativeBlock.getType())) {
-                    if (plugin.getConfigManager().isDebugLoggingEnabled()) {
-                        plugin.getLogger().warning("[DEBUG][BUILD] Build failed. Block " + relativeBlock.getType() + " at " + relativeBlock.getLocation() + " is not replaceable.");
-                    }
-                    player.sendMessage(plugin.getConfigManager().getMessage("formation.blueprint.build-fail-space"));
+                    // --- BẮT ĐẦU THAY ĐỔI ---
+                    // Gửi tin nhắn chi tiết về khối bị vướng
+                    player.sendMessage(plugin.getConfigManager().getMessage("formation.blueprint.build-fail-obstructed",
+                            "%block_type%", relativeBlock.getType().name(),
+                            "%x%", String.valueOf(relativeBlock.getX()),
+                            "%y%", String.valueOf(relativeBlock.getY()),
+                            "%z%", String.valueOf(relativeBlock.getZ())
+                    ));
                     return false;
+                    // --- KẾT THÚC THAY ĐỔI ---
                 }
 
                 Material material = formation.getPatternKey().get(blockChar);

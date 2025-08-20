@@ -33,7 +33,7 @@ public class ConfigManager {
     private boolean debugLogging;
     private int effectCheckInterval;
     private boolean blueprintRequiresMaterials;
-    private Set<Material> replaceableBlocks; // <-- BIẾN MỚI
+    private Set<Material> replaceableBlocks;
 
     private final MiniMessage miniMessage = MiniMessage.miniMessage();
     private final Map<String, Map<String, Object>> customEffects = new HashMap<>();
@@ -51,7 +51,6 @@ public class ConfigManager {
         effectCheckInterval = mainConfig.getInt("effect-check-interval-ticks", 20);
         blueprintRequiresMaterials = mainConfig.getBoolean("blueprint.require-materials", true);
 
-        // --- LOGIC MỚI ĐỂ TẢI DANH SÁCH KHỐI ---
         List<String> replaceableBlockNames = mainConfig.getStringList("blueprint.replaceable-blocks");
         this.replaceableBlocks = replaceableBlockNames.stream()
                 .map(name -> {
@@ -64,7 +63,6 @@ public class ConfigManager {
                 })
                 .filter(Objects::nonNull)
                 .collect(Collectors.toSet());
-        // --- KẾT THÚC LOGIC MỚI ---
 
         File formationFile = new File(plugin.getDataFolder(), "formations.yml");
         if (!formationFile.exists()) {
@@ -79,12 +77,8 @@ public class ConfigManager {
             langDir.mkdirs();
         }
         File messagesFile = new File(langDir, langFileName);
-        plugin.saveResource("lang/" + langFileName, false);
         if (!messagesFile.exists()) {
-            plugin.getLogger().warning("Language file '" + langFileName + "' not found. Defaulting to 'en'.");
-            langFileName = "en.yml";
-            messagesFile = new File(langDir, langFileName);
-            plugin.saveResource("lang/en.yml", false);
+            plugin.saveResource("lang/" + langFileName, false);
         }
         messagesConfig = YamlConfiguration.loadConfiguration(messagesFile);
         InputStream defMessagesStream = plugin.getResource("lang/" + langFileName);
@@ -106,13 +100,21 @@ public class ConfigManager {
         customEffects.clear();
         if (customEffectsConfig == null) return;
 
+        // --- BẮT ĐẦU SỬA LỖI ---
+        // Thêm bước kiểm tra để đảm bảo section không bị null nếu file custom_effects.yml trống
         ConfigurationSection section = customEffectsConfig.getConfigurationSection("");
         if (section != null) {
             for (String id : section.getKeys(false)) {
-                Map<String, Object> effectData = section.getConfigurationSection(id).getValues(true);
-                customEffects.put(id, effectData);
+                // Lấy section con cho mỗi ID và kiểm tra null một lần nữa cho chắc chắn
+                ConfigurationSection effectSection = section.getConfigurationSection(id);
+                if (effectSection != null) {
+                    Map<String, Object> effectData = effectSection.getValues(true);
+                    customEffects.put(id, effectData);
+                }
             }
         }
+        // --- KẾT THÚC SỬA LỖI ---
+
         if (debugLogging) {
             plugin.getLogger().info("Loaded " + customEffects.size() + " custom base effects.");
         }
@@ -139,6 +141,8 @@ public class ConfigManager {
         Component component = miniMessage.deserialize(messageTemplate);
         return LegacyComponentSerializer.legacySection().serialize(component);
     }
+
+    // ... các hàm còn lại giữ nguyên không đổi ...
 
     public String getMessage(String path) {
         return getMessage(path, new String[0]);
@@ -219,7 +223,6 @@ public class ConfigManager {
         return blueprintRequiresMaterials;
     }
 
-    // --- GETTER MỚI ---
     public Set<Material> getReplaceableBlocks() {
         return replaceableBlocks;
     }

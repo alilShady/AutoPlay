@@ -25,7 +25,7 @@ formation:
     already-active: "<red>Trận pháp tại đây đã được kích hoạt.</red>"
   blueprint:
     build-success: "<green>Đã xây dựng thành công <yellow>%formation_name%</yellow>!</green>"
-    build-fail-space: "<red>Không đủ không gian để xây dựng trận pháp tại đây.</red>"
+    build-fail-obstructed: "<red>Không thể xây, khối <yellow>%block_type%</yellow> tại X:<white>%x%</white> Y:<white>%y%</white> Z:<white>%z%</white> đang cản đường!</red>"
     build-fail-materials: "<red>Bạn không có đủ nguyên liệu! Còn thiếu: %materials%</red>"
     rotated: "<gray>Đã xoay trận đồ: <white>%degrees% độ</white>"
 

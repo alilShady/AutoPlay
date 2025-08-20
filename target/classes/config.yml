@@ -26,8 +26,8 @@ blueprint:
   # Use official Material names from Bukkit: https://hub.spigotmc.org/javadocs/spigot/org/bukkit/Material.html
   replaceable-blocks:
     - "AIR"
-    - "GRASS"
     - "TALL_GRASS"
+    - "SHORT_GRASS"
     - "FERN"
     - "LARGE_FERN"
     - "DEAD_BUSH"
