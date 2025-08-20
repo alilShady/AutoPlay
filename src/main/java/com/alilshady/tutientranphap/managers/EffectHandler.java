@@ -1,4 +1,3 @@
-// src/main/java/com/alilshady/tutientranphap/managers/EffectHandler.java
 package com.alilshady.tutientranphap.managers;
 
 import com.alilshady.tutientranphap.EssenceArrays;
@@ -252,6 +251,33 @@ public class EffectHandler {
                 case "RAIN":
                     drawRain(world, centerPoint, particle, radius, shapeConfig);
                     break;
+                case "BASE":
+                    drawBase(world, center, particle, formation, shapeConfig);
+                    break;
+            }
+        }
+    }
+
+    private void drawBase(World world, Location center, Particle particle, Formation formation, Map<?, ?> config) {
+        int density = EffectUtils.getIntFromConfig(config, "density", 1);
+        double yOffset = EffectUtils.getDoubleFromConfig(config, "y-offset", 1.1);
+
+        List<String> shape = formation.getShape();
+        if (shape.isEmpty() || shape.get(0).isEmpty()) return;
+
+        int patternHeight = shape.size();
+        int patternWidth = shape.get(0).length();
+        int centerXOffset = patternWidth / 2;
+        int centerZOffset = patternHeight / 2;
+
+        for (int z = 0; z < patternHeight; z++) {
+            String row = shape.get(z);
+            for (int x = 0; x < patternWidth; x++) {
+                if (row.charAt(x) != ' ') {
+                    Block relativeBlock = center.getBlock().getRelative(x - centerXOffset, 0, z - centerZOffset);
+                    Location particleLoc = relativeBlock.getLocation().add(0.5, yOffset, 0.5);
+                    world.spawnParticle(particle, particleLoc, density, 0.2, 0, 0.2, 0);
+                }
             }
         }
     }
@@ -316,13 +342,13 @@ public class EffectHandler {
     private void drawHelix(World world, Location center, Particle particle, double radius, double rotationAngle, Map<?, ?> config) {
         double height = EffectUtils.getDoubleFromConfig(config, "height", 5.0);
         int density = EffectUtils.getIntFromConfig(config, "density", 100);
-        int strands = EffectUtils.getIntFromConfig(config, "strands", 2); // Số chuỗi xoắn
+        int strands = EffectUtils.getIntFromConfig(config, "strands", 2);
         double yOffset = EffectUtils.getDoubleFromConfig(config, "y-offset", 0.1);
-        double revolutions = EffectUtils.getDoubleFromConfig(config, "revolutions", 2.0); // Số vòng xoắn
+        double revolutions = EffectUtils.getDoubleFromConfig(config, "revolutions", 2.0);
 
         for (int i = 0; i < density; i++) {
             double y = (height / density) * i;
-            double angle = revolutions * 2 * Math.PI * (y / height); // Góc xoay dựa trên chiều cao
+            double angle = revolutions * 2 * Math.PI * (y / height);
 
             for (int s = 0; s < strands; s++) {
                 double strandOffset = (2 * Math.PI / strands) * s;
@@ -340,9 +366,9 @@ public class EffectHandler {
 
         for (int i = 0; i < density; i++) {
             double progress = (double) i / density;
-            double currentRadius = radius * (1 - progress); // Bán kính nhỏ dần về phía dưới
+            double currentRadius = radius * (1 - progress);
             double y = height * (1 - progress);
-            double angle = progress * 4 * Math.PI; // Xoay nhiều vòng
+            double angle = progress * 4 * Math.PI;
 
             double x = center.getX() + currentRadius * Math.cos(angle + rotationAngle);
             double z = center.getZ() + currentRadius * Math.sin(angle + rotationAngle);
@@ -351,14 +377,13 @@ public class EffectHandler {
     }
 
     private void drawRain(World world, Location center, Particle particle, double radius, Map<?, ?> config) {
-        int density = EffectUtils.getIntFromConfig(config, "density", 10); // Mật độ mưa mỗi tick
+        int density = EffectUtils.getIntFromConfig(config, "density", 10);
         double height = EffectUtils.getDoubleFromConfig(config, "height", 10.0);
         Random random = new Random();
 
         for (int i = 0; i < density; i++) {
             double x = center.getX() + (random.nextDouble() - 0.5) * (radius * 2);
             double z = center.getZ() + (random.nextDouble() - 0.5) * (radius * 2);
-            // Chỉ spawn bên trong vòng tròn
             if (center.distanceSquared(new Location(world, x, center.getY(), z)) <= radius * radius) {
                 world.spawnParticle(particle, x, center.getY() + height, z, 1, 0, 0, 0, 0);
             }

@@ -262,6 +262,10 @@ holy-light-healing-formation:
         particle: HAPPY_VILLAGER
         height: 15
         strands: 2
+      - type: BASE   # <-- THÊM MỚI TẠI ĐÂY
+        particle: TOTEM
+        density: 1
+        y-offset: 1.2
   effects:
     - type: "HEAL"
       target: "UNDAMAGEABLE"
