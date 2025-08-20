@@ -202,6 +202,17 @@ public class EffectHandler {
         if (world == null) return;
         Location centerPoint = center.clone().add(0.5, 0.1, 0.5);
 
+        if (config.containsKey("base_effect_id")) {
+            String baseEffectId = (String) config.get("base_effect_id");
+            Map<String, Object> baseEffectConfig = plugin.getConfigManager().getCustomEffect(baseEffectId);
+
+            if (baseEffectConfig != null) {
+                double rotationSpeed = EffectUtils.getDoubleFromConfig(baseEffectConfig, "rotation_speed", 0.0);
+                double rotationAngle = Math.toRadians(tick * rotationSpeed);
+                drawCustomShapes(world, centerPoint, rotationAngle, baseEffectConfig);
+            }
+        }
+
         Object shapesObject = config.get("shapes");
         if (!(shapesObject instanceof List)) {
             return;
@@ -216,11 +227,8 @@ public class EffectHandler {
             String type = EffectUtils.getStringFromConfig(shapeConfig, "type", "").toUpperCase();
             Particle particle = Optional.ofNullable(EffectUtils.getStringFromConfig(shapeConfig, "particle", null))
                     .map(s -> {
-                        try {
-                            return Particle.valueOf(s.toUpperCase());
-                        } catch (IllegalArgumentException e) {
-                            return null;
-                        }
+                        try { return Particle.valueOf(s.toUpperCase()); }
+                        catch (IllegalArgumentException e) { return null; }
                     }).orElse(null);
 
             if (particle == null) continue;
@@ -251,33 +259,89 @@ public class EffectHandler {
                 case "RAIN":
                     drawRain(world, centerPoint, particle, radius, shapeConfig);
                     break;
-                case "BASE":
-                    drawBase(world, center, particle, formation, shapeConfig);
+            }
+        }
+    }
+
+    private void drawCustomShapes(World world, Location center, double rotationAngle, Map<?, ?> config) {
+        Object definitionsObject = config.get("definitions");
+        if (!(definitionsObject instanceof List)) return;
+
+        List<?> definitions = (List<?>) definitionsObject;
+        int steps = EffectUtils.getIntFromConfig(config, "steps", 100);
+        double yOffset = EffectUtils.getDoubleFromConfig(config, "y-offset", 0.5);
+        Location shapeCenter = center.clone().add(0, yOffset, 0);
+
+        for (Object defObj : definitions) {
+            if (!(defObj instanceof Map)) continue;
+            Map<?, ?> definition = (Map<?, ?>) defObj;
+
+            String shapeType = EffectUtils.getStringFromConfig(definition, "shape", "").toUpperCase();
+            int shapeSteps = EffectUtils.getIntFromConfig(definition, "steps", steps);
+            Particle particle = Optional.ofNullable(EffectUtils.getStringFromConfig(definition, "particle", null))
+                    .map(s -> {
+                        try { return Particle.valueOf(s.toUpperCase()); }
+                        catch (IllegalArgumentException e) { return null; }
+                    }).orElse(Particle.REDSTONE);
+
+            double radius = EffectUtils.getDoubleFromConfig(definition, "radius", 5.0);
+            double rotationOffset = Math.toRadians(EffectUtils.getDoubleFromConfig(definition, "rotation_offset", 0.0));
+
+            Particle.DustOptions dustOptions = null;
+            if (particle == Particle.REDSTONE && definition.containsKey("color")) {
+                try {
+                    java.awt.Color color = java.awt.Color.decode(EffectUtils.getStringFromConfig(definition, "color", "#FFFFFF"));
+                    float size = (float) EffectUtils.getDoubleFromConfig(definition, "size", 1.0);
+                    dustOptions = new Particle.DustOptions(Color.fromRGB(color.getRed(), color.getGreen(), color.getBlue()), size);
+                } catch (NumberFormatException ignored) {}
+            }
+
+            switch (shapeType) {
+                case "CIRCLE":
+                    drawParticleCircle(world, shapeCenter, particle, radius, shapeSteps, rotationAngle, dustOptions);
+                    break;
+                case "STAR":
+                    int points = EffectUtils.getIntFromConfig(definition, "points", 5);
+                    boolean connectAdjacent = EffectUtils.getBooleanFromConfig(definition, "connect_adjacent", false);
+                    int stepMultiplier = EffectUtils.getIntFromConfig(definition, "step_multiplier", 2);
+                    drawParticleStarOrPolygon(world, shapeCenter, particle, radius, points, shapeSteps, rotationAngle + rotationOffset, connectAdjacent, stepMultiplier, dustOptions);
                     break;
             }
         }
     }
 
-    private void drawBase(World world, Location center, Particle particle, Formation formation, Map<?, ?> config) {
-        int density = EffectUtils.getIntFromConfig(config, "density", 1);
-        double yOffset = EffectUtils.getDoubleFromConfig(config, "y-offset", 1.1);
+    private void drawParticleCircle(World world, Location center, Particle particle, double radius, int steps, double rotationAngle, Object particleData) {
+        for (int i = 0; i < steps; i++) {
+            double angle = (2 * Math.PI * i / steps) + rotationAngle;
+            double x = center.getX() + radius * Math.cos(angle);
+            double z = center.getZ() + radius * Math.sin(angle);
+            world.spawnParticle(particle, x, center.getY(), z, 1, 0, 0, 0, 0, particleData);
+        }
+    }
 
-        List<String> shape = formation.getShape();
-        if (shape.isEmpty() || shape.get(0).isEmpty()) return;
+    private void drawParticleStarOrPolygon(World world, Location center, Particle particle, double radius, int points, int steps, double rotationAngle, boolean connectAdjacent, int stepMultiplier, Object particleData) {
+        if (points < 2) return;
 
-        int patternHeight = shape.size();
-        int patternWidth = shape.get(0).length();
-        int centerXOffset = patternWidth / 2;
-        int centerZOffset = patternHeight / 2;
+        List<Vector> vertices = new ArrayList<>();
+        for (int i = 0; i < points; i++) {
+            double angle = (2 * Math.PI * i / points) + rotationAngle;
+            vertices.add(new Vector(center.getX() + radius * Math.cos(angle), center.getY(), center.getZ() + radius * Math.sin(angle)));
+        }
 
-        for (int z = 0; z < patternHeight; z++) {
-            String row = shape.get(z);
-            for (int x = 0; x < patternWidth; x++) {
-                if (row.charAt(x) != ' ') {
-                    Block relativeBlock = center.getBlock().getRelative(x - centerXOffset, 0, z - centerZOffset);
-                    Location particleLoc = relativeBlock.getLocation().add(0.5, yOffset, 0.5);
-                    world.spawnParticle(particle, particleLoc, density, 0.2, 0, 0.2, 0);
-                }
+        int stepsPerLine = Math.max(1, steps / points);
+        for (int i = 0; i < points; i++) {
+            Vector p1 = vertices.get(i);
+            Vector p2;
+            if (connectAdjacent) {
+                p2 = vertices.get((i + 1) % points);
+            } else {
+                p2 = vertices.get((i + stepMultiplier) % points);
+            }
+
+            Vector direction = p2.clone().subtract(p1);
+            for (int j = 0; j < stepsPerLine; j++) {
+                Vector currentPos = p1.clone().add(direction.clone().multiply((double) j / stepsPerLine));
+                world.spawnParticle(particle, currentPos.getX(), currentPos.getY(), currentPos.getZ(), 1, 0, 0, 0, 0, particleData);
             }
         }
     }

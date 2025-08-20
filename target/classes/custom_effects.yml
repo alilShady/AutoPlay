@@ -1,0 +1,145 @@
+# =========================================================================================
+#                          THƯ VIỆN HIỆU ỨNG BASE TÙY CHỈNH
+# =========================================================================================
+# Mỗi ID ở đây có thể được gọi trong formations.yml bằng cách sử dụng "base_effect_id"
+#
+# CÁC HÌNH DẠNG (shape):
+# - CIRCLE: Vòng tròn
+# - STAR: Ngôi sao. Thêm "connect_adjacent: true" để vẽ Đa Giác.
+#
+# THUỘC TÍNH:
+#   particle: Loại hạt (VD: REDSTONE, FLAME, SOUL_FIRE_FLAME)
+#   color: "#RRGGBB" (Chỉ dùng cho particle REDSTONE)
+#   size: 1.0 (Chỉ dùng cho particle REDSTONE)
+#   radius: Bán kính
+#   points: Số đỉnh (cho STAR/Đa Giác)
+#   rotation_offset: Xoay nhẹ hình (độ)
+#   step_multiplier: (Cho STAR) Bước nhảy để nối đỉnh (VD: 2 là nối cách 1 đỉnh)
+# =========================================================================================
+
+# --- HIỆU ỨNG MỚI: DỰA TRÊN HÌNH ẢNH BẠN GỬI ---
+huyen-ao-phap-tran:
+  type: CUSTOM
+  y-offset: 0.2
+  steps: 400 # Tăng steps để các vòng tròn cực mịn
+  rotation_speed: 0.8
+  definitions:
+    # Lớp 1: Vòng tròn ngoài cùng phát sáng
+    - shape: CIRCLE
+      particle: REDSTONE
+      radius: 8.0
+      color: "#FF00FF" # Màu hồng tím
+      size: 1.3
+    # Lớp 2: Vòng tròn các ký tự rune (giả lập bằng các chấm particle)
+    - shape: CIRCLE
+      particle: ENCHANTMENT_TABLE
+      radius: 7.2
+      steps: 80 # Giảm steps để tạo các chấm rời rạc
+    # Lớp 3: Hình đa giác 6 cạnh (Lục giác) ở giữa
+    - shape: STAR
+      particle: REDSTONE
+      radius: 6.5
+      points: 6
+      color: "#FFFFFF" # Màu trắng
+      connect_adjacent: true # Vẽ hình lục giác
+    # Lớp 4: Các đường cong bên trong (giả lập bằng sao 12 cánh phức tạp)
+    - shape: STAR
+      particle: SOUL_FIRE_FLAME
+      radius: 5.5
+      points: 12
+      step_multiplier: 5 # Tạo hoa văn phức tạp bên trong
+    # Lớp 5: Vòng tròn nhỏ trung tâm
+    - shape: CIRCLE
+      particle: PORTAL
+      radius: 2.0
+      steps: 100
+
+# --- HIỆU ỨNG MỚI: PHONG CÁCH BĂNG GIÁ ---
+bang-han-tran:
+  type: CUSTOM
+  y-offset: 0.2
+  steps: 300
+  rotation_speed: -0.5
+  definitions:
+    - shape: STAR
+      particle: SNOWFLAKE
+      radius: 7.5
+      points: 6
+      connect_adjacent: true
+    - shape: STAR
+      particle: REDSTONE
+      radius: 7.5
+      points: 6
+      color: "#00FFFF" # Cyan
+      connect_adjacent: true
+    - shape: STAR
+      particle: REDSTONE
+      radius: 7.0
+      points: 6
+      color: "#FFFFFF"
+      connect_adjacent: false # Mặc định là sao
+    - shape: CIRCLE
+      particle: SOUL
+      radius: 4.0
+      steps: 60
+
+# --- HIỆU ỨNG MỚI: PHONG CÁCH HẮC ÁM / ĐỊA NGỤC ---
+dia-nguc-tran:
+  type: CUSTOM
+  y-offset: 0.3
+  steps: 350
+  rotation_speed: 1.2
+  definitions:
+    - shape: STAR
+      particle: REDSTONE
+      radius: 8.0
+      points: 7
+      step_multiplier: 3 # Vẽ sao 7 cánh (Heptagram)
+      color: "#FF0000" # Đỏ
+      size: 1.2
+    - shape: STAR
+      particle: REDSTONE
+      radius: 8.0
+      points: 7
+      step_multiplier: 3
+      color: "#000000" # Đen
+      size: 1.2
+      rotation_offset: 5 # Xoay nhẹ để tạo viền
+    - shape: CIRCLE
+      particle: SMOKE_LARGE
+      radius: 5.0
+      steps: 50
+    - shape: CIRCLE
+      particle: LAVA
+      radius: 2.5
+      steps: 70
+
+# --- HIỆU ỨNG MỚI: PHONG CÁCH MẶT TRỜI / THÁI DƯƠNG ---
+thai-duong-tran:
+  type: CUSTOM
+  y-offset: 0.1
+  steps: 300
+  rotation_speed: 0
+  definitions:
+    - shape: CIRCLE
+      particle: FLAME
+      radius: 7.0
+    - shape: STAR
+      particle: REDSTONE
+      radius: 6.5
+      points: 16
+      step_multiplier: 7 # Tạo ra các tia nắng tỏa ra
+      color: "#FFFF00" # Vàng
+      size: 1.1
+    - shape: STAR
+      particle: REDSTONE
+      radius: 6.5
+      points: 16
+      step_multiplier: 7
+      color: "#FFA500" # Cam
+      size: 1.1
+      rotation_offset: 11.25 # Xoay lệch để đan xen
+    - shape: CIRCLE
+      particle: TOTEM
+      radius: 3.0
+      steps: 150

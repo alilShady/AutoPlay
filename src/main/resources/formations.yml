@@ -254,18 +254,12 @@ holy-light-healing-formation:
       - "P   P"
       - " GPG "
   particles:
+    base_effect_id: "thanh-quang-tran"
     shapes:
-      - type: RING
-        particle: TOTEM
-        y-offset: 0.1
       - type: HELIX
-        particle: HAPPY_VILLAGER
+        particle: TOTEM # Đã thay thế HAPPY_VILLAGER
         height: 15
         strands: 2
-      - type: BASE   # <-- THÊM MỚI TẠI ĐÂY
-        particle: TOTEM
-        density: 1
-        y-offset: 1.2
   effects:
     - type: "HEAL"
       target: "UNDAMAGEABLE"
@@ -295,13 +289,12 @@ water-god-wrath-formation:
       - "P   P"
       - " SPS "
   particles:
+    base_effect_id: "thuy-than-no-tran"
     shapes:
       - type: VORTEX
         particle: SQUID_INK
         radius: 10
         height: 15
-      - type: CLIMATE
-        mode: "RAIN"
   effects:
     - type: "VORTEX"
       target: "DAMAGEABLE"
@@ -330,13 +323,13 @@ hellfire-formation:
       - "B X B"
       - " NBN "
   particles:
+    base_effect_id: "dia-nguc-hoa-tran"
     shapes:
-      - type: RING
-        particle: FLAME
       - type: PILLAR
         particle: LAVA
-        count: 6
+        count: 7
         height: 10
+        radius: 7.5
   effects:
     - type: "DAMAGE"
       target: "DAMAGEABLE"
@@ -361,13 +354,10 @@ dark-seal-formation:
       - "S X S"
       - " OSO "
   particles:
+    base_effect_id: "hac-am-phong-an"
     shapes:
       - type: DOME
         particle: SQUID_INK
-      - type: PILLAR
-        particle: SOUL_FIRE_FLAME
-        count: 8
-        height: 8
   effects:
     - type: "ROOT"
       target: "DAMAGEABLE"
@@ -398,6 +388,7 @@ wood-spirit-formation:
       - "L X L"
       - " VLV "
   particles:
+    base_effect_id: "moc-linh-tran"
     shapes:
       - type: RAIN
         particle: SPORE_BLOSSOM_AIR
@@ -406,7 +397,7 @@ wood-spirit-formation:
     - type: "GROWTH"
       value: 3.0
     - type: "BREED"
-      value: 100 # 5-second cooldown
+      value: 100
     - type: "POTION"
       target: "UNDAMAGEABLE"
       potion_effect: "SATURATION"
@@ -428,16 +419,18 @@ ice-soul-formation:
       - "P X P"
       - " IPI "
   particles:
+    base_effect_id: "bang-han-tran"
     shapes:
       - type: DOME
         particle: SNOWFLAKE
+        radius: 18
   effects:
     - type: "FREEZE"
     - type: "POTION"
       target: "DAMAGEABLE"
       potion_effect: "SLOW"
       value: 2
-    - type: "STASIS" # Slows projectiles
+    - type: "STASIS"
       target: "DAMAGEABLE"
       value: 3
 
@@ -457,16 +450,9 @@ time-space-formation:
       - "C X C"
       - " ECE "
   particles:
-    shapes:
-      - type: RING
-        particle: REVERSE_PORTAL
-        rotation_speed: 2.0
-      - type: RING
-        particle: PORTAL
-        radius: 14
-        rotation_speed: -2.0
+    base_effect_id: "thoi-khong-tran"
   effects:
-    - type: "STASIS" # Slows entities and projectiles
+    - type: "STASIS"
       target: "ALL"
       value: 5
 
@@ -486,10 +472,7 @@ earthen-bulwark-formation:
       - "M X M"
       - " SMS "
   particles:
-    shapes:
-      - type: DOME
-        particle: SPORE_BLOSSOM_AIR
-        lines: 8
+    base_effect_id: "tho-thanh-tran"
   effects:
     - type: "BARRIER"
       target: "DAMAGEABLE"
@@ -518,9 +501,8 @@ miner-fortune-formation:
       - "I X I"
       - " D D "
   particles:
+    base_effect_id: "khoang-san-tran"
     shapes:
-      - type: RING
-        particle: CRIT
       - type: SPHERE
         particle: ENCHANTMENT_TABLE
         y-offset: 1.5
@@ -551,13 +533,7 @@ demonic-ritual-formation:
       - "G X G"
       - " BGB "
   particles:
-    shapes:
-      - type: HELIX
-        particle: SOUL_FIRE_FLAME
-        strands: 3
-        height: 10
-      - type: RING
-        particle: SMOKE_LARGE
+    base_effect_id: "dia-nguc-hoa-tran" # Tái sử dụng
   effects:
     - type: "POTION"
       target: "DAMAGEABLE"
@@ -591,12 +567,13 @@ celestial-sanctuary-formation:
       - "G   G"
       - "SGSGS"
   particles:
+    base_effect_id: "thien-gioi-thanh-역"
     shapes:
       - type: DOME
         particle: END_ROD
         lines: 16
   effects:
-    - type: "SANCTUARY" # Prevents natural monster spawning
+    - type: "SANCTUARY"
     - type: "HEAL"
       target: "UNDAMAGEABLE"
       value: 0.5
@@ -620,11 +597,7 @@ volcanic-forge-formation:
       - "O X O"
       - " MOM "
   particles:
-    shapes:
-      - type: PILLAR
-        particle: LAVA
-        count: 4
-        height: 5
+    base_effect_id: "hoa-diem-son-tran"
   effects:
     - type: "SMELT"
       value: 3.0
@@ -654,9 +627,7 @@ bountiful-harvest-formation:
       - "D W D"
       - " DDD "
   particles:
-    shapes:
-      - type: RING
-        particle: VILLAGER_HAPPY
+    base_effect_id: "mua-mang-boi-thu"
   effects:
     - type: "GROWTH"
       value: 5.0
@@ -679,6 +650,7 @@ withered-blight-formation:
       - "S X S"
       - " BSB "
   particles:
+    base_effect_id: "kho-tan-chi-dia"
     shapes:
       - type: RAIN
         particle: WHITE_ASH
@@ -708,6 +680,7 @@ raging-tempest-formation:
       - " I I "
       - "  I  "
   particles:
+    base_effect_id: "cuong-phong-tran"
     shapes:
       - type: RING
         particle: CLOUD
@@ -736,6 +709,7 @@ abyssal-grasp-formation:
       - "C X C"
       - " VCV "
   particles:
+    base_effect_id: "vuc-tham-tran"
     shapes:
       - type: VORTEX
         particle: SQUID_INK
@@ -767,9 +741,8 @@ fae-playground-formation:
       - "L   L"
       - "FLFLF"
   particles:
+    base_effect_id: "tien-toc-vu-khuc"
     shapes:
-      - type: RING
-        particle: HEART
       - type: SPHERE
         particle: NOTE
         y-offset: 2
@@ -803,9 +776,7 @@ dragon-roar-formation:
       - "C X C"
       - " OCO "
   particles:
-    shapes:
-      - type: RING
-        particle: DRAGON_BREATH
+    base_effect_id: "long-uy-tran"
   effects:
     - type: "POTION"
       target: "DAMAGEABLE"
@@ -816,7 +787,7 @@ dragon-roar-formation:
       duration: "8s"
     - type: "EXPLOSION"
       target: "DAMAGEABLE"
-      value: 0.5 # Small, frequent explosions
+      value: 0.5
 
 # 19. Theme: Golden Bounty
 golden-bounty-formation:
@@ -833,9 +804,7 @@ golden-bounty-formation:
       - "E X E"
       - " E E "
   particles:
-    shapes:
-      - type: RING
-        particle: TOTEM
+    base_effect_id: "thai-duong-tran"
   effects:
     - type: "COLLECT"
       value: 1.0
@@ -859,6 +828,7 @@ phantom-zone-formation:
       - "E X E"
       - " EEE "
   particles:
+    base_effect_id: "di-gioi-khong-gian"
     shapes:
       - type: DOME
         particle: REVERSE_PORTAL

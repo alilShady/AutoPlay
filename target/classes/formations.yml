@@ -254,18 +254,12 @@ holy-light-healing-formation:
       - "P   P"
       - " GPG "
   particles:
+    base_effect_id: "ngu-hanh-tran" # <-- Gọi hiệu ứng base Ngũ Hành
     shapes:
-      - type: RING
-        particle: TOTEM
-        y-offset: 0.1
       - type: HELIX
         particle: HAPPY_VILLAGER
         height: 15
         strands: 2
-      - type: BASE   # <-- THÊM MỚI TẠI ĐÂY
-        particle: TOTEM
-        density: 1
-        y-offset: 1.2
   effects:
     - type: "HEAL"
       target: "UNDAMAGEABLE"
@@ -330,13 +324,13 @@ hellfire-formation:
       - "B X B"
       - " NBN "
   particles:
+    base_effect_id: "dia-nguc-tran" # <-- Gọi hiệu ứng base Địa Ngục
     shapes:
-      - type: RING
-        particle: FLAME
       - type: PILLAR
         particle: LAVA
-        count: 6
+        count: 7
         height: 10
+        radius: 7.5
   effects:
     - type: "DAMAGE"
       target: "DAMAGEABLE"
@@ -345,74 +339,7 @@ hellfire-formation:
       target: "DAMAGEABLE"
       duration: "5s"
 
-# 4. Theme: Darkness & Debuffs
-dark-seal-formation:
-  display_name: "<dark_purple><bold>Dark Seal Formation</bold></dark_purple>"
-  activation_item: "WITHER_SKELETON_SKULL"
-  duration: "5m"
-  radius: 15
-  pattern:
-    key:
-      X: "CRYING_OBSIDIAN"
-      O: "OBSIDIAN"
-      S: "SOUL_SAND"
-    shape:
-      - " OSO "
-      - "S X S"
-      - " OSO "
-  particles:
-    shapes:
-      - type: DOME
-        particle: SQUID_INK
-      - type: PILLAR
-        particle: SOUL_FIRE_FLAME
-        count: 8
-        height: 8
-  effects:
-    - type: "ROOT"
-      target: "DAMAGEABLE"
-      duration: "5s"
-      value: 5
-    - type: "POTION"
-      target: "DAMAGEABLE"
-      potion_effect: "BLINDNESS"
-      value: 0
-    - type: "POTION"
-      target: "DAMAGEABLE"
-      potion_effect: "WITHER"
-      value: 0
-
-# 5. Theme: Nature & Life
-wood-spirit-formation:
-  display_name: "<green><bold>Wood Spirit Formation</bold></green>"
-  activation_item: "GRASS_BLOCK"
-  duration: "30m"
-  radius: 22
-  pattern:
-    key:
-      X: "MOSS_BLOCK"
-      L: "OAK_LOG"
-      V: "VINE"
-    shape:
-      - " VLV "
-      - "L X L"
-      - " VLV "
-  particles:
-    shapes:
-      - type: RAIN
-        particle: SPORE_BLOSSOM_AIR
-        height: 15
-  effects:
-    - type: "GROWTH"
-      value: 3.0
-    - type: "BREED"
-      value: 100 # 5-second cooldown
-    - type: "POTION"
-      target: "UNDAMAGEABLE"
-      potion_effect: "SATURATION"
-      value: 0
-
-# 6. Theme: Ice & Slowing
+# 4. Theme: Ice & Slowing
 ice-soul-formation:
   display_name: "<aqua><bold>Ice Soul Formation</bold></aqua>"
   activation_item: "BLUE_ICE"
@@ -428,79 +355,54 @@ ice-soul-formation:
       - "P X P"
       - " IPI "
   particles:
+    base_effect_id: "bang-han-tran" # <-- Gọi hiệu ứng base Băng Hàn
     shapes:
       - type: DOME
         particle: SNOWFLAKE
+        radius: 18
   effects:
     - type: "FREEZE"
     - type: "POTION"
       target: "DAMAGEABLE"
       potion_effect: "SLOW"
       value: 2
-    - type: "STASIS" # Slows projectiles
+    - type: "STASIS"
       target: "DAMAGEABLE"
       value: 3
 
-# 7. Theme: Time & Stasis
-time-space-formation:
-  display_name: "<light_purple><bold>Time-Space Formation</bold></light_purple>"
-  activation_item: "CLOCK"
-  duration: "1m"
+# 5. Mới: Trận pháp sử dụng hiệu ứng phức tạp từ ảnh
+huyen-ao-phong-an-tran:
+  display_name: "<light_purple><bold>Huyễn Ảo Phong Ấn Trận</bold>"
+  activation_item:
+    material: "NETHER_STAR"
+    name: "<light_purple>Linh Hồn Trận Pháp"
+  duration: "5m"
   radius: 15
   pattern:
     key:
-      X: "END_GATEWAY"
-      C: "AMETHYST_BLOCK"
-      E: "END_ROD"
+      X: "CRYING_OBSIDIAN"
+      A: "AMETHYST_BLOCK"
+      O: "OBSIDIAN"
     shape:
-      - " ECE "
-      - "C X C"
-      - " ECE "
+      - " OAO "
+      - "A X A"
+      - " OAO "
   particles:
+    base_effect_id: "huyen-ao-phap-tran" # <-- Gọi hiệu ứng base Huyễn Ảo
     shapes:
-      - type: RING
-        particle: REVERSE_PORTAL
-        rotation_speed: 2.0
-      - type: RING
+      - type: PILLAR
         particle: PORTAL
-        radius: 14
-        rotation_speed: -2.0
+        radius: 7.5
+        count: 6
+        height: 10
   effects:
-    - type: "STASIS" # Slows entities and projectiles
-      target: "ALL"
-      value: 5
-
-# 8. Theme: Earth Defense
-earthen-bulwark-formation:
-  display_name: "<saddle_brown><bold>Earthen Bulwark Formation</bold>"
-  activation_item: "EMERALD_BLOCK"
-  duration: "20m"
-  radius: 15
-  pattern:
-    key:
-      X: "EMERALD_BLOCK"
-      S: "STONE_BRICKS"
-      M: "MOSS_BLOCK"
-    shape:
-      - " SMS "
-      - "M X M"
-      - " SMS "
-  particles:
-    shapes:
-      - type: DOME
-        particle: SPORE_BLOSSOM_AIR
-        lines: 8
-  effects:
-    - type: "BARRIER"
+    - type: "STASIS"
       target: "DAMAGEABLE"
-      value: 1.5
-    - type: "POTION"
-      target: "UNDAMAGEABLE"
-      potion_effect: "RESISTANCE"
-      value: 0
-    - type: "REPEL"
+      value: 4
+    - type: "ROOT"
       target: "DAMAGEABLE"
-      value: 0.4
+      duration: "3s"
+      value: 8
 
 # 9. Theme: Miner's Boon
 miner-fortune-formation:

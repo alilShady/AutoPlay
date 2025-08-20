@@ -31,6 +31,7 @@ public final class EssenceArrays extends JavaPlugin {
         try {
             ConfigUpdater.updateFile(this, "config.yml");
             ConfigUpdater.updateFile(this, "formations.yml");
+            ConfigUpdater.updateFile(this, "custom_effects.yml"); // <-- THÊM DÒNG NÀY
             ConfigUpdater.updateFile(this, "lang/en.yml");
             ConfigUpdater.updateFile(this, "lang/vi.yml");
         } catch (IOException e) {
