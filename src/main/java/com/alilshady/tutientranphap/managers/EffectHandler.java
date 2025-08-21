@@ -28,9 +28,11 @@ public class EffectHandler {
     private final Set<UUID> playersInClimateZone = new HashSet<>();
     private final Map<String, FormationEffect> effectStrategies = new HashMap<>();
 
-    // MỚI: Lưu trữ hướng gió cho mỗi trận pháp THUNDER
+    // MỚI: Theo dõi các đối tượng lốc xoáy đang hoạt động cho mỗi trận pháp
+    private final Map<Location, List<ClimateEffect.Tornado>> activeTornadoes = new ConcurrentHashMap<>();
+
     private final Map<Location, Vector> formationWindVectors = new ConcurrentHashMap<>();
-    private final Random random = new Random(); // Thêm một đối tượng Random
+    private final Random random = new Random();
 
     public static final List<PotionEffectType> DEBUFFS_TO_CLEANSE = Collections.unmodifiableList(Arrays.asList(
             PotionEffectType.SLOW, PotionEffectType.SLOW_DIGGING, PotionEffectType.WEAKNESS,
@@ -65,8 +67,9 @@ public class EffectHandler {
 
         affectedEntitiesByFormation.put(center, new HashSet<>());
         animationTickMap.put(center, 0L);
+        // MỚI: Khởi tạo danh sách lốc xoáy cho trận pháp này
+        activeTornadoes.put(center, new ArrayList<>());
 
-        // MỚI: Tạo và lưu hướng gió nếu là trận pháp THUNDER
         formation.getEffects().stream()
                 .filter(map -> "CLIMATE".equalsIgnoreCase(String.valueOf(map.get("type"))))
                 .filter(map -> "THUNDER".equalsIgnoreCase(EffectUtils.getStringFromConfig(map, "mode", "")))
@@ -126,9 +129,10 @@ public class EffectHandler {
             FormationEffect strategy = effectStrategies.get(typeStr);
 
             if (strategy instanceof ClimateEffect) {
-                // SỬA Ở ĐÂY: Lấy hướng gió đã lưu và truyền vào
-                Vector windDirection = formationWindVectors.get(center); // Sẽ là null nếu không phải trận THUNDER
-                ((ClimateEffect) strategy).applyVisuals(world, center, formation.getRadius(), effectMap, allNearbyLivingEntities, windDirection);
+                Vector windDirection = formationWindVectors.get(center);
+                // MỚI: Truyền danh sách lốc xoáy đang hoạt động vào
+                List<ClimateEffect.Tornado> tornadoes = activeTornadoes.get(center);
+                ((ClimateEffect) strategy).applyVisuals(world, center, formation.getRadius(), effectMap, allNearbyLivingEntities, windDirection, tornadoes);
             }
 
             if (strategy instanceof StasisEffect) {
@@ -169,8 +173,9 @@ public class EffectHandler {
             task.cancel();
         }
 
-        // MỚI: Xóa hướng gió đã lưu khi trận pháp dừng
         formationWindVectors.remove(center);
+        // MỚI: Dọn dẹp danh sách lốc xoáy khi trận pháp dừng
+        activeTornadoes.remove(center);
 
         for (FormationEffect effect : effectStrategies.values()) {
             effect.clearState(center);
@@ -181,7 +186,8 @@ public class EffectHandler {
         plugin.getFormationManager().deactivateFormation(center);
     }
 
-    // ... (Các phương thức khác giữ nguyên không đổi)
+    // ... (Các phương thức khác giữ nguyên không đổi, không cần dán lại ở đây)
+    // ...
     private void updatePlayerWeather(Collection<LivingEntity> entities, Formation formation) {
         Optional<Map<?, ?>> climateConfig = formation.getEffects().stream()
                 .filter(map -> "CLIMATE".equalsIgnoreCase(String.valueOf(map.get("type"))))
