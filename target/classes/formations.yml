@@ -823,3 +823,36 @@ phantom-zone-formation:
       target: "DAMAGEABLE"
       potion_effect: "BLINDNESS"
       value: 0
+# Thêm vào file formations.yml của bạn
+
+# 23. Theme: Tornado & Destruction
+storm-god-tornado-formation:
+  display_name: "<gray><bold>Phong Thần Bão Tố</bold>"
+  activation_item: "GHAST_TEAR"
+  duration: "5m"
+  radius: 20 # Bán kính ảnh hưởng chung
+  pattern:
+    key:
+      X: "LODESTONE"
+      I: "IRON_BLOCK"
+      C: "CHISELED_STONE_BRICKS"
+    shape:
+      - " CIC "
+      - "I X I"
+      - " CIC "
+  particles:
+    shapes:
+      - type: RING
+        particle: CLOUD
+        radius: 20
+        density: 200
+  effects:
+    - type: "CLIMATE"
+      mode: "TORNADO"
+      # Các tùy chọn riêng cho vòi rồng
+      target: "ALL"       # Ảnh hưởng lên tất cả thực thể
+      height: 20          # Chiều cao của vòi rồng
+      radius: 10          # Bán kính của vòi rồng (phần rộng nhất)
+      particles: 400      # Mật độ hạt của vòi rồng
+      pull_force: 0.7     # Lực hút vào tâm
+      lift_force: 0.5     # Lực nâng lên

@@ -1,3 +1,4 @@
+// src/main/java/com/alilshady/tutientranphap/effects/ClimateEffect.java
 package com.alilshady.tutientranphap.effects;
 
 import com.alilshady.tutientranphap.EssenceArrays;
@@ -8,6 +9,7 @@ import org.bukkit.Particle;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
+import org.bukkit.block.data.BlockData;
 import org.bukkit.block.data.Levelled;
 import org.bukkit.block.data.Lightable;
 import org.bukkit.entity.LivingEntity;
@@ -16,7 +18,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.Damageable;
 import org.bukkit.util.Vector;
 
-import javax.annotation.Nullable; // <-- THÊM IMPORT MỚI
+import javax.annotation.Nullable;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -35,12 +37,11 @@ public class ClimateEffect implements FormationEffect {
 
     @Override
     public void apply(EssenceArrays plugin, Formation formation, Location center, Map<?, ?> config, Collection<LivingEntity> nearbyEntities, List<Block> nearbyBlocks, UUID ownerId) {
-        if (nearbyBlocks != null) {
-            applyPhysicalEffects(nearbyEntities, nearbyBlocks, config);
+        if (random.nextDouble() <= PHYSICAL_CHANCE) {
+            applyPhysicalEffects(plugin, ownerId, nearbyEntities, nearbyBlocks, config, center, formation.getRadius());
         }
     }
 
-    // SỬA Ở ĐÂY: Thêm tham số Vector windDirection
     public void applyVisuals(World world, Location center, double radius, Map<?, ?> config, Collection<LivingEntity> nearbyEntities, @Nullable Vector windDirection) {
         String mode = EffectUtils.getStringFromConfig(config, "mode", "RAIN").toUpperCase();
 
@@ -62,12 +63,16 @@ public class ClimateEffect implements FormationEffect {
                 if (random.nextDouble() < 0.01) {
                     strikeLightningEffectInArea(world, center, radius);
                 }
-                // SỬA Ở ĐÂY: Sử dụng hướng gió đã được truyền vào
                 if (windDirection != null && random.nextDouble() < 0.02) {
-                    double windForce = 0.6 + (random.nextDouble() * 0.4); // Tạo lực gió ngẫu nhiên
+                    // --- THAY ĐỔI CHÍNH Ở ĐÂY ---
+                    // Giảm mạnh lực gió để tạo cảm giác đẩy nhẹ nhàng, tự nhiên thay vì giật cục.
+                    double windForce = 0.1 + (random.nextDouble() * 0.15); // Lực gió cũ: 0.6 - 1.0, quá mạnh.
                     applyWindGust(nearbyEntities, windDirection.clone().multiply(windForce));
                     applyWindParticles(world, center, radius, windDirection);
                 }
+                break;
+            case "TORNADO":
+                applyTornadoVisuals(world, center, config);
                 break;
         }
     }
@@ -78,14 +83,9 @@ public class ClimateEffect implements FormationEffect {
             double distance = Math.sqrt(random.nextDouble()) * radius;
             double x = center.getX() + distance * Math.cos(angle);
             double z = center.getZ() + distance * Math.sin(angle);
-
-            double y;
-            if (particle == Particle.WATER_DROP || particle == Particle.SNOWFLAKE || particle == Particle.DRIPPING_OBSIDIAN_TEAR) {
-                y = center.getY() + height;
-            } else {
-                y = center.getY() + random.nextDouble() * height;
-            }
-
+            double y = (particle == Particle.WATER_DROP || particle == Particle.SNOWFLAKE || particle == Particle.DRIPPING_OBSIDIAN_TEAR)
+                    ? center.getY() + height
+                    : center.getY() + random.nextDouble() * height;
             world.spawnParticle(particle, x, y, z, 1, 0, 0, 0, 0);
         }
     }
@@ -106,17 +106,40 @@ public class ClimateEffect implements FormationEffect {
             double distance = Math.sqrt(random.nextDouble()) * radius;
             double x = center.getX() + distance * Math.cos(angle);
             double z = center.getZ() + distance * Math.sin(angle);
-            Block topBlock = world.getHighestBlockAt((int)x, (int)z);
+            Block topBlock = world.getHighestBlockAt((int) x, (int) z);
 
             if (topBlock.getType().name().contains("LEAVES")) {
                 Location particleLoc = topBlock.getLocation().add(0.5, -0.5, 0.5);
-                // SỬA Ở ĐÂY: Thêm vận tốc cho hạt lá bay theo hướng gió
                 world.spawnParticle(Particle.BLOCK_DUST, particleLoc, 0, windDirection.getX(), -0.2, windDirection.getZ(), 0.5, topBlock.getBlockData());
             }
         }
     }
 
-    private void applyPhysicalEffects(Collection<LivingEntity> nearbyEntities, List<Block> nearbyBlocks, Map<?, ?> config) {
+    private void applyTornadoVisuals(World world, Location center, Map<?, ?> config) {
+        double height = EffectUtils.getDoubleFromConfig(config, "height", 15.0);
+        double maxRadius = EffectUtils.getDoubleFromConfig(config, "radius", 8.0);
+        int particles = EffectUtils.getIntFromConfig(config, "particles", 300);
+        long tick = world.getFullTime();
+
+        for (int i = 0; i < particles; i++) {
+            double y = random.nextDouble() * height;
+            double progress = y / height;
+            double radius = maxRadius * (1 - progress);
+            double angle = (tick * 0.2 + (i * 1.5)) % (2 * Math.PI);
+
+            double x = center.getX() + radius * Math.cos(angle);
+            double z = center.getZ() + radius * Math.sin(angle);
+
+            world.spawnParticle(Particle.CLOUD, x, center.getY() + y, z, 1, 0, 0, 0, 0);
+
+            if (random.nextInt(10) == 0) {
+                BlockData blockData = world.getBlockAt(center.clone().add(random.nextGaussian() * 2, -1, random.nextGaussian() * 2)).getBlockData();
+                world.spawnParticle(Particle.BLOCK_DUST, center.getX(), center.getY() + 0.5, center.getZ(), 5, 2, 0.5, 2, 0.1, blockData);
+            }
+        }
+    }
+
+    private void applyPhysicalEffects(EssenceArrays plugin, UUID ownerId, Collection<LivingEntity> nearbyEntities, List<Block> nearbyBlocks, Map<?, ?> config, Location center, double radius) {
         String mode = EffectUtils.getStringFromConfig(config, "mode", "RAIN").toUpperCase();
 
         for (Block block : nearbyBlocks) {
@@ -139,6 +162,28 @@ public class ClimateEffect implements FormationEffect {
         if (mode.equals("ACID_RAIN")) {
             if (random.nextDouble() <= PHYSICAL_CHANCE) {
                 handleAcidRainEffects(nearbyEntities);
+            }
+        } else if (mode.equals("TORNADO")) {
+            handleTornadoEffects(plugin, ownerId, nearbyEntities, config, center, radius);
+        }
+    }
+
+    private void handleTornadoEffects(EssenceArrays plugin, UUID ownerId, Collection<LivingEntity> nearbyEntities, Map<?, ?> config, Location center, double radius) {
+        double pullForce = EffectUtils.getDoubleFromConfig(config, "pull_force", 0.8);
+        double liftForce = EffectUtils.getDoubleFromConfig(config, "lift_force", 0.6);
+        String targetType = EffectUtils.getStringFromConfig(config, "target", "ALL").toUpperCase();
+        Vector centerVector = center.toVector();
+
+        for (LivingEntity entity : nearbyEntities) {
+            if (EffectUtils.shouldApplyToEntity(plugin, entity, targetType, ownerId)) {
+                Vector entityVector = entity.getLocation().toVector();
+                double distance = entityVector.distance(centerVector);
+
+                if (distance < radius) {
+                    Vector toCenter = centerVector.clone().subtract(entityVector).normalize().multiply(pullForce);
+                    Vector lift = new Vector(0, liftForce, 0);
+                    entity.setVelocity(entity.getVelocity().add(toCenter).add(lift));
+                }
             }
         }
     }
@@ -192,11 +237,9 @@ public class ClimateEffect implements FormationEffect {
     private void handleDroughtEffects(Block block) {
         if (block.getType() == Material.FARMLAND) {
             block.setType(Material.DIRT);
-        }
-        else if (block.getType() == Material.WATER) {
+        } else if (block.getType() == Material.WATER) {
             block.setType(Material.AIR);
-        }
-        else if (block.getType().isFlammable() && block.getRelative(BlockFace.UP).getType().isAir() && random.nextDouble() < 0.01) {
+        } else if (block.getType().isFlammable() && block.getRelative(BlockFace.UP).getType().isAir() && random.nextDouble() < 0.01) {
             block.getRelative(BlockFace.UP).setType(Material.FIRE);
         }
     }
