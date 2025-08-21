@@ -7,11 +7,13 @@ import com.alilshady.tutientranphap.object.Formation;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.Player;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 import org.bukkit.util.Vector;
 
+import java.awt.Color;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
@@ -23,8 +25,12 @@ public class EffectHandler {
     private final Map<Location, BukkitTask> activeEffectTasks = new ConcurrentHashMap<>();
     private final Map<Location, Set<UUID>> affectedEntitiesByFormation = new ConcurrentHashMap<>();
     private final Map<Location, Long> animationTickMap = new ConcurrentHashMap<>();
-
+    private final Set<UUID> playersInClimateZone = new HashSet<>();
     private final Map<String, FormationEffect> effectStrategies = new HashMap<>();
+
+    // MỚI: Lưu trữ hướng gió cho mỗi trận pháp THUNDER
+    private final Map<Location, Vector> formationWindVectors = new ConcurrentHashMap<>();
+    private final Random random = new Random(); // Thêm một đối tượng Random
 
     public static final List<PotionEffectType> DEBUFFS_TO_CLEANSE = Collections.unmodifiableList(Arrays.asList(
             PotionEffectType.SLOW, PotionEffectType.SLOW_DIGGING, PotionEffectType.WEAKNESS,
@@ -60,6 +66,16 @@ public class EffectHandler {
         affectedEntitiesByFormation.put(center, new HashSet<>());
         animationTickMap.put(center, 0L);
 
+        // MỚI: Tạo và lưu hướng gió nếu là trận pháp THUNDER
+        formation.getEffects().stream()
+                .filter(map -> "CLIMATE".equalsIgnoreCase(String.valueOf(map.get("type"))))
+                .filter(map -> "THUNDER".equalsIgnoreCase(EffectUtils.getStringFromConfig(map, "mode", "")))
+                .findFirst()
+                .ifPresent(map -> {
+                    Vector windDirection = new Vector(random.nextDouble() - 0.5, 0, random.nextDouble() - 0.5).normalize();
+                    formationWindVectors.put(center, windDirection);
+                });
+
         final long maxDurationTicks = EffectUtils.parseDurationToTicks(formation.getDuration());
 
         BukkitTask task = new BukkitRunnable() {
@@ -79,6 +95,7 @@ public class EffectHandler {
 
             private void stopAndCleanup() {
                 this.cancel();
+                resetClimateForPlayersInZone(world, center, formation.getRadius());
                 removePotionEffects(formation, center);
                 stopEffect(center);
                 world.playSound(center, Sound.BLOCK_BEACON_DEACTIVATE, 1.0f, 1.0f);
@@ -102,9 +119,17 @@ public class EffectHandler {
 
         Collection<LivingEntity> allNearbyLivingEntities = world.getNearbyLivingEntities(center, formation.getRadius());
 
+        updatePlayerWeather(allNearbyLivingEntities, formation);
+
         for (Map<?, ?> effectMap : formation.getEffects()) {
             String typeStr = String.valueOf(effectMap.get("type")).toUpperCase();
             FormationEffect strategy = effectStrategies.get(typeStr);
+
+            if (strategy instanceof ClimateEffect) {
+                // SỬA Ở ĐÂY: Lấy hướng gió đã lưu và truyền vào
+                Vector windDirection = formationWindVectors.get(center); // Sẽ là null nếu không phải trận THUNDER
+                ((ClimateEffect) strategy).applyVisuals(world, center, formation.getRadius(), effectMap, allNearbyLivingEntities, windDirection);
+            }
 
             if (strategy instanceof StasisEffect) {
                 int slowAmplifier = EffectUtils.getIntFromConfig(effectMap, "value", 3);
@@ -138,17 +163,15 @@ public class EffectHandler {
         }
     }
 
-    public void trackAffectedEntity(Location center, UUID entityId) {
-        affectedEntitiesByFormation.computeIfAbsent(center, k -> new HashSet<>()).add(entityId);
-    }
-
     public void stopEffect(Location center) {
         BukkitTask task = activeEffectTasks.remove(center);
         if (task != null && !task.isCancelled()) {
             task.cancel();
         }
 
-        // Lặp qua tất cả các loại effect đã đăng ký và gọi hàm dọn dẹp của chúng.
+        // MỚI: Xóa hướng gió đã lưu khi trận pháp dừng
+        formationWindVectors.remove(center);
+
         for (FormationEffect effect : effectStrategies.values()) {
             effect.clearState(center);
         }
@@ -158,7 +181,103 @@ public class EffectHandler {
         plugin.getFormationManager().deactivateFormation(center);
     }
 
+    // ... (Các phương thức khác giữ nguyên không đổi)
+    private void updatePlayerWeather(Collection<LivingEntity> entities, Formation formation) {
+        Optional<Map<?, ?>> climateConfig = formation.getEffects().stream()
+                .filter(map -> "CLIMATE".equalsIgnoreCase(String.valueOf(map.get("type"))))
+                .findFirst();
+
+        if (!climateConfig.isPresent()) {
+            resetLingeringPlayers(entities);
+            return;
+        }
+
+        String mode = EffectUtils.getStringFromConfig(climateConfig.get(), "mode", "RAIN").toUpperCase();
+        WeatherType targetWeather;
+
+        switch (mode) {
+            case "RAIN":
+            case "THUNDER":
+            case "SNOW":
+            case "ACID_RAIN":
+                targetWeather = WeatherType.DOWNFALL;
+                break;
+            case "DROUGHT":
+                targetWeather = WeatherType.CLEAR;
+                break;
+            default:
+                targetWeather = null;
+        }
+
+        Set<UUID> playersCurrentlyInZone = new HashSet<>();
+
+        for (LivingEntity entity : entities) {
+            if (entity instanceof Player) {
+                Player player = (Player) entity;
+                playersCurrentlyInZone.add(player.getUniqueId());
+
+                if (targetWeather != null) {
+                    player.setPlayerWeather(targetWeather);
+                    playersInClimateZone.add(player.getUniqueId());
+                } else {
+                    player.resetPlayerWeather();
+                    playersInClimateZone.remove(player.getUniqueId());
+                }
+            }
+        }
+
+        Set<UUID> playersWhoLeft = new HashSet<>(playersInClimateZone);
+        playersWhoLeft.removeAll(playersCurrentlyInZone);
+        for(UUID uuid : playersWhoLeft) {
+            Player player = Bukkit.getPlayer(uuid);
+            if(player != null) {
+                player.resetPlayerWeather();
+            }
+            playersInClimateZone.remove(uuid);
+        }
+    }
+
+    private void resetLingeringPlayers(Collection<LivingEntity> entities) {
+        Set<UUID> playersInThisZone = entities.stream()
+                .filter(e -> e instanceof Player)
+                .map(LivingEntity::getUniqueId)
+                .collect(Collectors.toSet());
+
+        Set<UUID> playersToReset = new HashSet<>(playersInClimateZone);
+        playersToReset.retainAll(playersInThisZone);
+
+        for(UUID uuid : playersToReset) {
+            Player player = Bukkit.getPlayer(uuid);
+            if(player != null) {
+                player.resetPlayerWeather();
+            }
+            playersInClimateZone.remove(uuid);
+        }
+    }
+
+    private void resetClimateForPlayersInZone(World world, Location center, double radius) {
+        Collection<LivingEntity> entities = world.getNearbyLivingEntities(center, radius);
+        for (LivingEntity entity : entities) {
+            if (entity instanceof Player) {
+                ((Player) entity).resetPlayerWeather();
+            }
+        }
+        playersInClimateZone.clear();
+    }
+
+    public void trackAffectedEntity(Location center, UUID entityId) {
+        affectedEntitiesByFormation.computeIfAbsent(center, k -> new HashSet<>()).add(entityId);
+    }
+
     public void stopAllEffects() {
+        new HashSet<>(playersInClimateZone).forEach(uuid -> {
+            Player player = Bukkit.getPlayer(uuid);
+            if (player != null) {
+                player.resetPlayerWeather();
+            }
+        });
+        playersInClimateZone.clear();
+
         new ArrayList<>(activeEffectTasks.keySet()).forEach(this::stopEffect);
         activeEffectTasks.clear();
         affectedEntitiesByFormation.clear();
@@ -310,7 +429,7 @@ public class EffectHandler {
                 try {
                     java.awt.Color color = java.awt.Color.decode(EffectUtils.getStringFromConfig(definition, "color", "#FFFFFF"));
                     float size = (float) EffectUtils.getDoubleFromConfig(definition, "size", 1.0);
-                    dustOptions = new Particle.DustOptions(Color.fromRGB(color.getRed(), color.getGreen(), color.getBlue()), size);
+                    dustOptions = new Particle.DustOptions(org.bukkit.Color.fromRGB(color.getRed(), color.getGreen(), color.getBlue()), size);
                 } catch (NumberFormatException ignored) {}
             }
 

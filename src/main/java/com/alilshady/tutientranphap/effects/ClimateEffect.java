@@ -16,6 +16,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.Damageable;
 import org.bukkit.util.Vector;
 
+import javax.annotation.Nullable; // <-- THÊM IMPORT MỚI
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -25,7 +26,6 @@ import java.util.UUID;
 public class ClimateEffect implements FormationEffect {
 
     private final Random random = new Random();
-    private static final int VISUAL_DENSITY = 75;
     private static final double PHYSICAL_CHANCE = 0.05;
 
     @Override
@@ -35,42 +35,85 @@ public class ClimateEffect implements FormationEffect {
 
     @Override
     public void apply(EssenceArrays plugin, Formation formation, Location center, Map<?, ?> config, Collection<LivingEntity> nearbyEntities, List<Block> nearbyBlocks, UUID ownerId) {
-        if (nearbyEntities != null) {
-            applyVisualEffects(nearbyEntities, config);
-        }
         if (nearbyBlocks != null) {
             applyPhysicalEffects(nearbyEntities, nearbyBlocks, config);
         }
     }
 
-    private void applyVisualEffects(Collection<LivingEntity> nearbyEntities, Map<?, ?> config) {
+    // SỬA Ở ĐÂY: Thêm tham số Vector windDirection
+    public void applyVisuals(World world, Location center, double radius, Map<?, ?> config, Collection<LivingEntity> nearbyEntities, @Nullable Vector windDirection) {
         String mode = EffectUtils.getStringFromConfig(config, "mode", "RAIN").toUpperCase();
 
-        // TỐI ƯU: Sử dụng stream để lọc và chỉ xử lý các thực thể là Player
-        nearbyEntities.stream()
-                .filter(entity -> entity instanceof Player) // Chỉ giữ lại các thực thể là Player
-                .map(entity -> (Player) entity)             // Chuyển đổi (cast) stream thành Stream<Player>
-                .forEach(player -> {                        // Lặp qua từng Player đã được lọc
-                    switch (mode) {
-                        case "RAIN":
-                            spawnParticlesAroundPlayer(player, Particle.WATER_DROP, VISUAL_DENSITY, 15);
-                            break;
-                        case "SNOW":
-                            spawnParticlesAroundPlayer(player, Particle.SNOWFLAKE, VISUAL_DENSITY, 15);
-                            break;
-                        case "ACID_RAIN":
-                            spawnParticlesAroundPlayer(player, Particle.DRIPPING_OBSIDIAN_TEAR, VISUAL_DENSITY, 15);
-                            break;
-                        case "DROUGHT":
-                            spawnParticlesAroundPlayer(player, Particle.WHITE_ASH, 10, 15);
-                            break;
-                        case "THUNDER":
-                            spawnParticlesAroundPlayer(player, Particle.WATER_DROP, VISUAL_DENSITY, 15);
-                            if (random.nextDouble() < 0.01) strikeLightningEffectNearPlayer(player);
-                            if (random.nextDouble() < 0.02) applyWindGust(nearbyEntities);
-                            break;
-                    }
-                });
+        switch (mode) {
+            case "RAIN":
+                spawnParticlesInArea(world, center, radius, Particle.WATER_DROP, 150, 12);
+                break;
+            case "SNOW":
+                spawnParticlesInArea(world, center, radius, Particle.SNOWFLAKE, 100, 12);
+                break;
+            case "ACID_RAIN":
+                spawnParticlesInArea(world, center, radius, Particle.DRIPPING_OBSIDIAN_TEAR, 100, 12);
+                break;
+            case "DROUGHT":
+                spawnParticlesInArea(world, center, radius, Particle.WHITE_ASH, 15, 8);
+                break;
+            case "THUNDER":
+                spawnParticlesInArea(world, center, radius, Particle.WATER_DROP, 200, 15);
+                if (random.nextDouble() < 0.01) {
+                    strikeLightningEffectInArea(world, center, radius);
+                }
+                // SỬA Ở ĐÂY: Sử dụng hướng gió đã được truyền vào
+                if (windDirection != null && random.nextDouble() < 0.02) {
+                    double windForce = 0.6 + (random.nextDouble() * 0.4); // Tạo lực gió ngẫu nhiên
+                    applyWindGust(nearbyEntities, windDirection.clone().multiply(windForce));
+                    applyWindParticles(world, center, radius, windDirection);
+                }
+                break;
+        }
+    }
+
+    private void spawnParticlesInArea(World world, Location center, double radius, Particle particle, int count, double height) {
+        for (int i = 0; i < count; i++) {
+            double angle = random.nextDouble() * 2 * Math.PI;
+            double distance = Math.sqrt(random.nextDouble()) * radius;
+            double x = center.getX() + distance * Math.cos(angle);
+            double z = center.getZ() + distance * Math.sin(angle);
+
+            double y;
+            if (particle == Particle.WATER_DROP || particle == Particle.SNOWFLAKE || particle == Particle.DRIPPING_OBSIDIAN_TEAR) {
+                y = center.getY() + height;
+            } else {
+                y = center.getY() + random.nextDouble() * height;
+            }
+
+            world.spawnParticle(particle, x, y, z, 1, 0, 0, 0, 0);
+        }
+    }
+
+    private void strikeLightningEffectInArea(World world, Location center, double radius) {
+        double angle = random.nextDouble() * 2 * Math.PI;
+        double distance = Math.sqrt(random.nextDouble()) * radius;
+        double x = center.getX() + distance * Math.cos(angle);
+        double z = center.getZ() + distance * Math.sin(angle);
+        Location strikeLoc = new Location(world, x, center.getY(), z);
+        strikeLoc.setY(world.getHighestBlockYAt(strikeLoc));
+        world.strikeLightningEffect(strikeLoc);
+    }
+
+    private void applyWindParticles(World world, Location center, double radius, Vector windDirection) {
+        for (int i = 0; i < 150; i++) {
+            double angle = random.nextDouble() * 2 * Math.PI;
+            double distance = Math.sqrt(random.nextDouble()) * radius;
+            double x = center.getX() + distance * Math.cos(angle);
+            double z = center.getZ() + distance * Math.sin(angle);
+            Block topBlock = world.getHighestBlockAt((int)x, (int)z);
+
+            if (topBlock.getType().name().contains("LEAVES")) {
+                Location particleLoc = topBlock.getLocation().add(0.5, -0.5, 0.5);
+                // SỬA Ở ĐÂY: Thêm vận tốc cho hạt lá bay theo hướng gió
+                world.spawnParticle(Particle.BLOCK_DUST, particleLoc, 0, windDirection.getX(), -0.2, windDirection.getZ(), 0.5, topBlock.getBlockData());
+            }
+        }
     }
 
     private void applyPhysicalEffects(Collection<LivingEntity> nearbyEntities, List<Block> nearbyBlocks, Map<?, ?> config) {
@@ -122,7 +165,9 @@ public class ClimateEffect implements FormationEffect {
 
     private void handleSnowEffects(Block block) {
         Block blockAbove = block.getRelative(BlockFace.UP);
-        if (!block.getType().isAir() && block.getType().isSolid() && blockAbove.getType().isAir()) {
+        boolean isSnowableSurface = !block.getType().isAir() && (block.getType().isSolid() || block.getType().name().contains("LEAVES"));
+
+        if (isSnowableSurface && blockAbove.getType().isAir()) {
             blockAbove.setType(Material.SNOW);
         }
     }
@@ -156,26 +201,9 @@ public class ClimateEffect implements FormationEffect {
         }
     }
 
-    private void applyWindGust(Collection<LivingEntity> nearbyEntities) {
-        Vector windDirection = new Vector(random.nextDouble() - 0.5, 0, random.nextDouble() - 0.5).normalize().multiply(0.8);
+    private void applyWindGust(Collection<LivingEntity> nearbyEntities, Vector windDirection) {
         for (LivingEntity entity : nearbyEntities) {
             entity.setVelocity(entity.getVelocity().add(windDirection));
         }
-    }
-
-    private void spawnParticlesAroundPlayer(Player player, Particle particle, int density, double radius) {
-        Location playerLoc = player.getLocation();
-        for (int i = 0; i < density; i++) {
-            double xOffset = (random.nextDouble() - 0.5) * radius;
-            double yOffset = random.nextDouble() * 5;
-            double zOffset = (random.nextDouble() - 0.5) * radius;
-            player.spawnParticle(particle, playerLoc.clone().add(xOffset, yOffset, zOffset), 1, 0, 0, 0, 0);
-        }
-    }
-
-    private void strikeLightningEffectNearPlayer(Player player) {
-        Location strikeLoc = player.getLocation().clone().add((random.nextDouble() - 0.5) * 20, 0, (random.nextDouble() - 0.5) * 20);
-        strikeLoc.setY(player.getWorld().getHighestBlockYAt(strikeLoc));
-        player.getWorld().strikeLightningEffect(strikeLoc);
     }
 }
